@@ -2,7 +2,7 @@ Just a try to create a library for handling teeworlds map files.
 
 == Usage
 Please note this should work in future, it does currently not. This is an example for later.
-##
+{{{
 >>> from teemap import Teemap
 >>> t = Teemap('mapname.map')
 >>> t.w, t.h # gives you the size of the gamelayer
@@ -12,4 +12,4 @@ Please note this should work in future, it does currently not. This is an exampl
 >>> t.layers[2].type
 'Quadlayer'
 # ...
-##
+}}}
