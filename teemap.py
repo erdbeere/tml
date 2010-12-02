@@ -79,5 +79,5 @@ class Teemap(object):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)
 
 if __name__ == '__main__':
-    t = Teemap('test.map')
+    t = Teemap('maps/dm1.map')
     print repr(t.rest)
