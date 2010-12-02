@@ -57,7 +57,7 @@ class Teemap(object):
             # "data uncompressed size"
             f.read(header.num_raw_data * 4)
 
-            
+
             self.rest = f.read()
 
             self.w, self.h = (0, 0) # should contain size of the game layer
