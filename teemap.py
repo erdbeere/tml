@@ -16,7 +16,7 @@ class Item(object):
 
 class Header(object):
     """Contains fileheader information.
-    
+
     Takes a file as argument, please make sure it is at the beginning.
     Note that the file won't be rewinded!
     """
@@ -37,7 +37,6 @@ class Teemap(object):
         self.name = filename
         with open(filename, 'rb') as f:
             header = Header(f)
-            print header.num_raw_data
             self.item_types = []
             for i in range(header.num_item_types):
                 val = unpack('3i', f.read(12))
@@ -46,12 +45,17 @@ class Teemap(object):
                     'start': val[1],
                     'num': val[2],
                 })
-            print self.item_types
+            print ' - item_types - '
+            for item_type in self.item_types:
+                print 'type={0:2} start={1:2} num={2:2}'.format(
+                    item_type['type'], item_type['start'], item_type['num'])
             fmt = '{0}i'.format(header.num_items)
             item_offsets = unpack(fmt, f.read(header.num_items * 4))
+            print ' - item_offsets - '
             print item_offsets
             fmt = '{0}i'.format(header.num_raw_data)
             data_offsets = unpack(fmt, f.read(header.num_raw_data * 4))
+            print ' - data_offsets - '
             print data_offsets
 
             # "data uncompressed size"
@@ -80,4 +84,4 @@ class Teemap(object):
 
 if __name__ == '__main__':
     t = Teemap('maps/dm1.map')
-    print repr(t.rest)
+    #print repr(t.rest)
