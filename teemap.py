@@ -27,18 +27,27 @@ class Header(object):
             raise TypeError('Invalid signature')
         self.version, self.size, self.swaplen, self.num_item_types, \
         self.num_items, self.num_raw_data, self.item_size, \
-        self.data_size = unpack('8i', f.read(32))
+        self.datasize = unpack('8i', f.read(32))
+        print self.version, self.size, self.swaplen, self.num_item_types, \
+        self.num_items, self.num_raw_data, self.item_size, \
+        self.datasize
         if self.version != 4:
             raise TypeError('Wrong version')
+
+        # calculate the size of the whole header
+        self.size = self.num_item_types * 12
+        self.size += (self.num_items + self.num_raw_data) * 4
+        self.size += self.num_raw_data * 4
+        self.size += self.item_size
 
 class Teemap(object):
 
     def __init__(self, filename):
         self.name = filename
         with open(filename, 'rb') as f:
-            header = Header(f)
+            self.header = Header(f)
             self.item_types = []
-            for i in range(header.num_item_types):
+            for i in range(self.header.num_item_types):
                 val = unpack('3i', f.read(12))
                 self.item_types.append({
                     'type': val[0],
@@ -49,18 +58,19 @@ class Teemap(object):
             for item_type in self.item_types:
                 print 'type={0:2} start={1:2} num={2:2}'.format(
                     item_type['type'], item_type['start'], item_type['num'])
-            fmt = '{0}i'.format(header.num_items)
-            item_offsets = unpack(fmt, f.read(header.num_items * 4))
+            fmt = '{0}i'.format(self.header.num_items)
+            self.item_offsets = unpack(fmt, f.read(self.header.num_items * 4))
             print ' - item_offsets - '
-            print item_offsets
-            fmt = '{0}i'.format(header.num_raw_data)
-            data_offsets = unpack(fmt, f.read(header.num_raw_data * 4))
+            print self.item_offsets
+            fmt = '{0}i'.format(self.header.num_raw_data)
+            self.data_offsets = unpack(fmt, f.read(self.header.num_raw_data * 4))
             print ' - data_offsets - '
-            print data_offsets
+            print self.data_offsets
 
             # "data uncompressed size"
-            f.read(header.num_raw_data * 4)
+            print repr(f.read(self.header.num_raw_data * 4))
 
+            self.data_start_offset = self.header.size + 36
 
             self.rest = f.read()
 
