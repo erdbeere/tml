@@ -44,7 +44,7 @@ class Teemap(object):
 
     def __init__(self, filename):
         self.filename = filename
-        self.name = os.path.split(filename)[1][:-4]
+        self.name = os.path.splitext(os.path.split(filename)[1])[0]
         with open(filename, 'rb') as f:
             self.header = Header(f)
             self.item_types = []
