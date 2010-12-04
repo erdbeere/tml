@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 from struct import unpack
 from zlib import decompress
 
@@ -42,7 +43,8 @@ class Teemap(object):
 
 
     def __init__(self, filename):
-        self.name = filename
+        self.filename = filename
+        self.name = os.path.split(filename)[1][:-4]
         with open(filename, 'rb') as f:
             self.header = Header(f)
             self.item_types = []
