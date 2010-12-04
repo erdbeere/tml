@@ -22,7 +22,7 @@ The first bytes just contain the word "DATA" or "ATAD" (little oder big endian),
 it is the "signature" of a teeworlds map. After that there is an int which
 contains the version of the mapformat, teeworlds 0.5 uses version 4 but also
 supports 3, this libary only supports 4.
-##DATA\x04\x00\x00\x00##
+{{{DATA\x04\x00\x00\x00}}}
 Then there are four more ints which can be read straight from the file.
 These are "size", "swaplen", "num_item_types", "num_items", "num_raw_data",
 "item_size" and "data_size".
