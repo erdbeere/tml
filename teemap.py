@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from struct import unpack
-import zlib
+from zlib import decompress
 
 class Item(object):
+
 
     def __init__(self):
         self.type = 0
@@ -27,10 +28,7 @@ class Header(object):
             raise TypeError('Invalid signature')
         self.version, self.size, self.swaplen, self.num_item_types, \
         self.num_items, self.num_raw_data, self.item_size, \
-        self.datasize = unpack('8i', f.read(32))
-        print self.version, self.size, self.swaplen, self.num_item_types, \
-        self.num_items, self.num_raw_data, self.item_size, \
-        self.datasize
+        self.data_size = unpack('8i', f.read(32))
         if self.version != 4:
             raise TypeError('Wrong version')
 
@@ -41,6 +39,7 @@ class Header(object):
         self.size += self.item_size
 
 class Teemap(object):
+
 
     def __init__(self, filename):
         self.name = filename
@@ -68,17 +67,30 @@ class Teemap(object):
             print self.data_offsets
 
             # "data uncompressed size"
-            print repr(f.read(self.header.num_raw_data * 4))
+            # print repr(f.read(self.header.num_raw_data * 4))
 
             self.data_start_offset = self.header.size + 36
+            self.item_start_offset = self.header.size - self.header.item_size
 
-            self.rest = f.read()
+            self.data = []
+            f.seek(self.data_start_offset)
+            for offset in (self.data_offsets + (self.header.data_size,)):
+                if offset > 0:
+                    self.data.append(decompress(f.read(offset - last_offset)))
+                last_offset = offset
+
+            self.items = []
+            f.seek(self.item_start_offset)
+            for offset in (self.item_offsets + (self.header.item_size,)):
+                if offset > 0:
+                    self.items.append(f.read(offset - last_offset))
+                last_offset = offset
 
             self.w, self.h = (0, 0) # should contain size of the game layer
             #self.w, self.h = unpack('2i', f.read(8))
             #print self.w, 'x', self.h
             #f.read(44)
-            #self.raw_data = zlib.decompress(f.read())
+            #self.raw_data = decompress(f.read())
             #fmt = '{0}i'.format(len(self.raw_data) / 4)
             #layer = []
             #tiles = unpack(fmt, self.raw_data)
@@ -93,5 +105,4 @@ class Teemap(object):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)
 
 if __name__ == '__main__':
-    t = Teemap('maps/dm1.map')
-    #print repr(t.rest)
+    t = Teemap('5x5.map')
