@@ -42,10 +42,12 @@ class Header(object):
 class Teemap(object):
 
 
-    def __init__(self, filename):
-        self.filename = filename
-        self.name = os.path.splitext(os.path.split(filename)[1])[0]
-        with open(filename, 'rb') as f:
+    def __init__(self, map_path):
+        path, filename = os.path.split(map_path)
+        self.name, extension = os.path.splitext(filename)
+        if extension != '.map':
+            raise TypeError('Invalid file')
+        with open(map_path, 'rb') as f:
             self.header = Header(f)
             self.item_types = []
             for i in range(self.header.num_item_types):
