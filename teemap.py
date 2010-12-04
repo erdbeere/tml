@@ -42,7 +42,13 @@ class Header(object):
 class Teemap(object):
 
 
-    def __init__(self, map_path):
+    def __init__(self):
+        self.name = ''
+        self.w = self.h = 0
+
+    def load(self, map_path):
+        """Load a new teeworlds map."""
+
         path, filename = os.path.split(map_path)
         self.name, extension = os.path.splitext(filename)
         if extension != '.map':
@@ -109,4 +115,5 @@ class Teemap(object):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)
 
 if __name__ == '__main__':
-    t = Teemap('5x5.map')
+    t = Teemap()
+    t.load('5x5.map')
