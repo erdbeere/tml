@@ -5,16 +5,23 @@ import os
 from struct import unpack
 from zlib import decompress
 
+ITEM_TYPES = ['version', 'info', 'image', 'envelope', 'group', 'layer', 'envpoints']
+
 class Item(object):
+    """Represents an item."""
 
+    def __init__(self, type_num):
+        self.type = ITEM_TYPES[type_num]
 
-    def __init__(self):
-        self.type = 0
-        self.id = 0
-        self.size = 0
-        self.next = 0
-        self.prev = 0
-        self.data = None
+    def load(self, info):
+        fmt = '{0}i'.format(len(info) / 4)
+        print 'Type:', self.type
+        print 'Length:', len(unpack(fmt, info))
+        print 'Data:', unpack(fmt, info)
+        print ''
+
+    def __repr__(self):
+        return '<{0} Item>'.format(self.type.title())
 
 class Header(object):
     """Contains fileheader information.
@@ -63,18 +70,11 @@ class Teemap(object):
                     'start': val[1],
                     'num': val[2],
                 })
-            print ' - item_types - '
-            for item_type in self.item_types:
-                print 'type={0:2} start={1:2} num={2:2}'.format(
-                    item_type['type'], item_type['start'], item_type['num'])
+            print self.item_types
             fmt = '{0}i'.format(self.header.num_items)
             self.item_offsets = unpack(fmt, f.read(self.header.num_items * 4))
-            print ' - item_offsets - '
-            print self.item_offsets
             fmt = '{0}i'.format(self.header.num_raw_data)
             self.data_offsets = unpack(fmt, f.read(self.header.num_raw_data * 4))
-            print ' - data_offsets - '
-            print self.data_offsets
 
             # "data uncompressed size"
             # print repr(f.read(self.header.num_raw_data * 4))
@@ -89,12 +89,20 @@ class Teemap(object):
                     self.data.append(decompress(f.read(offset - last_offset)))
                 last_offset = offset
 
-            self.items = []
-            f.seek(self.item_start_offset)
-            for offset in (self.item_offsets + (self.header.item_size,)):
+            # calculate with the offsets and the whole item size the size of each item
+            sizes = []
+            for offset in self.item_offsets + (self.header.item_size,):
                 if offset > 0:
-                    self.items.append(f.read(offset - last_offset))
+                    sizes.append(offset - last_offset)
                 last_offset = offset
+
+            self.items = []
+            for item_type in self.item_types:
+                for i in range(item_type['num']):
+                    size = sizes[item_type['start'] + i]
+                    item = Item(item_type['type'])
+                    item.load(f.read(size))
+                    self.items.append(item)
 
             self.w, self.h = (0, 0) # should contain size of the game layer
             #self.w, self.h = unpack('2i', f.read(8))
