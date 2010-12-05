@@ -46,6 +46,9 @@ class Header(object):
         self.size += self.num_raw_data * 4
         self.size += self.item_size
 
+        # why the hell 36?
+        self.size += 36
+
 class Teemap(object):
 
 
@@ -70,7 +73,6 @@ class Teemap(object):
                     'start': val[1],
                     'num': val[2],
                 })
-            print self.item_types
             fmt = '{0}i'.format(self.header.num_items)
             self.item_offsets = unpack(fmt, f.read(self.header.num_items * 4))
             fmt = '{0}i'.format(self.header.num_raw_data)
@@ -79,8 +81,9 @@ class Teemap(object):
             # "data uncompressed size"
             # print repr(f.read(self.header.num_raw_data * 4))
 
-            self.data_start_offset = self.header.size + 36
+            self.data_start_offset = self.header.size
             self.item_start_offset = self.header.size - self.header.item_size
+            print self.header.size, self.header.item_size
 
             self.data = []
             f.seek(self.data_start_offset)
