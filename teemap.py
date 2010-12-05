@@ -58,7 +58,7 @@ class Teemap(object):
 
         path, filename = os.path.split(map_path)
         self.name, extension = os.path.splitext(filename)
-        if extension != '.map':
+        if extension != ''.join([os.extsep, 'map']):
             raise TypeError('Invalid file')
         with open(map_path, 'rb') as f:
             self.header = Header(f)
