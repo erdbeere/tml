@@ -96,6 +96,7 @@ class Teemap(object):
                     sizes.append(offset - last_offset)
                 last_offset = offset
 
+            f.seek(self.item_start_offset)
             self.items = []
             for item_type in self.item_types:
                 for i in range(item_type['num']):
