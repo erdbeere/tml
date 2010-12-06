@@ -102,11 +102,7 @@ class Teemap(object):
                         getattr(self, name).append(_class(item))
                     elif item.type == _type:
                         _class = getattr(items, _type.title())
-                        getattr(self, name).append(_class(item))
-            print self.groups
-            print self.layers
-            items.Quad(self.itemlist[-2])
-            #for item in self.items:
+                        getattr(self, name).append(_class(item))#for item in self.items:
             #    # load groups
             #    if item.type == 'group':
             #        group = items.Group(len(self.groups)+1, item.data[2:])
