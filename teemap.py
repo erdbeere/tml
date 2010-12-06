@@ -7,6 +7,18 @@ from zlib import decompress
 
 ITEM_TYPES = ['version', 'info', 'image', 'envelope', 'group', 'layer', 'envpoints']
 
+class Group(object):
+    """Represents a group."""
+
+    def __init__(self, num, data):
+        self.num = num
+        self.version, self.offset_x, self.offset_y, self.parallax_x, \
+        self.parallax_y, self.start_layer, self.num_layers, self.use_clipping, \
+        self.clip_x, self.clip_y, self.clip_w, self.clip_h = data[2:]
+
+    def __repr__(self):
+        return '<Group {0} (Start Layer: {1}, Num Layers: {2})>'.format(self.num, self.start_layer, self.num_layers)
+
 class Item(object):
     """Represents an item."""
 
@@ -15,9 +27,10 @@ class Item(object):
 
     def load(self, info):
         fmt = '{0}i'.format(len(info) / 4)
+        self.data = unpack(fmt, info)
         print 'Type:', self.type
         print 'Length:', len(unpack(fmt, info))
-        print 'Data:', unpack(fmt, info)
+        print 'Data:', self.data
         print ''
 
     def __repr__(self):
@@ -107,6 +120,15 @@ class Teemap(object):
                     item = Item(item_type['type'])
                     item.load(f.read(size))
                     self.items.append(item)
+
+            # load items into map classes
+            self.groups = []
+            for item in self.items:
+                # load groups
+                if item.type == 'group':
+                    group = Group(len(self.groups)+1, item.data)
+                    self.groups.append(group)
+              
 
             self.w, self.h = (0, 0) # should contain size of the game layer
             #self.w, self.h = unpack('2i', f.read(8))
