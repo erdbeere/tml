@@ -12,7 +12,7 @@ class Item(object):
 
     def load(self, info):
         fmt = '{0}i'.format(len(info) / 4)
-        self.data = unpack(fmt, info)
+        self.info = unpack(fmt, info)
         #print 'Type:', self.type
         #print 'Length:', len(unpack(fmt, info))
         #print 'Data:', self.data
@@ -29,7 +29,7 @@ class Group(object):
     def __init__(self, item):
         self.version, self.offset_x, self.offset_y, self.parallax_x, \
         self.parallax_y, self.start_layer, self.num_layers, self.use_clipping, \
-        self.clip_x, self.clip_y, self.clip_w, self.clip_h = item.data[2:]
+        self.clip_x, self.clip_y, self.clip_w, self.clip_h = item.info[2:]
         self.layers = []
         Group.num += 1
         self.id = Group.num
@@ -43,7 +43,7 @@ class Layer(object):
     num = 0
 
     def __init__(self, item):
-        self.version, self.type, self.flags = item.data[2:5]
+        self.version, self.type, self.flags = item.info[2:5]
         Layer.num += 1
         self.id = Layer.num
 
@@ -56,7 +56,7 @@ class Quad(Layer):
 
     def __init__(self, item):
         super(Quad, self).__init__(item)
-        self.version, self.num_quads, self.data, self.image = item.data[5:]
+        self.version, self.num_quads, self.data, self.image = item.info[5:]
 
     def __repr__(self):
         return '<Quad layer {0}>'.format(self.id)
@@ -69,7 +69,7 @@ class Tile(Layer):
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a':0}
         self.version, self.width, self.height, self.flags, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
-        self.color_env_offset, self.image, self.data = item.data[5:]
+        self.color_env_offset, self.image, self.data = item.info[5:]
 
     @property
     def is_gamelayer(self):

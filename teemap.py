@@ -73,7 +73,7 @@ class Teemap(object):
             f.seek(self.data_start_offset)
             for offset in (self.data_offsets + (self.header.data_size,)):
                 if offset > 0:
-                    self.data.append(decompress(f.read(offset - last_offset)))
+                    self.data.append(f.read(offset - last_offset))
                 last_offset = offset
 
             # calculate with the offsets and the whole item size the size of each item
@@ -98,7 +98,7 @@ class Teemap(object):
                 setattr(self, name, [])
                 for item in self.itemlist:
                     if item.type == _type == 'layer':
-                        _class = getattr(items, LAYER_TYPES[item.data[3]].title())
+                        _class = getattr(items, LAYER_TYPES[item.info[3]].title())
                         getattr(self, name).append(_class(item))
                     elif item.type == _type:
                         _class = getattr(items, _type.title())
