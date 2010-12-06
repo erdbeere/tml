@@ -4,24 +4,48 @@ from struct import unpack
 
 from constants import ITEM_TYPES, LAYER_TYPES
 
-class Group(object):
-    """Represents a group."""
+class Item(object):
+    """Represents an item."""
 
-    def __init__(self, num, data):
-        self.num = num
-        self.version, self.offset_x, self.offset_y, self.parallax_x, \
-        self.parallax_y, self.start_layer, self.num_layers, self.use_clipping, \
-        self.clip_x, self.clip_y, self.clip_w, self.clip_h = data
+    def __init__(self, type_num):
+        self.type = ITEM_TYPES[type_num]
+
+    def load(self, info):
+        fmt = '{0}i'.format(len(info) / 4)
+        self.data = unpack(fmt, info)
+        #print 'Type:', self.type
+        #print 'Length:', len(unpack(fmt, info))
+        #print 'Data:', self.data
+        #print ''
 
     def __repr__(self):
-        return '<Group {0} (Start Layer: {1}, Num Layers: {2})>'.format(self.num, self.start_layer, self.num_layers)
+        return '<{0} Item>'.format(self.type.title())
 
 class Layer(object):
     """Represents the layer data every layer has."""
 
-    def __init__(self, num, data):
-        self.num = num
-        self.version, self.type, self.flags = data[:3]
+    num = 0
+
+    def __init__(self, item):
+        self.version, self.type, self.flags = item.data[:3]
+        Layer.num += 1
+        self.num = Layer.num
+
+class Group(object):
+    """Represents a group."""
+
+    num = 0
+
+    def __init__(self, item):
+        self.version, self.offset_x, self.offset_y, self.parallax_x, \
+        self.parallax_y, self.start_layer, self.num_layers, self.use_clipping, \
+        self.clip_x, self.clip_y, self.clip_w, self.clip_h = item.data[2:]
+        Group.num += 1
+        self.num = Group.num
+        print self.num
+
+    def __repr__(self):
+        return '<Group {0} (Start Layer: {1}, Num Layers: {2})>'.format(self.num, self.start_layer, self.num_layers)
 
 class LayerQuad(object):
     """Represents a quad layer."""
@@ -45,22 +69,3 @@ class LayerTile(object):
 
     def __repr__(self):
         return '<Tile layer {0} (width: {1} x  {2} :height)>'.format(self.layer.num, self.width, self.height)
-
-class Item(object):
-    """Represents an item."""
-
-    def __init__(self, type_num):
-        self.type = ITEM_TYPES[type_num]
-
-    def load(self, info):
-        fmt = '{0}i'.format(len(info) / 4)
-        self.data = unpack(fmt, info)
-        #print 'Type:', self.type
-        #print 'Length:', len(unpack(fmt, info))
-        #print 'Data:', self.data
-        #print ''
-
-    def __repr__(self):
-        return '<{0} Item>'.format(self.type.title())
-
-

@@ -84,33 +84,37 @@ class Teemap(object):
                 last_offset = offset
 
             f.seek(self.item_start_offset)
-            self.items = []
+            self.itemlist = []
             for item_type in self.item_types:
                 for i in range(item_type['num']):
                     size = sizes[item_type['start'] + i]
                     item = items.Item(item_type['type'])
                     item.load(f.read(size))
-                    self.items.append(item)
+                    self.itemlist.append(item)
 
-            # load items into map classes
-            self.groups = []
-            self.layers = []
-            for item in self.items:
-                # load groups
-                if item.type == 'group':
-                    group = items.Group(len(self.groups)+1, item.data[2:])
-                    self.groups.append(group)
+            # order the items
+            for _type in 'group', 'layer':
+                name = ''.join([_type, 's'])
+                _class = getattr(items, _type.title())
+                setattr(self, name, [_class(i) for i in self.itemlist if i.type == _type])
+            print self.groups
+            print self.layers
+            #for item in self.items:
+            #    # load groups
+            #    if item.type == 'group':
+            #        group = items.Group(len(self.groups)+1, item.data[2:])
+            #        self.groups.append(group)
 
-                #load layers
-                elif item.type == 'layer':
-                    # quad layer
-                    if item.data[3] == LAYER_TYPES['quads']:
-                        layer = items.LayerQuad(len(self.layers)+1, item.data[2:])
-                        self.layers.append(layer)
-                    # tile layer
-                    elif item.data[3] == LAYER_TYPES['tiles']:
-                        layer = items.LayerTile(len(self.layers)+1, item.data[2:])
-                        self.layers.append(layer)
+            #    #load layers
+            #    elif item.type == 'layer':
+            #        # quad layer
+            #        if item.data[3] == LAYER_TYPES['quads']:
+            #            layer = items.LayerQuad(len(self.layers)+1, item.data[2:])
+            #            self.layers.append(layer)
+            #        # tile layer
+            #        elif item.data[3] == LAYER_TYPES['tiles']:
+            #            layer = items.LayerTile(len(self.layers)+1, item.data[2:])
+            #            self.layers.append(layer)
 
 
             self.w, self.h = (0, 0) # should contain size of the game layer
