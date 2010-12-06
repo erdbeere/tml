@@ -42,7 +42,6 @@ class Group(object):
         self.clip_x, self.clip_y, self.clip_w, self.clip_h = item.data[2:]
         Group.num += 1
         self.num = Group.num
-        print self.num
 
     def __repr__(self):
         return '<Group {0} (Start Layer: {1}, Num Layers: {2})>'.format(self.num, self.start_layer, self.num_layers)
@@ -52,7 +51,6 @@ class Quad(Layer):
 
     def __init__(self, item):
         super(Quad, self).__init__(item)
-        #print item.data[3]
         self.version, self.num_quads, self.data, self.image = item.data[5:]
 
     def __repr__(self):
