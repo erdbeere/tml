@@ -103,6 +103,13 @@ class Teemap(object):
                     elif item.type == _type:
                         _class = getattr(items, _type.title())
                         getattr(self, name).append(_class(item))
+
+            # assign layers to groups
+            for group in self.groups:
+                start = group.start_layer
+                end = group.start_layer + group.num_layers
+                group.layers = [layer for layer in self.layers[start:end]]
+
             #for item in self.items:
             #    # load groups
             #    if item.type == 'group':
@@ -141,4 +148,4 @@ class Teemap(object):
 
 if __name__ == '__main__':
     t = Teemap()
-    t.load('5x5.map')
+    t.load('dm1_test.map')

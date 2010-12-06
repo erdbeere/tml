@@ -30,11 +30,12 @@ class Group(object):
         self.version, self.offset_x, self.offset_y, self.parallax_x, \
         self.parallax_y, self.start_layer, self.num_layers, self.use_clipping, \
         self.clip_x, self.clip_y, self.clip_w, self.clip_h = item.data[2:]
+        self.layers = []
         Group.num += 1
         self.num = Group.num
 
     def __repr__(self):
-        return '<Group {0} (Start Layer: {1}, Num Layers: {2})>'.format(self.num, self.start_layer, self.num_layers)
+        return '<Group {0} (Start {1}, Num: {2})>'.format(self.num, self.start_layer, self.num_layers)
 
 class Layer(object):
     """Represents the layer data every layer has."""
@@ -54,7 +55,7 @@ class Quad(Layer):
         self.version, self.num_quads, self.data, self.image = item.data[5:]
 
     def __repr__(self):
-        return '<Quad layer {0} (Num Quads: {1})>'.format(self.num, self.num_quads)
+        return '<Quad layer {0} ({1} Quads)>'.format(self.num, self.num_quads)
 
 class Tile(Layer):
     """Represents a tile layer."""
@@ -67,4 +68,4 @@ class Tile(Layer):
         self.color_env_offset, self.image, self.data = item.data[5:]
 
     def __repr__(self):
-        return '<Tile layer {0} (width: {1} x  {2} :height)>'.format(self.num, self.width, self.height)
+        return '<Tile layer {0} ({1}x{2})>'.format(self.num, self.width, self.height)
