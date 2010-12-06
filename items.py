@@ -47,6 +47,10 @@ class Layer(object):
         Layer.num += 1
         self.id = Layer.num
 
+    @property
+    def is_gamelayer(self):
+        return False
+
 class Quad(Layer):
     """Represents a quad layer."""
 
@@ -66,6 +70,10 @@ class Tile(Layer):
         self.version, self.width, self.height, self.flags, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
         self.color_env_offset, self.image, self.data = item.data[5:]
+
+    @property
+    def is_gamelayer(self):
+        return self.flags == 1
 
     def __repr__(self):
         return '<Tile layer {0} ({1}x{2})>'.format(self.id, self.width, self.height)

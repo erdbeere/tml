@@ -109,8 +109,7 @@ class Teemap(object):
                 start = group.start_layer
                 end = group.start_layer + group.num_layers
                 group.layers = [layer for layer in self.layers[start:end]]
-            print self.groups
-            print self.layers
+
             #for item in self.items:
             #    # load groups
             #    if item.type == 'group':
