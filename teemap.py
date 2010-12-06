@@ -59,10 +59,10 @@ class Item(object):
     def load(self, info):
         fmt = '{0}i'.format(len(info) / 4)
         self.data = unpack(fmt, info)
-        print 'Type:', self.type
-        print 'Length:', len(unpack(fmt, info))
-        print 'Data:', self.data
-        print ''
+        #print 'Type:', self.type
+        #print 'Length:', len(unpack(fmt, info))
+        #print 'Data:', self.data
+        #print ''
 
     def __repr__(self):
         return '<{0} Item>'.format(self.type.title())
@@ -127,7 +127,6 @@ class Teemap(object):
 
             self.data_start_offset = self.header.size
             self.item_start_offset = self.header.size - self.header.item_size
-            print self.header.size, self.header.item_size
 
             self.data = []
             f.seek(self.data_start_offset)
