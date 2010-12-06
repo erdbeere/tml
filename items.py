@@ -21,16 +21,6 @@ class Item(object):
     def __repr__(self):
         return '<{0} Item>'.format(self.type.title())
 
-class Layer(object):
-    """Represents the layer data every layer has."""
-
-    num = 0
-
-    def __init__(self, item):
-        self.version, self.type, self.flags = item.data[2:5]
-        Layer.num += 1
-        self.num = Layer.num
-
 class Group(object):
     """Represents a group."""
 
@@ -45,6 +35,16 @@ class Group(object):
 
     def __repr__(self):
         return '<Group {0} (Start Layer: {1}, Num Layers: {2})>'.format(self.num, self.start_layer, self.num_layers)
+
+class Layer(object):
+    """Represents the layer data every layer has."""
+
+    num = 0
+
+    def __init__(self, item):
+        self.version, self.type, self.flags = item.data[2:5]
+        Layer.num += 1
+        self.num = Layer.num
 
 class Quad(Layer):
     """Represents a quad layer."""
