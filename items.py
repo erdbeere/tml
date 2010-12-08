@@ -57,9 +57,18 @@ class Envelope(object):
         return '<Envelope {0}>'.format(self.id)
 
 class Envpoint(object):
+    """Represents an envpoint."""
 
-    def __init__(self, item):
-        self.item = item
+    num = 0
+
+    def __init__(self, info):
+        self.time, self.curvetype = info[:2]
+        self.values = info[2:]
+        Envpoint.num += 1
+        self.id = Envpoint.num
+
+    def __repr__(self):
+        return '<Envpoint {0}>'.format(self.id)
 
 class Item(object):
     """Represents an item."""

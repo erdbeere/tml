@@ -107,6 +107,14 @@ class Teemap(object):
                 class_ = getattr(items, layerclass)
                 self.layers.append(class_(layer.item))
 
+            ### TODO: stuff from sushi, needs to adapted to new structure
+            # devide the envpoints item into the single envpoints
+            #num = (len(item.info)-2) / 6
+            #for i in range(num):
+            #    info = item.info[2+(i*6):2+(i*6+6)]
+            #    getattr(self, name).append(_class(info))
+            ###
+
             # assign layers to groups
             for group in self.groups:
                 start = group.start_layer
