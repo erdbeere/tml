@@ -33,9 +33,28 @@ class Image(object):
         self.item = item
 
 class Envelope(object):
+    """Represents an envelope."""
+
+    num = 0
 
     def __init__(self, item):
-        self.item = item
+        self.version, self.channels, self.start_point, self.num_points = item.info[2:6]
+        self.name = self.ints_to_string(item.info[6:])
+        Envelope.num += 1
+        self.id = Envelope.num
+
+    def ints_to_string(self, num):
+        string = ''
+        for i in range(len(num)):
+            string += chr(((num[i]>>24)&0xff)-128)
+            string += chr(((num[i]>>16)&0xff)-128)
+            string += chr(((num[i]>>8)&0xff)-128)
+            if i < 7:
+                string += chr((num[i]&0xff)-128)
+        return string
+
+    def __repr__(self):
+        return '<Envelope {0}>'.format(self.id)
 
 class Envpoint(object):
 
@@ -86,7 +105,7 @@ class Group(object):
         self.id = Group.num
 
     def __repr__(self):
-        return '<Group {0}>'.format(self.num)
+        return '<Group {0}>'.format(self.id)
 
 class Layer(object):
     """Represents the layer data every layer has."""
