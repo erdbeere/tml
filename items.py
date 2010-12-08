@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from struct import unpack
+from zlib import decompress
 
 from constants import ITEM_TYPES, LAYER_TYPES
 
@@ -10,9 +11,18 @@ class Item(object):
     def __init__(self, type_num):
         self.type = ITEM_TYPES[type_num]
 
-    def load(self, info):
+    def load(self, info, data):
         fmt = '{0}i'.format(len(info) / 4)
         self.info = unpack(fmt, info)
+        
+        # load data to layers
+        if self.type == 'layer':
+            if LAYER_TYPES[self.info[3]] == 'tile':
+                data = decompress(data[self.info[-1]])
+                fmt = '{0}B'.format(len(data))
+                self.data = list(unpack(fmt, data))
+            
+        
         #print 'Type:', self.type
         #print 'Length:', len(unpack(fmt, info))
         #print 'Data:', self.data
@@ -70,6 +80,11 @@ class Tile(Layer):
         self.version, self.width, self.height, self.flags, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
         self.color_env_offset, self.image, self.data = item.info[5:]
+        # load tile data
+        self.tiles = []
+        while(len(item.data)):
+            tile = {'index': item.data.pop(0), 'flags': item.data.pop(0), 'skip': item.data.pop(0), 'reserved': item.data.pop(0)}
+            self.tiles.append(tile)
 
     @property
     def is_gamelayer(self):

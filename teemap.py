@@ -89,7 +89,7 @@ class Teemap(object):
                 for i in range(item_type['num']):
                     size = sizes[item_type['start'] + i]
                     item = items.Item(item_type['type'])
-                    item.load(f.read(size))
+                    item.load(f.read(size), self.data)
                     self.itemlist.append(item)
 
             # order the items
