@@ -58,10 +58,15 @@ class Item(object):
                 data = decompress(data[self.info[-1]])
                 fmt = '{0}B'.format(len(data))
                 self.data = list(unpack(fmt, data))
+            elif LAYER_TYPES[self.info[3]] == 'quad':
+                data = decompress(data[self.info[-2]])
+                fmt = '{0}i'.format(len(data) / 4)
+                self.data = list(unpack(fmt, data))
 
         #print 'Type:', self.type
+        #fmt = '{0}i'.format(len(info) / 4)
         #print 'Length:', len(unpack(fmt, info))
-        #print 'Data:', self.data
+        #print 'Data:', self.info
         #print ''
 
     def __repr__(self):
@@ -104,6 +109,24 @@ class QuadLayer(Layer):
     def __init__(self, item):
         super(QuadLayer, self).__init__(item)
         self.version, self.num_quads, self.data, self.image = item.info[5:]
+        # load quads
+        self.quads = []
+        while(len(item.data)):
+            points = []
+            for i in range(5):
+                point = {'x': item.data.pop(0), 'y': item.data.pop(0)}
+                points.append(point)
+            colors = []
+            for i in range(4):
+                color = {'r': item.data.pop(0), 'g': item.data.pop(0), 'b': item.data.pop(0), 'a': item.data.pop(0)}
+                colors.append(color)
+            texcoords = []
+            for i in range(4):
+                texcoord = {'x': item.data.pop(0), 'y': item.data.pop(0)}
+                texcoords.append(texcoord)
+            quad = {'points': points, 'colors': colors, 'texcoords': texcoords, 'pos_env': item.data.pop(0),
+                    'pos_env_off': item.data.pop(0), 'color_env': item.data.pop(0), 'color_env_off': item.data.pop(0)}
+            self.quads.append(quad)
 
     def __repr__(self):
         return '<Quad layer {0}>'.format(self.id)
