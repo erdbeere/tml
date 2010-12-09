@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+#import png
 from struct import unpack
 from zlib import decompress
 
@@ -90,6 +91,23 @@ class Item(object):
                 data = decompress(data[self.info[-2]])
                 fmt = '{0}i'.format(len(data) / 4)
                 self.data = list(unpack(fmt, data))
+        # load image data
+        if self.type == 'image':
+            name = decompress(data[self.info[-2]])
+            fmt = '{0}c'.format(len(name))
+            self.name = ''
+            for char in unpack(fmt, name):
+                if char == '\x00':
+                    break
+                self.name += char
+
+            if not self.info[5]:
+                data = decompress(data[self.info[-1]])
+                fmt = '{0}B'.format(len(data))
+                data = list(unpack(fmt, data))
+                self.data = []
+                for i in range(self.info[4]):
+                    self.data.append(data[i*self.info[3]*4:(self.info[3]*4)+(i*self.info[3]*4)])
 
         #print 'Type:', self.type
         #fmt = '{0}i'.format(len(info) / 4)
@@ -115,6 +133,31 @@ class Group(object):
 
     def __repr__(self):
         return '<Group {0}>'.format(self.id)
+
+class Image(object):
+    """Represents an image."""
+
+    num = 0
+
+    def __init__(self, item):
+        self.version, self.width, self.height, self.external, self.image_name, self.image_data = item.info[2:]
+        self.name = item.name
+        if not self.external:
+            self.image = item.data
+        Image.num += 1
+        self.id = Image.num
+
+    #def save(self):
+    #    if not self.external:
+    #        if not os.path.isdir('images'):
+    #            os.mkdir('images')
+    #        f = open(os.path.join('images', self.name)+'.png', 'wb')
+    #        w = png.Writer(self.width, self.height, alpha=True)
+    #        w.write(f, self.image)
+    #        f.close()
+
+    def __repr__(self):
+        return '<Image {0}>'.format(self.id)
 
 class Layer(object):
     """Represents the layer data every layer has."""
