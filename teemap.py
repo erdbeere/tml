@@ -125,38 +125,7 @@ class Teemap(object):
                 end = group.start_layer + group.num_layers
                 group.layers = [layer for layer in self.layers[start:end]]
 
-            #for item in self.items:
-            #    # load groups
-            #    if item.type == 'group':
-            #        group = items.Group(len(self.groups)+1, item.data[2:])
-            #        self.groups.append(group)
-
-            #    #load layers
-            #    elif item.type == 'layer':
-            #        # quad layer
-            #        if item.data[3] == LAYER_TYPES['quads']:
-            #            layer = items.LayerQuad(len(self.layers)+1, item.data[2:])
-            #            self.layers.append(layer)
-            #        # tile layer
-            #        elif item.data[3] == LAYER_TYPES['tiles']:
-            #            layer = items.LayerTile(len(self.layers)+1, item.data[2:])
-            #            self.layers.append(layer)
-
-
             self.w, self.h = (0, 0) # should contain size of the game layer
-            #self.w, self.h = unpack('2i', f.read(8))
-            #print self.w, 'x', self.h
-            #f.read(44)
-            #self.raw_data = decompress(f.read())
-            #fmt = '{0}i'.format(len(self.raw_data) / 4)
-            #layer = []
-            #tiles = unpack(fmt, self.raw_data)
-            #for i in range(self.h):
-            #    layer.append(tiles[i*self.w:i*self.w+self.w])
-            #for row in layer:
-            #    for col in row:
-            #        print '{0:3}'.format(col),
-            #    print
 
     def __repr__(self):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)

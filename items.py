@@ -109,12 +109,6 @@ class Item(object):
                 for i in range(self.info[4]):
                     self.data.append(data[i*self.info[3]*4:(self.info[3]*4)+(i*self.info[3]*4)])
 
-        #print 'Type:', self.type
-        #fmt = '{0}i'.format(len(info) / 4)
-        #print 'Length:', len(unpack(fmt, info))
-        #print 'Data:', self.info
-        #print ''
-
     def __repr__(self):
         return '<{0} Item>'.format(self.type.title())
 
