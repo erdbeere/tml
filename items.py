@@ -14,15 +14,14 @@ class Item(object):
     def load(self, info, data):
         fmt = '{0}i'.format(len(info) / 4)
         self.info = unpack(fmt, info)
-        
+
         # load data to layers
         if self.type == 'layer':
             if LAYER_TYPES[self.info[3]] == 'tile':
                 data = decompress(data[self.info[-1]])
                 fmt = '{0}B'.format(len(data))
                 self.data = list(unpack(fmt, data))
-            
-        
+
         #print 'Type:', self.type
         #print 'Length:', len(unpack(fmt, info))
         #print 'Data:', self.data
