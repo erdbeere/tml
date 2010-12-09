@@ -213,9 +213,10 @@ class TileLayer(Layer):
         self.color_env_offset, self.image, self.data = item.info[5:]
         # load tile data
         self.tiles = []
-        while(item.data):
-            self.tiles.append(Tile(item.data.pop(0), item.data.pop(0),
-                                   item.data.pop(0), item.data.pop(0)))
+        i = 0
+        while(i < len(item.data)):
+            self.tiles.append(Tile(*item.data[i:i+4]))
+            i += 4
 
     @property
     def is_gamelayer(self):
