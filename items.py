@@ -113,7 +113,7 @@ class TileLayer(Layer):
 
     def __init__(self, item):
         super(TileLayer, self).__init__(item)
-        self.color = {'r': 0, 'g': 0, 'b': 0, 'a':0}
+        self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
         self.version, self.width, self.height, self.flags, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
         self.color_env_offset, self.image, self.data = item.info[5:]
