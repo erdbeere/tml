@@ -60,21 +60,21 @@ class Layer(object):
     def is_gamelayer(self):
         return False
 
-class Quad(Layer):
+class QuadLayer(Layer):
     """Represents a quad layer."""
 
     def __init__(self, item):
-        super(Quad, self).__init__(item)
+        super(QuadLayer, self).__init__(item)
         self.version, self.num_quads, self.data, self.image = item.info[5:]
 
     def __repr__(self):
         return '<Quad layer {0}>'.format(self.id)
 
-class Tile(Layer):
+class TileLayer(Layer):
     """Represents a tile layer."""
 
     def __init__(self, item):
-        super(Tile, self).__init__(item)
+        super(TileLayer, self).__init__(item)
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a':0}
         self.version, self.width, self.height, self.flags, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \

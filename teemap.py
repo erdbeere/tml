@@ -98,7 +98,9 @@ class Teemap(object):
                 setattr(self, name, [])
                 for item in self.itemlist:
                     if item.type == _type == 'layer':
-                        _class = getattr(items, LAYER_TYPES[item.info[3]].title())
+                        layertype = ''.join([LAYER_TYPES[item.info[3]].title(),
+                                            _type.title()])
+                        _class = getattr(items, layertype)
                         getattr(self, name).append(_class(item))
                     elif item.type == _type:
                         _class = getattr(items, _type.title())
