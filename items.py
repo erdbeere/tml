@@ -81,7 +81,7 @@ class Tile(Layer):
         self.color_env_offset, self.image, self.data = item.info[5:]
         # load tile data
         self.tiles = []
-        while(len(item.data)):
+        while(item.data):
             tile = {'index': item.data.pop(0), 'flags': item.data.pop(0), 'skip': item.data.pop(0), 'reserved': item.data.pop(0)}
             self.tiles.append(tile)
 
