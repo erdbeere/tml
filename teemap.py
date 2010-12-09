@@ -19,9 +19,10 @@ class Header(object):
         sig = ''.join(unpack('4c', f.read(4)))
         if sig not in ('DATA', 'ATAD'):
             raise TypeError('Invalid signature')
-        self.version, self.size, self.swaplen, self.num_item_types, \
+        self.version, self.size_, self.swaplen, self.num_item_types, \
         self.num_items, self.num_raw_data, self.item_size, \
         self.data_size = unpack('8i', f.read(32))
+
         if self.version != 4:
             raise TypeError('Wrong version')
 
@@ -38,7 +39,7 @@ class Header(object):
         """Write the header itself in tw map format to a file."""
 
         f.write(pack('4c', *'DATA'))
-        f.write(pack('8i', self.version, self.size, self.swaplen,
+        f.write(pack('8i', self.version, self.size_, self.swaplen,
                            self.num_item_types,  self.num_items,
                            self.num_raw_data, self.item_size, self.data_size))
 
