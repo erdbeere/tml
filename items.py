@@ -62,9 +62,9 @@ class Envpoint(object):
 
     num = 0
 
-    def __init__(self, item):
-        self.time, self.curvetype = item.info[:2]
-        self.values = item.info[2:]
+    def __init__(self, info):
+        self.time, self.curvetype = info[:2]
+        self.values = info[2:]
         Envpoint.num += 1
         self.id = Envpoint.num
 

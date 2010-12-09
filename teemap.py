@@ -94,10 +94,22 @@ class Teemap(object):
 
             # order the items
             for type_ in ITEM_TYPES:
-                name = ''.join([type_, 's'])
-                class_ = getattr(items, type_.title())
-                setattr(self, name, [class_(item) for item in self.itemlist
-                                    if item.type == type_])
+                # envpoints will be handled separately
+                if type_ == 'envpoint':
+                    pass
+                else:
+                    name = ''.join([type_, 's'])
+                    class_ = getattr(items, type_.title())
+                    setattr(self, name, [class_(item) for item in self.itemlist
+                                        if item.type == type_])
+
+            # devide the envpoints item into the single envpoints
+            self.envpoints = []
+            for item in self.itemlist:
+                if item.type == 'envpoint':
+                    for i in range((len(item.info)-2) / 6):
+                        info = item.info[2+(i*6):2+(i*6+6)]
+                        self.envpoints.append(items.Envpoint(info))
 
             # specify layers (tile- or quadlayer)
             layers = self.layers
@@ -106,14 +118,6 @@ class Teemap(object):
                 layerclass = ''.join([LAYER_TYPES[layer.type].title(), 'Layer'])
                 class_ = getattr(items, layerclass)
                 self.layers.append(class_(layer.item))
-
-            ### TODO: stuff from sushi, needs to adapted to new structure
-            # devide the envpoints item into the single envpoints
-            #num = (len(item.info)-2) / 6
-            #for i in range(num):
-            #    info = item.info[2+(i*6):2+(i*6+6)]
-            #    getattr(self, name).append(_class(info))
-            ###
 
             # assign layers to groups
             for group in self.groups:
