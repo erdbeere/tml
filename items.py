@@ -82,7 +82,12 @@ class TileLayer(Layer):
         # load tile data
         self.tiles = []
         while(item.data):
-            tile = {'index': item.data.pop(0), 'flags': item.data.pop(0), 'skip': item.data.pop(0), 'reserved': item.data.pop(0)}
+            tile = {
+                'index': item.data.pop(0),
+                'flags': item.data.pop(0),
+                'skip': item.data.pop(0),
+                'reserved': item.data.pop(0)
+            }
             self.tiles.append(tile)
 
     @property
