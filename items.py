@@ -17,6 +17,31 @@ class Tile(object):
     def __repr__(self):
         return '<Tile {0}>'.format(self.index)
 
+class Version(object):
+
+    def __init__(self, item):
+        self.item = item
+
+class Info(object):
+
+    def __init__(self, item):
+        self.item = item
+
+class Image(object):
+
+    def __init__(self, item):
+        self.item = item
+
+class Envelope(object):
+
+    def __init__(self, item):
+        self.item = item
+
+class Envpoint(object):
+
+    def __init__(self, item):
+        self.item = item
+
 class Item(object):
     """Represents an item."""
 
@@ -67,6 +92,7 @@ class Layer(object):
         self.version, self.type, self.flags = item.info[2:5]
         Layer.num += 1
         self.id = Layer.num
+        self.item = item
 
     @property
     def is_gamelayer(self):

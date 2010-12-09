@@ -93,18 +93,19 @@ class Teemap(object):
                     self.itemlist.append(item)
 
             # order the items
-            for type_ in 'group', 'layer':
+            for type_ in ITEM_TYPES:
                 name = ''.join([type_, 's'])
-                setattr(self, name, [])
-                for item in self.itemlist:
-                    if item.type == type_ == 'layer':
-                        layertype = ''.join([LAYER_TYPES[item.info[3]].title(),
-                                            type_.title()])
-                        class_ = getattr(items, layertype)
-                        getattr(self, name).append(class_(item))
-                    elif item.type == type_:
-                        class_ = getattr(items, type_.title())
-                        getattr(self, name).append(class_(item))
+                class_ = getattr(items, type_.title())
+                setattr(self, name, [class_(item) for item in self.itemlist
+                                    if item.type == type_])
+
+            # specify layers (tile- or quadlayer)
+            layers = self.layers
+            self.layers = []
+            for layer in layers:
+                layerclass = ''.join([LAYER_TYPES[layer.type].title(), 'Layer'])
+                class_ = getattr(items, layerclass)
+                self.layers.append(class_(layer.item))
 
             # assign layers to groups
             for group in self.groups:
