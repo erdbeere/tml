@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from struct import unpack
+from struct import unpack, pack
 from zlib import decompress
 
 from constants import ITEM_TYPES, LAYER_TYPES
@@ -33,6 +33,14 @@ class Header(object):
 
         # why the hell 36?
         self.size += 36
+
+    def write(self, f):
+        """Write the header itself in tw map format to a file."""
+
+        f.write(pack('4c', *'DATA'))
+        f.write(pack('8i', self.version, self.size, self.swaplen,
+                           self.num_item_types,  self.num_items,
+                           self.num_raw_data, self.item_size, self.data_size))
 
 class Teemap(object):
 
@@ -76,7 +84,8 @@ class Teemap(object):
                     self.data.append(f.read(offset - last_offset))
                 last_offset = offset
 
-            # calculate with the offsets and the whole item size the size of each item
+            # calculate with the offsets and the whole item size the size of
+            # each item
             sizes = []
             for offset in self.item_offsets + (self.header.item_size,):
                 if offset > 0:
@@ -126,6 +135,16 @@ class Teemap(object):
                 group.layers = [layer for layer in self.layers[start:end]]
 
             self.w, self.h = (0, 0) # should contain size of the game layer
+
+    def save(self, map_path='unnamed'):
+        """Save the current map to `map_path`."""
+
+        path, filename = os.path.split(map_path)
+        self.name, extension = os.path.splitext(filename)
+        if extension != ''.join([os.extsep, 'map']):
+            map_path = ''.join([map_path, os.extsep, 'map'])
+        with open(map_path, 'wb') as f:
+            self.header.write(f)
 
     def __repr__(self):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)
