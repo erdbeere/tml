@@ -5,6 +5,18 @@ from zlib import decompress
 
 from constants import ITEM_TYPES, LAYER_TYPES
 
+class Tile(object):
+    """Represents a tile of a tilelayer."""
+
+    def __init__(self, index=0, flags=0, skip=0, reserved=0):
+        self.index = index
+        self.flags = flags
+        self.skip = skip
+        self.reserved = reserved
+
+    def __repr__(self):
+        return '<Tile {0}>'.format(self.index)
+
 class Item(object):
     """Represents an item."""
 
@@ -82,13 +94,8 @@ class TileLayer(Layer):
         # load tile data
         self.tiles = []
         while(item.data):
-            tile = {
-                'index': item.data.pop(0),
-                'flags': item.data.pop(0),
-                'skip': item.data.pop(0),
-                'reserved': item.data.pop(0)
-            }
-            self.tiles.append(tile)
+            self.tiles.append(Tile(item.data.pop(0), item.data.pop(0),
+                                   item.data.pop(0), item.data.pop(0)))
 
     @property
     def is_gamelayer(self):
