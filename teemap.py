@@ -23,6 +23,10 @@ class Header(object):
         self.num_items, self.num_raw_data, self.item_size, \
         self.data_size = unpack('8i', f.read(32))
 
+        print self.size_, self.swaplen, self.num_item_types, \
+        self.num_items, self.num_raw_data, self.item_size, \
+        self.data_size
+
         if self.version != 4:
             raise TypeError('Wrong version')
 
@@ -38,6 +42,9 @@ class Header(object):
     def write(self, f, size, swaplen, num_item_types, num_items, num_raw_data,
                 item_size, data_size):
         """Write the header itself in tw map format to a file."""
+
+        print size, swaplen, num_item_types, num_items, num_raw_data, \
+                item_size, data_size
 
         f.write(pack('4c', *'DATA'))
         f.write(pack('8i', 4, size, swaplen, num_item_types, num_items,
@@ -70,10 +77,13 @@ class Teemap(object):
                     'start': val[1],
                     'num': val[2],
                 })
+                print self.item_types[i]
             fmt = '{0}i'.format(self.header.num_items)
             self.item_offsets = unpack(fmt, f.read(self.header.num_items * 4))
+            print self.item_offsets
             fmt = '{0}i'.format(self.header.num_raw_data)
             self.data_offsets = unpack(fmt, f.read(self.header.num_raw_data * 4))
+            print self.data_offsets
 
             # "data uncompressed size"
             # print repr(f.read(self.header.num_raw_data * 4))
@@ -178,32 +188,141 @@ class Teemap(object):
                     })
                     count += len(class_)
             for item_type in item_types:
+                print item_type
                 f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
+
+            # get items
+            itemdata = []
+            item_types = []
+            for i in range(len(ITEM_TYPES)):
+                if ITEM_TYPES[i] == 'info':
+                    pass
+                elif ITEM_TYPES[i] == 'version':
+                    itemdata.append(i) # type and id
+                    itemdata.append(4) # size
+                    itemdata.append(1) # version
+                    item_types.append('version')
+                elif ITEM_TYPES[i] == 'envpoint':
+                    itemdata.append(i<<16)
+                    size = 0
+                    for envpoint in self.envpoints:
+                        size += 6*4
+                    itemdata.append(size)
+                    for envpoint in self.envpoints:
+                        itemdata.append(envpoint.time)
+                        itemdata.append(envpoint.curvetype)
+                        for value in envpoint.values:
+                            itemdata.append(value)
+                    item_types.append('envpoint')
+                elif ITEM_TYPES[i] == 'image':
+                    for id in range(len(self.images)):
+                        itemdata.append((i<<16)|id)
+                        itemdata.append(items.Image.size-8)
+                        itemdata.append(1) # image version
+                        itemdata.append(self.images[id].width)
+                        itemdata.append(self.images[id].height)
+                        itemdata.append(self.images[id].external)
+                        itemdata.append(self.images[id].image_name)
+                        itemdata.append(self.images[id].image_data)
+                        item_types.append('image')
+                elif ITEM_TYPES[i] == 'envelope':
+                    for id in range(len(self.envelopes)):
+                        itemdata.append((i<<16)|id)
+                        itemdata.append(items.Envelope.size-8)
+                        itemdata.append(1) # envelope version
+                        itemdata.append(self.envelopes[id].channels)
+                        itemdata.append(self.envelopes[id].start_point)
+                        itemdata.append(self.envelopes[id].num_points)
+                        name = self.envelopes[id].string_to_ints()
+                        for int in name:
+                            itemdata.append(int)
+                        item_types.append('envelope')
+                elif ITEM_TYPES[i] == 'group':
+                    for id in range(len(self.groups)):
+                        itemdata.append((i<<16)|id)
+                        itemdata.append(items.Group.size-8)
+                        itemdata.append(2) # group version
+                        itemdata.append(self.groups[id].offset_x)
+                        itemdata.append(self.groups[id].offset_y)
+                        itemdata.append(self.groups[id].parallax_x)
+                        itemdata.append(self.groups[id].parallax_y)
+                        itemdata.append(self.groups[id].start_layer)
+                        itemdata.append(self.groups[id].num_layers)
+                        itemdata.append(self.groups[id].use_clipping)
+                        itemdata.append(self.groups[id].clip_x)
+                        itemdata.append(self.groups[id].clip_y)
+                        itemdata.append(self.groups[id].clip_w)
+                        itemdata.append(self.groups[id].clip_h)
+                        item_types.append('group')
+                elif ITEM_TYPES[i] == 'layer':
+                    for id in range(len(self.layers)):
+                        itemdata.append((i<<16)|id)
+                        if LAYER_TYPES[self.layers[id].type] == 'tile':
+                            itemdata.append(items.TileLayer.size-8)
+                            itemdata.append(0) # useless version xD
+                            itemdata.append(self.layers[id].type)
+                            itemdata.append(self.layers[id].flags)
+                            itemdata.append(2) # tile layer version
+                            itemdata.append(self.layers[id].width)
+                            itemdata.append(self.layers[id].height)
+                            itemdata.append(self.layers[id].game)
+                            itemdata.append(self.layers[id].color['r'])
+                            itemdata.append(self.layers[id].color['g'])
+                            itemdata.append(self.layers[id].color['b'])
+                            itemdata.append(self.layers[id].color['a'])
+                            itemdata.append(self.layers[id].color_env)
+                            itemdata.append(self.layers[id].color_env_offset)
+                            itemdata.append(self.layers[id].image)
+                            itemdata.append(self.layers[id].data)
+                            item_types.append('tile_layer')
+                        elif LAYER_TYPES[self.layers[id].type] == 'quad':
+                            itemdata.append(items.QuadLayer.size-8)
+                            itemdata.append(1) # useless version xD
+                            itemdata.append(self.layers[id].type)
+                            itemdata.append(self.layers[id].flags)
+                            itemdata.append(1) # quad layer version
+                            itemdata.append(self.layers[id].num_quads)
+                            itemdata.append(self.layers[id].data)
+                            itemdata.append(self.layers[id].image)
+                            item_types.append('quad_layer')
 
             #write item offsets
             item_offsets = []
             item_cur_offset = 0
-            for item in self.itemlist:
+            for type_ in item_types:
                 item_offsets.append(item_cur_offset)
-                if item.type == 'envpoint':
+                if type_ == 'envpoint':
                     pass
-                elif item.type == 'layer':
-                    layerclass = ''.join([LAYER_TYPES[item.info[3]].title(), 'Layer'])
-                    item_cur_offset += getattr(items, layerclass).size
+                elif type_ == 'tile_layer':
+                    item_cur_offset += items.TileLayer.size
+                elif type_ == 'quad_layer':
+                    item_cur_offset += items.QuadLayer.size
                 else:
-                    item_cur_offset += getattr(items, item.type.title()).size
+                    item_cur_offset += getattr(items, type_.title()).size
             for item_offset in item_offsets:
+                print item_offset
                 f.write(pack('i', item_offset))
 
             # write data offsets
             data_cur_offset = 0
             for data in compressed_datas:
+                print data_cur_offset
                 f.write(pack('i', data_cur_offset))
                 data_cur_offset += len(data)
 
             # write uncompressed data sizes
-            for data in self.datas:
+            for data in self.data:
                 f.write(pack('i', len(data)))
+                            
+            # finally write items
+            for data in itemdata:
+                f.write(pack('I', data))
+
+            # write data
+            for data in compressed_datas:
+                f.write(data)
+            
+            f.close()
 
     def calculate_header_sizes(self):
         """This function returns the sizes important for the header. Also it
@@ -222,9 +341,8 @@ class Teemap(object):
         datas = []
         data_size = 0
         for data in self.data:
-            compressed_data = compress(data)
-            data_size += len(compressed_data)
-            datas.append(compressed_data)
+            data_size += len(data)
+            datas.append(data)
         # calculate the item size
         layers_size = 0
         for layer in self.layers:
@@ -250,11 +368,11 @@ class Teemap(object):
                 num_item_types += 1
         num_raw_data = len(datas)
         # calculate some other sizes
-        header_size = 48
+        header_size = 36
         type_size = num_item_types*12
         offset_size = (num_items+2*num_raw_data)*4
         size = header_size+type_size+offset_size+item_size+data_size-16
-        swaplen = size-data_size-16
+        swaplen = size-data_size
         return datas, size, swaplen, num_item_types, num_items, num_raw_data, \
                 item_size, data_size
 

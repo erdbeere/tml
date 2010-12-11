@@ -57,6 +57,19 @@ class Envelope(object):
                 string += chr((num[i]&0xff)-128)
         return string
 
+    def string_to_ints(self):
+        ints = []
+        for i in range(8):
+            string = ''
+            for j in range(i*4, i*4+4):
+                if j < len(self.name):
+                    string += self.name[j]
+                else:
+                    string += chr(0)
+            ints.append(((ord(string[0])+128)<<24)|((ord(string[1])+128)<<16)|((ord(string[2])+128)<<8)|(ord(string[3])+128))
+        ints[-1] &= 0xffffff00
+        return ints
+
     def __repr__(self):
         return '<Envelope {0}>'.format(self.id)
 
@@ -84,6 +97,8 @@ class Item(object):
         fmt = '{0}i'.format(len(info) / 4)
         self.info = unpack(fmt, info)
 
+        print self.info
+        
         # load data to layers
         if self.type == 'layer':
             if LAYER_TYPES[self.info[3]] == 'tile':
@@ -211,7 +226,7 @@ class TileLayer(Layer):
     def __init__(self, item):
         super(TileLayer, self).__init__(item)
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
-        self.version, self.width, self.height, self.flags, self.color['r'], \
+        self.version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
         self.color_env_offset, self.image, self.data = item.info[5:]
         # load tile data
@@ -223,7 +238,7 @@ class TileLayer(Layer):
 
     @property
     def is_gamelayer(self):
-        return self.flags == 1
+        return self.game == 1
 
     def __repr__(self):
         return '<Tile layer {0} ({1}x{2})>'.format(self.id, self.width, self.height)
