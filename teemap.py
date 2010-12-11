@@ -154,6 +154,31 @@ class Teemap(object):
             # write header
             self.header.write(f, size, swaplen, num_item_types, num_items, num_raw_data,
                                 item_size, data_size)
+            # write types
+            item_types = []
+            count = 0
+            for id in range(len(ITEM_TYPES)):
+                if ITEM_TYPES[id] == 'info':
+                    continue
+                if ITEM_TYPES[id] == 'version' or ITEM_TYPES[id] == 'envpoint':
+                    item_types.append({
+                        'type': id,
+                        'start': count,
+                        'num': 1
+                    })
+                    count += 1 
+                    continue
+                name = ''.join([ITEM_TYPES[id], 's'])
+                class_ = getattr(self, name)
+                if class_:
+                    item_types.append({
+                        'type': id,
+                        'start': count,
+                        'num': len(class_)
+                    })
+                    count += len(class_)
+            for item_type in item_types:
+                f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
 
     def calculate_header_sizes(self):
         """This function returns the sizes important for the header. Also it
