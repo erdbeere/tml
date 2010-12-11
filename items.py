@@ -20,6 +20,8 @@ class Tile(object):
 
 class Version(object):
 
+    size = 12
+
     def __init__(self, item):
         self.item = item
 
@@ -37,6 +39,7 @@ class Envelope(object):
     """Represents an envelope."""
 
     num = 0
+    size = 56
 
     def __init__(self, item):
         self.version, self.channels, self.start_point, self.num_points = item.info[2:6]
@@ -116,6 +119,7 @@ class Group(object):
     """Represents a group."""
 
     num = 0
+    size = 56
 
     def __init__(self, item):
         self.version, self.offset_x, self.offset_y, self.parallax_x, \
@@ -132,6 +136,7 @@ class Image(object):
     """Represents an image."""
 
     num = 0
+    size = 32
 
     def __init__(self, item):
         self.version, self.width, self.height, self.external, self.image_name, self.image_data = item.info[2:]
@@ -171,6 +176,8 @@ class Layer(object):
 class QuadLayer(Layer):
     """Represents a quad layer."""
 
+    size = 36
+
     def __init__(self, item):
         super(QuadLayer, self).__init__(item)
         self.version, self.num_quads, self.data, self.image = item.info[5:]
@@ -198,6 +205,8 @@ class QuadLayer(Layer):
 
 class TileLayer(Layer):
     """Represents a tile layer."""
+
+    size = 68
 
     def __init__(self, item):
         super(TileLayer, self).__init__(item)

@@ -180,6 +180,21 @@ class Teemap(object):
             for item_type in item_types:
                 f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
 
+            #write item offsets
+            item_offsets = []
+            item_cur_offset = 0
+            for item in self.itemlist:
+                item_offsets.append(item_cur_offset)
+                if item.type == 'envpoint':
+                    pass
+                elif item.type == 'layer':
+                    layerclass = ''.join([LAYER_TYPES[item.info[3]].title(), 'Layer'])
+                    item_cur_offset += getattr(items, layerclass).size
+                else:
+                    item_cur_offset += getattr(items, item.type.title()).size
+            for item_offset in item_offsets:
+                f.write(pack('i', item_offset))
+
     def calculate_header_sizes(self):
         """This function returns the sizes important for the header. Also it
         returns the compressed data.
@@ -204,14 +219,14 @@ class Teemap(object):
         layers_size = 0
         for layer in self.layers:
             if LAYER_TYPES[layer.type] == 'tile':
-                layers_size += 60+8
+                layers_size += items.TileLayer.size
             else:
-                layers_size += 28+8
+                layers_size += items.QuadLayer.size
         version_size = 4+8
-        envelopes_size = len(self.envelopes)*(48+8)
-        groups_size = len(self.groups)*(48+8)
+        envelopes_size = len(self.envelopes)*items.Envelope.size
+        groups_size = len(self.groups)*items.Group.size
         envpoints_size = len(self.envpoints)*24+8
-        images_size = len(self.images)*(24+8)
+        images_size = len(self.images)*items.Image.size
         item_size = version_size+groups_size+layers_size+envelopes_size \
                     +images_size+envpoints_size
         num_items = 2+len(self.envelopes)+len(self.groups)+len(self.layers) \
