@@ -195,6 +195,16 @@ class Teemap(object):
             for item_offset in item_offsets:
                 f.write(pack('i', item_offset))
 
+            # write data offsets
+            data_cur_offset = 0
+            for data in compressed_datas:
+                f.write(pack('i', data_cur_offset))
+                data_cur_offset += len(data)
+
+            # write uncompressed data sizes
+            for data in self.datas:
+                f.write(pack('i', len(data)))
+
     def calculate_header_sizes(self):
         """This function returns the sizes important for the header. Also it
         returns the compressed data.
