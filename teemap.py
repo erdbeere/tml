@@ -3,7 +3,7 @@
 
 import os
 from struct import unpack, pack
-from zlib import decompress
+from zlib import decompress, compress
 
 from constants import ITEM_TYPES, LAYER_TYPES
 import items
@@ -35,16 +35,18 @@ class Header(object):
         # why the hell 36?
         self.size += 36
 
-    def write(self, f):
+    def write(self, f, size, swaplen, num_item_types, num_items, num_raw_data,
+                item_size, data_size):
         """Write the header itself in tw map format to a file."""
 
         f.write(pack('4c', *'DATA'))
-        f.write(pack('8i', self.version, self.size_, self.swaplen,
-                           self.num_item_types,  self.num_items,
-                           self.num_raw_data, self.item_size, self.data_size))
+        f.write(pack('8i', 4, size, swaplen, num_item_types, num_items,
+                           num_raw_data, item_size, data_size))
 
 class Teemap(object):
 
+
+    item_count = 0
 
     def __init__(self):
         self.name = ''
@@ -59,6 +61,7 @@ class Teemap(object):
             raise TypeError('Invalid file')
         with open(map_path, 'rb') as f:
             self.header = Header(f)
+            Teemap.item_count = self.header.num_items
             self.item_types = []
             for i in range(self.header.num_item_types):
                 val = unpack('3i', f.read(12))
@@ -145,7 +148,65 @@ class Teemap(object):
         if extension != ''.join([os.extsep, 'map']):
             map_path = ''.join([map_path, os.extsep, 'map'])
         with open(map_path, 'wb') as f:
-            self.header.write(f)
+            # some sizes
+            compressed_datas, size, swaplen, num_item_types, num_items, num_raw_data, \
+            item_size, data_size = self.calculate_header_sizes()
+            # write header
+            self.header.write(f, size, swaplen, num_item_types, num_items, num_raw_data,
+                                item_size, data_size)
+
+    def calculate_header_sizes(self):
+        """This function returns the sizes important for the header. Also it
+        returns the compressed data.
+
+        It calculates the item sizes. Every item consists of a special number of 
+        ints plus two additional ints which are added later (this is the +8).
+        There is allways one envpoint item and one version item. All other items 
+        counted.
+        """
+
+        # count all items
+        item_size = len(self.layers)+len(self.groups)+len(self.images) \
+                    +len(self.envelopes)+1 # 1 = envpoint item
+        # calculate compressed data sice and store the compressed data
+        datas = []
+        data_size = 0
+        for data in self.data:
+            compressed_data = compress(data)
+            data_size += len(compressed_data)
+            datas.append(compressed_data)
+        # calculate the item size
+        layers_size = 0
+        for layer in self.layers:
+            if LAYER_TYPES[layer.type] == 'tile':
+                layers_size += 60+8
+            else:
+                layers_size += 28+8
+        version_size = 4+8
+        envelopes_size = len(self.envelopes)*(48+8)
+        groups_size = len(self.groups)*(48+8)
+        envpoints_size = len(self.envpoints)*24+8
+        images_size = len(self.images)*(24+8)
+        item_size = version_size+groups_size+layers_size+envelopes_size \
+                    +images_size+envpoints_size
+        num_items = 2+len(self.envelopes)+len(self.groups)+len(self.layers) \
+                   +len(self.images) # 2 = version item + envpoint item
+        num_item_types = 2 # version and envpoints
+        for type_ in ITEM_TYPES[2:]:
+            if type_ == 'envpoint':
+                continue
+            name = ''.join([type_, 's'])
+            if getattr(self, name):
+                num_item_types += 1
+        num_raw_data = len(datas)
+        # calculate some other sizes
+        header_size = 48
+        type_size = num_item_types*12
+        offset_size = (num_items+2*num_raw_data)*4
+        size = header_size+type_size+offset_size+item_size+data_size-16
+        swaplen = size-data_size-16
+        return datas, size, swaplen, num_item_types, num_items, num_raw_data, \
+                item_size, data_size
 
     def __repr__(self):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)

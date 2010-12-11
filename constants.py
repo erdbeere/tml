@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 
 ITEM_TYPES = ('version', 'info', 'image', 'envelope', 'group', 'layer',
-              'envpoint', 'image')
+              'envpoint')
 LAYER_TYPES = ('invalid', 'game', 'tile', 'quad')
