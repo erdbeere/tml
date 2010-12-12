@@ -160,6 +160,12 @@ class Group(object):
         self.clip_x, self.clip_y, self.clip_w, self.clip_h = item.info[2:]
         self.layers = []
 
+    @property
+    def itemdata(self):
+        return (Group.size-8, 2, self.offset_x, self.offset_y,
+                self.parallax_x, self.parallax_y, self.start_layer,
+                self.num_layers, self.use_clipping, self.clip_x, self.clip_y,
+                self.clip_w, self.clip_h)
     def __repr__(self):
         return '<Group>'
 

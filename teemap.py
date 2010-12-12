@@ -274,19 +274,7 @@ class Teemap(object):
                 elif item_type == 'group':
                     for id_, group in enumerate(self.groups):
                         itemdata.append((i<<16)|id_)
-                        itemdata.append(items.Group.size-8)
-                        itemdata.append(2) # group version
-                        itemdata.append(group.offset_x)
-                        itemdata.append(group.offset_y)
-                        itemdata.append(group.parallax_x)
-                        itemdata.append(group.parallax_y)
-                        itemdata.append(group.start_layer)
-                        itemdata.append(group.num_layers)
-                        itemdata.append(group.use_clipping)
-                        itemdata.append(group.clip_x)
-                        itemdata.append(group.clip_y)
-                        itemdata.append(group.clip_w)
-                        itemdata.append(group.clip_h)
+                        itemdata.extend(group.itemdata)
                         item_types.append('group')
                 elif item_type == 'layer':
                     for id_, layer in enumerate(self.layers):
