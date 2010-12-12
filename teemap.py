@@ -279,34 +279,9 @@ class Teemap(object):
                 elif item_type == 'layer':
                     for id_, layer in enumerate(self.layers):
                         itemdata.append((i<<16)|id_)
-                        if LAYER_TYPES[layer.type] == 'tile':
-                            itemdata.append(items.TileLayer.size-8)
-                            itemdata.append(0) # useless version xD
-                            itemdata.append(layer.type)
-                            itemdata.append(layer.flags)
-                            itemdata.append(2) # tile layer version
-                            itemdata.append(layer.width)
-                            itemdata.append(layer.height)
-                            itemdata.append(layer.game)
-                            itemdata.append(layer.color['r'])
-                            itemdata.append(layer.color['g'])
-                            itemdata.append(layer.color['b'])
-                            itemdata.append(layer.color['a'])
-                            itemdata.append(layer.color_env)
-                            itemdata.append(layer.color_env_offset)
-                            itemdata.append(layer.image)
-                            itemdata.append(layer.data)
-                            item_types.append('tile_layer')
-                        elif LAYER_TYPES[layer.type] == 'quad':
-                            itemdata.append(items.QuadLayer.size-8)
-                            itemdata.append(1) # useless version xD
-                            itemdata.append(layer.type)
-                            itemdata.append(layer.flags)
-                            itemdata.append(1) # quad layer version
-                            itemdata.append(layer.num_quads)
-                            itemdata.append(layer.data)
-                            itemdata.append(layer.image)
-                            item_types.append('quad_layer')
+                        itemdata.extend(layer.itemdata)
+                        name = '_'.join((LAYER_TYPES[layer.type], item_type))
+                        item_types.append(name)
 
             # write item offsets
             item_offsets = []

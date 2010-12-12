@@ -207,6 +207,11 @@ class QuadLayer(Layer):
                     'pos_env_off': item.data.pop(0), 'color_env': item.data.pop(0), 'color_env_off': item.data.pop(0)}
             self.quads.append(quad)
 
+    @property
+    def itemdata(self):
+        return (QuadLayer.size-8, 1, self.type, self.flags, 1, self.num_quads,
+                self.data, self.image)
+
     def __repr__(self):
         return '<Quad layer>'
 
@@ -231,6 +236,13 @@ class TileLayer(Layer):
     @property
     def is_gamelayer(self):
         return self.game == 1
+
+    @property
+    def itemdata(self):
+        return (TileLayer.size-8, 0, self.type, self.flags, 2, self.width,
+                self.height, self.game, self.color['r'], self.color['g'],
+                self.color['b'], self.color['a'], self.color_env,
+                self.color_env_offset, self.image, self.data)
 
     def __repr__(self):
         return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
