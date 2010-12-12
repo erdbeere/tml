@@ -167,18 +167,18 @@ class Teemap(object):
             # write types
             item_types = []
             count = 0
-            for id_ in range(len(ITEM_TYPES)):
-                if ITEM_TYPES[id_] == 'info':
+            for i, item_type in enumerate(ITEM_TYPES):
+                if item_type == 'info':
                     continue
-                if ITEM_TYPES[id_] == 'version' or ITEM_TYPES[id_] == 'envpoint':
+                elif item_type in ('version', 'envpoint'):
                     item_types.append({
-                        'type': id_,
+                        'type': i,
                         'start': count,
                         'num': 1
                     })
                     count += 1 
                     continue
-                name = ''.join([ITEM_TYPES[id_], 's'])
+                name = ''.join([item_type, 's'])
                 class_ = getattr(self, name)
                 if class_:
                     item_types.append({
