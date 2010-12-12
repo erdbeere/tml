@@ -343,7 +343,7 @@ class Teemap(object):
 
             # write uncompressed data sizes
             for data in self.data:
-                f.write(pack('i', len(data)))
+                f.write(pack('i', len(decompress(data))))
                             
             # finally write items
             for data in itemdata:
