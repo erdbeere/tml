@@ -38,14 +38,11 @@ class Image(object):
 class Envelope(object):
     """Represents an envelope."""
 
-    num = 0
     size = 56
 
     def __init__(self, item):
         self.version, self.channels, self.start_point, self.num_points = item.info[2:6]
         self.name = self.ints_to_string(item.info[6:])
-        Envelope.num += 1
-        self.id = Envelope.num
 
     def ints_to_string(self, num):
         string = ''
@@ -71,21 +68,17 @@ class Envelope(object):
         return ints
 
     def __repr__(self):
-        return '<Envelope {0}>'.format(self.id)
+        return '<Envelope>'
 
 class Envpoint(object):
     """Represents an envpoint."""
 
-    num = 0
-
     def __init__(self, info):
         self.time, self.curvetype = info[:2]
         self.values = info[2:]
-        Envpoint.num += 1
-        self.id = Envpoint.num
 
     def __repr__(self):
-        return '<Envpoint {0}>'.format(self.id)
+        return '<Envpoint>'.format()
 
 class Item(object):
     """Represents an item."""
@@ -131,7 +124,6 @@ class Item(object):
 class Group(object):
     """Represents a group."""
 
-    num = 0
     size = 56
 
     def __init__(self, item):
@@ -139,16 +131,13 @@ class Group(object):
         self.parallax_y, self.start_layer, self.num_layers, self.use_clipping, \
         self.clip_x, self.clip_y, self.clip_w, self.clip_h = item.info[2:]
         self.layers = []
-        Group.num += 1
-        self.id = Group.num
 
     def __repr__(self):
-        return '<Group {0}>'.format(self.id)
+        return '<Group>'
 
 class Image(object):
     """Represents an image."""
 
-    num = 0
     size = 32
 
     def __init__(self, item):
@@ -156,8 +145,6 @@ class Image(object):
         self.name = item.name
         if not self.external:
             self.image = item.data
-        Image.num += 1
-        self.id = Image.num
 
     #def save(self):
     #    if not self.external:
@@ -169,17 +156,13 @@ class Image(object):
     #        f.close()
 
     def __repr__(self):
-        return '<Image {0}>'.format(self.id)
+        return '<Image>'
 
 class Layer(object):
     """Represents the layer data every layer has."""
 
-    num = 0
-
     def __init__(self, item):
         self.version, self.type, self.flags = item.info[2:5]
-        Layer.num += 1
-        self.id = Layer.num
         self.item = item
 
     @property
@@ -214,7 +197,7 @@ class QuadLayer(Layer):
             self.quads.append(quad)
 
     def __repr__(self):
-        return '<Quad layer {0}>'.format(self.id)
+        return '<Quad layer>'
 
 class TileLayer(Layer):
     """Represents a tile layer."""
@@ -239,4 +222,4 @@ class TileLayer(Layer):
         return self.game == 1
 
     def __repr__(self):
-        return '<Tile layer {0} ({1}x{2})>'.format(self.id, self.width, self.height)
+        return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
