@@ -189,7 +189,7 @@ class Teemap(object):
                     count += len(typelist)
             for item_type in item_types:
                 print item_type
-                f.write(pack('3i', itemis_type['type'], item_type['start'], item_type['num']))
+                f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
 
             # get items
             itemdata = []
