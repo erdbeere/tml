@@ -261,13 +261,7 @@ class Teemap(object):
                 elif item_type == 'image':
                     for id_, image in enumerate(self.images):
                         itemdata.append((i<<16)|id_)
-                        itemdata.append(items.Image.size-8)
-                        itemdata.append(1) # image version
-                        itemdata.append(image.width)
-                        itemdata.append(image.height)
-                        itemdata.append(image.external)
-                        itemdata.append(image.image_name)
-                        itemdata.append(image.image_data)
+                        itemdata.extend(image.itemdata)
                         item_types.append('image')
                 elif item_type == 'envelope':
                     for id_, envelope in enumerate(self.envelopes):

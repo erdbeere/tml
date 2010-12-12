@@ -50,6 +50,11 @@ class Image(object):
     #        w.write(f, self.image)
     #        f.close()
 
+    @property
+    def itemdata(self):
+        return (Image.size-8, 1, self.width, self.height, self.external,
+                self.image_name, self.image_data)
+
     def __repr__(self):
         return '<Image>'
 
