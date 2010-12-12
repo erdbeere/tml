@@ -335,8 +335,8 @@ class Teemap(object):
         """
 
         # count all items
-        item_size = len(self.layers)+len(self.groups)+len(self.images) \
-                    +len(self.envelopes)+1 # 1 = envpoint item
+        item_size = len(self.layers + self.groups +self.images + \
+                        self.envelopes)+1 # 1 = envpoint item
         # calculate compressed data sice and store the compressed data
         datas = []
         data_size = 0
@@ -357,8 +357,8 @@ class Teemap(object):
         images_size = len(self.images)*items.Image.size
         item_size = version_size+groups_size+layers_size+envelopes_size \
                     +images_size+envpoints_size
-        num_items = 2+len(self.envelopes)+len(self.groups)+len(self.layers) \
-                   +len(self.images) # 2 = version item + envpoint item
+        num_items = len(self.envelopes + self.groups +self.layers + \
+                        self.images) + 2 # 2 = version item + envpoint item
         num_item_types = 2 # version and envpoints
         for type_ in ITEM_TYPES[2:]:
             if type_ == 'envpoint':
