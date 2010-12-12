@@ -207,8 +207,6 @@ class Teemap(object):
         if extension != ''.join([os.extsep, 'map']):
             map_path = ''.join([map_path, os.extsep, 'map'])
         with open(map_path, 'wb') as f:
-            # some sizes
-            compressed_datas = self.data # but they are decompressed...?
             # write header
             self.header.write(f)
             # write types
@@ -237,9 +235,11 @@ class Teemap(object):
             for item_type in item_types:
                 f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
 
-            # get items
+            # get items and create simultaneously a list of the corresponding
+            # datas
             itemdata = []
             item_types = []
+            datas = []
             for i, item_type in enumerate(ITEM_TYPES):
                 if item_type == 'version':
                     itemdata.append(i) # type and id
@@ -251,25 +251,27 @@ class Teemap(object):
                     size = 0
                     for envpoint in self.envpoints:
                         size += 6*4
-                    itemdata.append(size)
-                    for envpoint in self.envpoints:
                         itemdata.append(envpoint.time)
                         itemdata.append(envpoint.curvetype)
                         for value in envpoint.values:
                             itemdata.append(value)
+                    itemdata.append(size)
                     item_types.append('envpoint')
                 elif item_type == 'image':
                     for id_, image in enumerate(self.images):
                         itemdata.append((i<<16)|id_)
                         itemdata.extend(image.itemdata)
                         item_types.append('image')
+                        datas.append(compress(image.item.name + chr(0)))
+                        if image.image:
+                            datas.append(compress(image.image))
                 elif item_type == 'envelope':
                     for id_, envelope in enumerate(self.envelopes):
                         itemdata.append((i<<16)|id_)
                         itemdata.extend(envelope.itemdata)
                         name = envelope.string_to_ints()
-                        for int in name:
-                            itemdata.append(int)
+                        for int_ in name:
+                            itemdata.append(int_)
                         item_types.append('envelope')
                 elif item_type == 'group':
                     for id_, group in enumerate(self.groups):
@@ -282,6 +284,11 @@ class Teemap(object):
                         itemdata.extend(layer.itemdata)
                         name = '_'.join((LAYER_TYPES[layer.type], item_type))
                         item_types.append(name)
+                        #print layer.item.data
+                        format = 'i' if name == 'quad_layer' else 'B'
+                        fmt = '{0}{1}'.format(len(layer.item.data), format)
+                        data = pack(fmt, *layer.item.data)
+                        datas.append(compress(data))
 
             # write item offsets
             item_offsets = []
@@ -314,7 +321,7 @@ class Teemap(object):
                 f.write(pack('i', int32(data)))
 
             # write data
-            for data in compressed_datas:
+            for data in datas
                 f.write(data)
 
             f.close()

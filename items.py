@@ -38,8 +38,8 @@ class Image(object):
     def __init__(self, item):
         self.version, self.width, self.height, self.external, self.image_name, self.image_data = item.info[2:]
         self.name = item.name
-        if not self.external:
-            self.image = item.data
+        self.item = item
+        self.image = item.data if not self.external else None
 
     #def save(self):
     #    if not self.external:
@@ -66,6 +66,7 @@ class Envelope(object):
     def __init__(self, item):
         self.version, self.channels, self.start_point, self.num_points = item.info[2:6]
         self.name = self.ints_to_string(item.info[6:])
+        self.item = item
 
     def ints_to_string(self, num):
         string = ''
@@ -187,7 +188,7 @@ class QuadLayer(Layer):
 
     def __init__(self, item):
         super(QuadLayer, self).__init__(item)
-        self.version, self.num_quads, self.data, self.image = item.info[5:]
+        self.version, self.num_quads, self._data, self.image = item.info[5:]
         # load quads
         self.quads = []
         points = []
@@ -210,7 +211,7 @@ class QuadLayer(Layer):
     @property
     def itemdata(self):
         return (QuadLayer.size-8, 1, self.type, self.flags, 1, self.num_quads,
-                self.data, self.image)
+                self._data, self.image)
 
     def __repr__(self):
         return '<Quad layer>'
@@ -225,7 +226,7 @@ class TileLayer(Layer):
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
         self.version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
-        self.color_env_offset, self.image, self.data = item.info[5:]
+        self.color_env_offset, self.image, self._data = item.info[5:]
         # load tile data
         self.tiles = []
         i = 0
@@ -242,7 +243,7 @@ class TileLayer(Layer):
         return (TileLayer.size-8, 0, self.type, self.flags, 2, self.width,
                 self.height, self.game, self.color['r'], self.color['g'],
                 self.color['b'], self.color['a'], self.color_env,
-                self.color_env_offset, self.image, self.data)
+                self.color_env_offset, self.image, self._data)
 
     def __repr__(self):
         return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
