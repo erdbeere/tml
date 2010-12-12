@@ -174,22 +174,21 @@ class QuadLayer(Layer):
         self.version, self.num_quads, self.data, self.image = item.info[5:]
         # load quads
         self.quads = []
-        while(len(item.data)):
-            points = []
-            for i in range(5):
-                point = {'x': item.data.pop(0), 'y': item.data.pop(0)}
-                points.append(point)
-            colors = []
-            for i in range(4):
-                color = {'r': item.data.pop(0), 'g': item.data.pop(0), 'b': item.data.pop(0), 'a': item.data.pop(0)}
-                colors.append(color)
-            texcoords = []
-            for i in range(4):
-                texcoord = {'x': item.data.pop(0), 'y': item.data.pop(0)}
-                texcoords.append(texcoord)
-            quad = {'points': points, 'colors': colors, 'texcoords': texcoords, 'pos_env': item.data.pop(0),
-                    'pos_env_off': item.data.pop(0), 'color_env': item.data.pop(0), 'color_env_off': item.data.pop(0)}
-            self.quads.append(quad)
+        points = []
+        for i in range(5):
+            point = {'x': item.data[i*2], 'y': item.data[i*2+1]}
+            points.append(point)
+        colors = []
+        for i in range(4):
+            color = {'r': item.data[i*4+10], 'g': item.data[i*4+11], 'b': item.data[i*4+12], 'a': item.data[i*4+13]}
+            colors.append(color)
+        texcoords = []
+        for i in range(4):
+            texcoord = {'x': item.data[i*2+26], 'y': item.data[i*2+27]}
+            texcoords.append(texcoord)
+        quad = {'points': points, 'colors': colors, 'texcoords': texcoords, 'pos_env': item.data[34],
+                'pos_env_off': item.data[35], 'color_env': item.data[36], 'color_env_off': item.data[37]}
+        self.quads.append(quad)
 
     def __repr__(self):
         return '<Quad layer>'
