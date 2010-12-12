@@ -31,9 +31,27 @@ class Info(object):
         self.item = item
 
 class Image(object):
+    """Represents an image."""
+
+    size = 32
 
     def __init__(self, item):
-        self.item = item
+        self.version, self.width, self.height, self.external, self.image_name, self.image_data = item.info[2:]
+        self.name = item.name
+        if not self.external:
+            self.image = item.data
+
+    #def save(self):
+    #    if not self.external:
+    #        if not os.path.isdir('images'):
+    #            os.mkdir('images')
+    #        f = open(os.path.join('images', self.name)+'.png', 'wb')
+    #        w = png.Writer(self.width, self.height, alpha=True)
+    #        w.write(f, self.image)
+    #        f.close()
+
+    def __repr__(self):
+        return '<Image>'
 
 class Envelope(object):
     """Represents an envelope."""
@@ -134,29 +152,6 @@ class Group(object):
 
     def __repr__(self):
         return '<Group>'
-
-class Image(object):
-    """Represents an image."""
-
-    size = 32
-
-    def __init__(self, item):
-        self.version, self.width, self.height, self.external, self.image_name, self.image_data = item.info[2:]
-        self.name = item.name
-        if not self.external:
-            self.image = item.data
-
-    #def save(self):
-    #    if not self.external:
-    #        if not os.path.isdir('images'):
-    #            os.mkdir('images')
-    #        f = open(os.path.join('images', self.name)+'.png', 'wb')
-    #        w = png.Writer(self.width, self.height, alpha=True)
-    #        w.write(f, self.image)
-    #        f.close()
-
-    def __repr__(self):
-        return '<Image>'
 
 class Layer(object):
     """Represents the layer data every layer has."""
