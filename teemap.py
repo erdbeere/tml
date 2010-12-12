@@ -15,17 +15,14 @@ class Header(object):
     Note that the file won't be rewinded!
     """
 
-    def __init__(self, f):
+    def __init__(self, teemap, f):
+        self.teemap = teemap
         sig = ''.join(unpack('4c', f.read(4)))
         if sig not in ('DATA', 'ATAD'):
             raise TypeError('Invalid signature')
         self.version, self.size_, self.swaplen, self.num_item_types, \
         self.num_items, self.num_raw_data, self.item_size, \
         self.data_size = unpack('8i', f.read(32))
-
-        print self.size_, self.swaplen, self.num_item_types, \
-        self.num_items, self.num_raw_data, self.item_size, \
-        self.data_size
 
         if self.version != 4:
             raise TypeError('Wrong version')
@@ -39,12 +36,56 @@ class Header(object):
         # why the hell 36?
         self.size += 36
 
-    def write(self, f, size, swaplen, num_item_types, num_items, num_raw_data,
-                item_size, data_size):
-        """Write the header itself in tw map format to a file."""
+    def write(self, f):#size, swaplen, num_item_types, num_items, num_raw_data,
+                #item_size, data_size):
+        """Write the header itself in tw map format to a file.
+        
+        It calculates the item sizes. Every item consists of a special number of 
+        ints plus two additional ints which are added later (this is the +8).
+        There is allways one envpoint item and one version item. All other items 
+        counted.
+        """
 
-        print size, swaplen, num_item_types, num_items, num_raw_data, \
-                item_size, data_size
+        # count all items
+        teemap = self.teemap
+        item_size = len(teemap.layers + teemap.groups + teemap.images + \
+                        teemap.envelopes) + 1 # 1 = envpoint item
+        # calculate compressed data size and store the compressed data
+        datas = []
+        data_size = 0
+        for data in teemap.data:
+            data_size += len(data)
+            datas.append(data)
+        # calculate the item size
+        layers_size = 0
+        for layer in teemap.layers:
+            if LAYER_TYPES[layer.type] == 'tile':
+                layers_size += items.TileLayer.size
+            else:
+                layers_size += items.QuadLayer.size
+        version_size = 4+8
+        envelopes_size = len(teemap.envelopes)*items.Envelope.size
+        groups_size = len(teemap.groups)*items.Group.size
+        envpoints_size = len(teemap.envpoints)*24+8
+        images_size = len(teemap.images)*items.Image.size
+        item_size = version_size+groups_size+layers_size+envelopes_size \
+                    +images_size+envpoints_size
+        num_items = len(teemap.envelopes + teemap.groups + teemap.layers + \
+                        teemap.images) + 2 # 2 = version item + envpoint item
+        num_item_types = 2 # version and envpoints
+        for type_ in ITEM_TYPES[2:]:
+            if type_ == 'envpoint':
+                continue
+            name = ''.join([type_, 's'])
+            if getattr(teemap, name):
+                num_item_types += 1
+        num_raw_data = len(datas)
+        # calculate some other sizes
+        header_size = 36
+        type_size = num_item_types*12
+        offset_size = (num_items+2*num_raw_data)*4
+        size = header_size+type_size+offset_size+item_size+data_size-16
+        swaplen = size-data_size
 
         f.write(pack('4c', *'DATA'))
         f.write(pack('8i', 4, size, swaplen, num_item_types, num_items,
@@ -67,7 +108,7 @@ class Teemap(object):
         if extension != ''.join([os.extsep, 'map']):
             raise TypeError('Invalid file')
         with open(map_path, 'rb') as f:
-            self.header = Header(f)
+            self.header = Header(self, f)
             Teemap.item_count = self.header.num_items
             self.item_types = []
             for i in range(self.header.num_item_types):
@@ -77,13 +118,10 @@ class Teemap(object):
                     'start': val[1],
                     'num': val[2],
                 })
-                print self.item_types[i]
             fmt = '{0}i'.format(self.header.num_items)
             self.item_offsets = unpack(fmt, f.read(self.header.num_items * 4))
-            print self.item_offsets
             fmt = '{0}i'.format(self.header.num_raw_data)
             self.data_offsets = unpack(fmt, f.read(self.header.num_raw_data * 4))
-            print self.data_offsets
 
             # "data uncompressed size"
             # print repr(f.read(self.header.num_raw_data * 4))
@@ -159,11 +197,9 @@ class Teemap(object):
             map_path = ''.join([map_path, os.extsep, 'map'])
         with open(map_path, 'wb') as f:
             # some sizes
-            compressed_datas, size, swaplen, num_item_types, num_items, num_raw_data, \
-            item_size, data_size = self.calculate_header_sizes()
+            compressed_datas = self.data # but they are decompressed...? 
             # write header
-            self.header.write(f, size, swaplen, num_item_types, num_items, num_raw_data,
-                                item_size, data_size)
+            self.header.write(f)
             # write types
             item_types = []
             count = 0
@@ -188,7 +224,6 @@ class Teemap(object):
                     })
                     count += len(typelist)
             for item_type in item_types:
-                print item_type
                 f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
 
             # get items
@@ -284,7 +319,7 @@ class Teemap(object):
                             itemdata.append(layer.image)
                             item_types.append('quad_layer')
 
-            #write item offsets
+            # write item offsets
             item_offsets = []
             item_cur_offset = 0
             for type_ in item_types:
@@ -298,13 +333,11 @@ class Teemap(object):
                 else:
                     item_cur_offset += getattr(items, type_.title()).size
             for item_offset in item_offsets:
-                print item_offset
                 f.write(pack('i', item_offset))
 
             # write data offsets
             data_cur_offset = 0
             for data in compressed_datas:
-                print data_cur_offset
                 f.write(pack('i', data_cur_offset))
                 data_cur_offset += len(data)
 
@@ -321,58 +354,6 @@ class Teemap(object):
                 f.write(data)
             
             f.close()
-
-    def calculate_header_sizes(self):
-        """This function returns the sizes important for the header. Also it
-        returns the compressed data.
-
-        It calculates the item sizes. Every item consists of a special number of 
-        ints plus two additional ints which are added later (this is the +8).
-        There is allways one envpoint item and one version item. All other items 
-        counted.
-        """
-
-        # count all items
-        item_size = len(self.layers + self.groups +self.images + \
-                        self.envelopes)+1 # 1 = envpoint item
-        # calculate compressed data sice and store the compressed data
-        datas = []
-        data_size = 0
-        for data in self.data:
-            data_size += len(data)
-            datas.append(data)
-        # calculate the item size
-        layers_size = 0
-        for layer in self.layers:
-            if LAYER_TYPES[layer.type] == 'tile':
-                layers_size += items.TileLayer.size
-            else:
-                layers_size += items.QuadLayer.size
-        version_size = 4+8
-        envelopes_size = len(self.envelopes)*items.Envelope.size
-        groups_size = len(self.groups)*items.Group.size
-        envpoints_size = len(self.envpoints)*24+8
-        images_size = len(self.images)*items.Image.size
-        item_size = version_size+groups_size+layers_size+envelopes_size \
-                    +images_size+envpoints_size
-        num_items = len(self.envelopes + self.groups +self.layers + \
-                        self.images) + 2 # 2 = version item + envpoint item
-        num_item_types = 2 # version and envpoints
-        for type_ in ITEM_TYPES[2:]:
-            if type_ == 'envpoint':
-                continue
-            name = ''.join([type_, 's'])
-            if getattr(self, name):
-                num_item_types += 1
-        num_raw_data = len(datas)
-        # calculate some other sizes
-        header_size = 36
-        type_size = num_item_types*12
-        offset_size = (num_items+2*num_raw_data)*4
-        size = header_size+type_size+offset_size+item_size+data_size-16
-        swaplen = size-data_size
-        return datas, size, swaplen, num_item_types, num_items, num_raw_data, \
-                item_size, data_size
 
     def __repr__(self):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)

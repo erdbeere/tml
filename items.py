@@ -97,8 +97,6 @@ class Item(object):
         fmt = '{0}i'.format(len(info) / 4)
         self.info = unpack(fmt, info)
 
-        print self.info
-        
         # load data to layers
         if self.type == 'layer':
             if LAYER_TYPES[self.info[3]] == 'tile':
