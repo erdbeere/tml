@@ -297,7 +297,7 @@ class Teemap(object):
                         datas.append(data)
 
             # compress data
-            compressed_data = [compress(data) for data in datas]
+            compressed_datas = [compress(data) for data in datas]
 
             # write item offsets
             item_offsets = []
@@ -317,7 +317,7 @@ class Teemap(object):
 
             # write data offsets
             data_cur_offset = 0
-            for data in compressed_data:
+            for data in compressed_datas:
                 f.write(pack('i', data_cur_offset))
                 data_cur_offset += len(data)
 
@@ -330,7 +330,7 @@ class Teemap(object):
                 f.write(pack('i', int32(data)))
 
             # compress data and write it
-            for data in compressed_data:
+            for data in compressed_datas:
                 f.write(data)
 
             f.close()
