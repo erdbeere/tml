@@ -137,11 +137,11 @@ class Teemap(object):
             # "data uncompressed size"
             # print repr(f.read(self.header.num_raw_data * 4))
 
-            self.data_start_offset = self.header.size
-            self.item_start_offset = self.header.size - self.header.item_size
+            data_start_offset = self.header.size
+            item_start_offset = self.header.size - self.header.item_size
 
             self.data = []
-            f.seek(self.data_start_offset)
+            f.seek(data_start_offset)
             for offset in (self.data_offsets + (self.header.data_size,)):
                 if offset > 0:
                     self.data.append(f.read(offset - last_offset))
@@ -155,7 +155,7 @@ class Teemap(object):
                     sizes.append(offset - last_offset)
                 last_offset = offset
 
-            f.seek(self.item_start_offset)
+            f.seek(item_start_offset)
             self.itemlist = []
             for item_type in self.item_types:
                 for i in range(item_type['num']):
@@ -262,7 +262,7 @@ class Teemap(object):
                         itemdata.append((i<<16)|id_)
                         itemdata.extend(image.itemdata)
                         item_types.append('image')
-                        datas.append(compress(image.item.name + chr(0)))
+                        datas.append(image.item.name + chr(0))
                         if image.image:
                             k = []
                             for i in image.image:
@@ -270,7 +270,7 @@ class Teemap(object):
                                     k.append(j)
                             fmt = '{0}B'.format(len(k))
                             data = pack(fmt, *k)
-                            datas.append(compress(data))
+                            datas.append(data)
                 elif item_type == 'envelope':
                     for id_, envelope in enumerate(self.envelopes):
                         itemdata.append((i<<16)|id_)
@@ -294,7 +294,10 @@ class Teemap(object):
                         format = 'i' if name == 'quad_layer' else 'B'
                         fmt = '{0}{1}'.format(len(layer.item.data), format)
                         data = pack(fmt, *layer.item.data)
-                        datas.append(compress(data))
+                        datas.append(data)
+
+            # compress data
+            compressed_data = [compress(data) for data in datas]
 
             # write item offsets
             item_offsets = []
@@ -314,20 +317,20 @@ class Teemap(object):
 
             # write data offsets
             data_cur_offset = 0
-            for data in datas:
+            for data in compressed_data:
                 f.write(pack('i', data_cur_offset))
                 data_cur_offset += len(data)
 
             # write uncompressed data sizes
-            for data in self.data:
-                f.write(pack('i', len(decompress(data))))
+            for data in datas:
+                f.write(pack('i', len(data)))
 
             # finally write items
             for data in itemdata:
                 f.write(pack('i', int32(data)))
 
-            # write data
-            for data in datas:
+            # compress data and write it
+            for data in compressed_data:
                 f.write(data)
 
             f.close()
