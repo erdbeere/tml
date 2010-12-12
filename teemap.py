@@ -39,10 +39,10 @@ class Header(object):
     def write(self, f):#size, swaplen, num_item_types, num_items, num_raw_data,
                 #item_size, data_size):
         """Write the header itself in tw map format to a file.
-        
-        It calculates the item sizes. Every item consists of a special number of 
+
+        It calculates the item sizes. Every item consists of a special number of
         ints plus two additional ints which are added later (this is the +8).
-        There is allways one envpoint item and one version item. All other items 
+        There is allways one envpoint item and one version item. All other items
         counted.
         """
 
@@ -197,7 +197,7 @@ class Teemap(object):
             map_path = ''.join([map_path, os.extsep, 'map'])
         with open(map_path, 'wb') as f:
             # some sizes
-            compressed_datas = self.data # but they are decompressed...? 
+            compressed_datas = self.data # but they are decompressed...?
             # write header
             self.header.write(f)
             # write types
@@ -212,7 +212,7 @@ class Teemap(object):
                         'start': count,
                         'num': 1
                     })
-                    count += 1 
+                    count += 1
                     continue
                 name = ''.join([item_type, 's'])
                 typelist = getattr(self, name)
@@ -344,15 +344,15 @@ class Teemap(object):
             # write uncompressed data sizes
             for data in self.data:
                 f.write(pack('i', len(decompress(data))))
-                            
+
             # finally write items
             for data in itemdata:
-                f.write(pack('I', data))
+                f.write(pack('i', data))
 
             # write data
             for data in compressed_datas:
                 f.write(data)
-            
+
             f.close()
 
     def __repr__(self):
