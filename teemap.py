@@ -8,6 +8,17 @@ from zlib import decompress, compress
 from constants import ITEM_TYPES, LAYER_TYPES
 import items
 
+def int32(x):
+    if x>0xFFFFFFFF:
+        raise OverflowError
+    if x>0x7FFFFFFF:
+        x=int(0x100000000-x)
+        if x<2147483648:
+            return -x
+        else:
+            return -2147483648
+    return x
+
 class Header(object):
     """Contains fileheader information.
 
@@ -347,7 +358,7 @@ class Teemap(object):
 
             # finally write items
             for data in itemdata:
-                f.write(pack('i', data))
+                f.write(pack('i', int32(data)))
 
             # write data
             for data in compressed_datas:
