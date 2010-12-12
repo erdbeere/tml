@@ -194,15 +194,13 @@ class Teemap(object):
             # get items
             itemdata = []
             item_types = []
-            for i in range(len(ITEM_TYPES)):
-                if ITEM_TYPES[i] == 'info':
-                    pass
-                elif ITEM_TYPES[i] == 'version':
+            for i, item_type in enumerate(ITEM_TYPES):
+                if item_type == 'version':
                     itemdata.append(i) # type and id
                     itemdata.append(4) # size
                     itemdata.append(1) # version
                     item_types.append('version')
-                elif ITEM_TYPES[i] == 'envpoint':
+                elif item_type == 'envpoint':
                     itemdata.append(i<<16)
                     size = 0
                     for envpoint in self.envpoints:
@@ -214,76 +212,76 @@ class Teemap(object):
                         for value in envpoint.values:
                             itemdata.append(value)
                     item_types.append('envpoint')
-                elif ITEM_TYPES[i] == 'image':
-                    for id_ in range(len(self.images)):
+                elif item_type == 'image':
+                    for id_, image in enumerate(self.images):
                         itemdata.append((i<<16)|id_)
                         itemdata.append(items.Image.size-8)
                         itemdata.append(1) # image version
-                        itemdata.append(self.images[id_].width)
-                        itemdata.append(self.images[id_].height)
-                        itemdata.append(self.images[id_].external)
-                        itemdata.append(self.images[id_].image_name)
-                        itemdata.append(self.images[id_].image_data)
+                        itemdata.append(image.width)
+                        itemdata.append(image.height)
+                        itemdata.append(image.external)
+                        itemdata.append(image.image_name)
+                        itemdata.append(image.image_data)
                         item_types.append('image')
-                elif ITEM_TYPES[i] == 'envelope':
-                    for id_ in range(len(self.envelopes)):
+                elif item_type == 'envelope':
+                    for id_, envelope in enumerate(self.envelopes):
                         itemdata.append((i<<16)|id_)
                         itemdata.append(items.Envelope.size-8)
                         itemdata.append(1) # envelope version
-                        itemdata.append(self.envelopes[id_].channels)
-                        itemdata.append(self.envelopes[id_].start_point)
-                        itemdata.append(self.envelopes[id_].num_points)
-                        name = self.envelopes[id_].string_to_ints()
+                        itemdata.append(envelope.channels)
+                        itemdata.append(envelope.start_point)
+                        itemdata.append(envelope.num_points)
+                        name = envelope.string_to_ints()
                         for int in name:
                             itemdata.append(int)
                         item_types.append('envelope')
-                elif ITEM_TYPES[i] == 'group':
-                    for id_ in range(len(self.groups)):
+                elif item_type == 'group':
+                    for id_, group in enumerate(self.groups):
                         itemdata.append((i<<16)|id_)
                         itemdata.append(items.Group.size-8)
                         itemdata.append(2) # group version
-                        itemdata.append(self.groups[id_].offset_x)
-                        itemdata.append(self.groups[id_].offset_y)
-                        itemdata.append(self.groups[id_].parallax_x)
-                        itemdata.append(self.groups[id_].parallax_y)
-                        itemdata.append(self.groups[id_].start_layer)
-                        itemdata.append(self.groups[id_].num_layers)
-                        itemdata.append(self.groups[id_].use_clipping)
-                        itemdata.append(self.groups[id_].clip_x)
-                        itemdata.append(self.groups[id_].clip_y)
-                        itemdata.append(self.groups[id_].clip_w)
-                        itemdata.append(self.groups[id_].clip_h)
+                        itemdata.append(group.offset_x)
+                        itemdata.append(group.offset_y)
+                        itemdata.append(group.parallax_x)
+                        itemdata.append(group.parallax_y)
+                        itemdata.append(group.start_layer)
+                        itemdata.append(group.num_layers)
+                        itemdata.append(group.use_clipping)
+                        itemdata.append(group.clip_x)
+                        itemdata.append(group.clip_y)
+                        itemdata.append(group.clip_w)
+                        itemdata.append(group.clip_h)
                         item_types.append('group')
-                elif ITEM_TYPES[i] == 'layer':
-                    for id_ in range(len(self.layers)):
+                elif item_type == 'layer':
+                    for id_, layer in enumerate(self.layers):
                         itemdata.append((i<<16)|id_)
-                        if LAYER_TYPES[self.layers[id_].type] == 'tile':
+                        if LAYER_TYPES[layer.type] == 'tile':
                             itemdata.append(items.TileLayer.size-8)
                             itemdata.append(0) # useless version xD
-                            itemdata.append(self.layers[id_].type)
-                            itemdata.append(self.layers[id_].flags)
+                            itemdata.append(layer.type)
+                            itemdata.append(layer.flags)
                             itemdata.append(2) # tile layer version
-                            itemdata.append(self.layers[id_].width)
-                            itemdata.append(self.layers[id_].height)
-                            itemdata.append(self.layers[id_].game)
-                            itemdata.append(self.layers[id_].color['r'])
-                            itemdata.append(self.layers[id_].color['g'])
-                            itemdata.append(self.layers[id_].color['b'])
-                            itemdata.append(self.layers[id_].color['a'])
-                            itemdata.append(self.layers[id_].color_env)
-                            itemdata.append(self.layers[id_].color_env_offset)
-                            itemdata.append(self.layers[id_].image)
-                            itemdata.append(self.layers[id_].data)
+                            itemdata.append(layer.width)
+                            itemdata.append(layer.height)
+                            itemdata.append(layer.game)
+                            itemdata.append(layer.color['r'])
+                            itemdata.append(layer.color['g'])
+                            itemdata.append(layer.color['b'])
+                            itemdata.append(layer.color['a'])
+                            itemdata.append(layer.color_env)
+                            itemdata.append(layer.color_env_offset)
+                            itemdata.append(layer.image)
+                            itemdata.append(layer.data)
                             item_types.append('tile_layer')
-                        elif LAYER_TYPES[self.layers[id_].type] == 'quad':
+                        elif LAYER_TYPES[layer.type] == 'quad':
                             itemdata.append(items.QuadLayer.size-8)
                             itemdata.append(1) # useless version xD
-                            itemdata.append(self.layers[id_].type)
-                            itemdata.append(self.layers[id_].flags)
+                            itemdata.append(layer.type)
+                            itemdata.append(layer.flags)
                             itemdata.append(1) # quad layer version
-                            itemdata.append(self.layers[id_].num_quads)
-                            itemdata.append(self.layers[id_].data)
-                            itemdata.append(self.layers[id_].image)
+                            itemdata.append(layer.num_quads)
+                            itemdata.append(layer.data)
+                            itemdata.append(layer.image)
                             item_types.append('quad_layer')
 
             #write item offsets
