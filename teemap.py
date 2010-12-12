@@ -179,17 +179,17 @@ class Teemap(object):
                     count += 1 
                     continue
                 name = ''.join([item_type, 's'])
-                class_ = getattr(self, name)
-                if class_:
+                typelist = getattr(self, name)
+                if typelist:
                     item_types.append({
                         'type': i,
                         'start': count,
-                        'num': len(class_)
+                        'num': len(typelist)
                     })
-                    count += len(class_)
+                    count += len(typelist)
             for item_type in item_types:
                 print item_type
-                f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
+                f.write(pack('3i', itemis_type['type'], item_type['start'], item_type['num']))
 
             # get items
             itemdata = []
@@ -382,3 +382,4 @@ class Teemap(object):
 if __name__ == '__main__':
     t = Teemap()
     t.load('dm1_test.map')
+    t.save()
