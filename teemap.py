@@ -266,11 +266,7 @@ class Teemap(object):
                 elif item_type == 'envelope':
                     for id_, envelope in enumerate(self.envelopes):
                         itemdata.append((i<<16)|id_)
-                        itemdata.append(items.Envelope.size-8)
-                        itemdata.append(1) # envelope version
-                        itemdata.append(envelope.channels)
-                        itemdata.append(envelope.start_point)
-                        itemdata.append(envelope.num_points)
+                        itemdata.extend(envelope.itemdata)
                         name = envelope.string_to_ints()
                         for int in name:
                             itemdata.append(int)

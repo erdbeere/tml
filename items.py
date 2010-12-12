@@ -90,6 +90,11 @@ class Envelope(object):
         ints[-1] &= 0xffffff00
         return ints
 
+    @property
+    def itemdata(self):
+        return (Envelope.size-8, 1, self.channels, self.start_point,
+                self.num_points)
+
     def __repr__(self):
         return '<Envelope>'
 
