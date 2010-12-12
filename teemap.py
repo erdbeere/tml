@@ -182,7 +182,7 @@ class Teemap(object):
                 class_ = getattr(self, name)
                 if class_:
                     item_types.append({
-                        'type': id_,
+                        'type': i,
                         'start': count,
                         'num': len(class_)
                     })
