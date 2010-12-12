@@ -121,6 +121,7 @@ class Item(object):
 
         # load data to layers
         if self.type == 'layer':
+            print self.info[3]
             if LAYER_TYPES[self.info[3]] == 'tile':
                 data = decompress(data[self.info[-1]])
                 fmt = '{0}B'.format(len(data))
@@ -155,10 +156,14 @@ class Group(object):
 
     size = 56
 
-    def __init__(self, item):
+    def __init__(self, item=None):
+        if item == None:
+            info = 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        else:
+            info = item.info[2:]
         self.version, self.offset_x, self.offset_y, self.parallax_x, \
         self.parallax_y, self.start_layer, self.num_layers, self.use_clipping, \
-        self.clip_x, self.clip_y, self.clip_w, self.clip_h = item.info[2:]
+        self.clip_x, self.clip_y, self.clip_w, self.clip_h = info
         self.layers = []
 
     @property
@@ -176,6 +181,7 @@ class Layer(object):
     def __init__(self, item):
         self.version, self.type, self.flags = item.info[2:5]
         self.item = item
+        self.data = item.data
 
     @property
     def is_gamelayer(self):
@@ -187,8 +193,15 @@ class QuadLayer(Layer):
     size = 36
 
     def __init__(self, item):
-        super(QuadLayer, self).__init__(item)
-        self.version, self.num_quads, self._data, self.image = item.info[5:]
+        if item == None:
+            # default values of a new tile layer
+            info = 3, 0, 0, 0
+            self.type = 3
+            self.flags = 0
+        else:
+            info = item.info[5:]
+            super(QuadLayer, self).__init__(item)
+        self.version, self.num_quads, self._data, self.image = info
         # load quads
         self.quads = []
         points = []
@@ -221,17 +234,25 @@ class TileLayer(Layer):
 
     size = 68
 
-    def __init__(self, item):
-        super(TileLayer, self).__init__(item)
+    def __init__(self, item=None):
+        if item == None:
+            # default values of a new tile layer
+            info = 2, 50, 50, 0, 255, 255, 255, 255, -1, 0, -1, 0
+            self.data = [0 for i in range(50*50)]
+            self.type = 2
+            self.flags = 0
+        else:
+            info = item.info[5:]
+            super(TileLayer, self).__init__(item)
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
         self.version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
-        self.color_env_offset, self.image, self._data = item.info[5:]
+        self.color_env_offset, self.image, self._data = info
         # load tile data
         self.tiles = []
         i = 0
-        while(i < len(item.data)):
-            self.tiles.append(Tile(*item.data[i:i+4]))
+        while(i < len(self.data)):
+            self.tiles.append(Tile(*self.data[i:i+4]))
             i += 4
 
     @property

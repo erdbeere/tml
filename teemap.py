@@ -26,29 +26,31 @@ class Header(object):
     Note that the file won't be rewinded!
     """
 
-    def __init__(self, teemap, f):
+    def __init__(self, teemap, f=None):
         self.teemap = teemap
-        sig = ''.join(unpack('4c', f.read(4)))
-        if sig not in ('DATA', 'ATAD'):
-            raise TypeError('Invalid signature')
-        self.version, self.size_, self.swaplen, self.num_item_types, \
-        self.num_items, self.num_raw_data, self.item_size, \
-        self.data_size = unpack('8i', f.read(32))
+        self.version = 4
+        self.size = 0
+        if f != None:
+            sig = ''.join(unpack('4c', f.read(4)))
+            if sig not in ('DATA', 'ATAD'):
+                raise TypeError('Invalid signature')
+            self.version, self.size_, self.swaplen, self.num_item_types, \
+            self.num_items, self.num_raw_data, self.item_size, \
+            self.data_size = unpack('8i', f.read(32))
 
-        if self.version != 4:
-            raise TypeError('Wrong version')
+            if self.version != 4:
+                raise TypeError('Wrong version')
 
-        # calculate the size of the whole header
-        self.size = self.num_item_types * 12
-        self.size += (self.num_items + self.num_raw_data) * 4
-        self.size += self.num_raw_data * 4
-        self.size += self.item_size
+            # calculate the size of the whole header
+            self.size = self.num_item_types * 12
+            self.size += (self.num_items + self.num_raw_data) * 4
+            self.size += self.num_raw_data * 4
+            self.size += self.item_size
 
         # why the hell 36?
         self.size += 36
 
-    def write(self, f):#size, swaplen, num_item_types, num_items, num_raw_data,
-                #item_size, data_size):
+    def write(self, f):
         """Write the header itself in tw map format to a file.
 
         It calculates the item sizes. Every item consists of a special number of
@@ -110,6 +112,19 @@ class Teemap(object):
     def __init__(self):
         self.name = ''
         self.w = self.h = 0
+        self.header = Header(self)
+
+        # default list of item types
+        for type_ in ITEM_TYPES: 
+            setattr(self, ''.join([type_, 's']), [])
+
+        self.data = []
+        gamelayer = items.TileLayer()
+        gamelayer.game = 1
+        group = items.Group()
+        group.layers.append(gamelayer)
+        self.layers.append(gamelayer)
+        self.groups.append(group)
 
     def load(self, map_path):
         """Load a new teeworlds map."""
@@ -292,8 +307,8 @@ class Teemap(object):
                         item_types.append(name)
                         #print layer.item.data
                         format = 'i' if name == 'quad_layer' else 'B'
-                        fmt = '{0}{1}'.format(len(layer.item.data), format)
-                        data = pack(fmt, *layer.item.data)
+                        fmt = '{0}{1}'.format(len(layer.data), format)
+                        data = pack(fmt, *layer.data)
                         datas.append(data)
 
             # compress data
