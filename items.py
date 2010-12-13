@@ -33,12 +33,12 @@ class Quad(object):
                 self.colors.append(color)
         self.texcoords = []
         if texcoords:
-            for j in range(4):
+            for i in range(4):
                 texcoord = {'x': texcoords[i*2], 'y': texcoords[i*2+1]}
                 self.texcoords.append(texcoord)
             texcoords = []
         else:
-            for j in range(4):
+            for i in range(4):
                 texcoord = {'x': 0, 'y': 0}
                 self.texcoords.append(texcoord)
         self.pos_env = pos_env
