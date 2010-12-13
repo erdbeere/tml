@@ -273,17 +273,11 @@ class Teemap(object):
                 elif item_type == 'image':
                     for id_, image in enumerate(self.images):
                         itemdata.append((i<<16)|id_)
+                        image_data = image.add_data(len(datas))
+                        for data in image_data:
+                            datas.append(data)
                         itemdata.extend(image.itemdata)
                         item_types.append('image')
-                        datas.append(image.item.name + chr(0))
-                        if image.image:
-                            k = []
-                            for i in image.image:
-                                for j in i:
-                                    k.append(j)
-                            fmt = '{0}B'.format(len(k))
-                            data = pack(fmt, *k)
-                            datas.append(data)
                 elif item_type == 'envelope':
                     for id_, envelope in enumerate(self.envelopes):
                         itemdata.append((i<<16)|id_)
@@ -300,12 +294,12 @@ class Teemap(object):
                 elif item_type == 'layer':
                     for id_, layer in enumerate(self.layers):
                         itemdata.append((i<<16)|id_)
+                        data = layer.add_data(len(datas))
                         itemdata.extend(layer.itemdata)
                         name = '_'.join((LAYER_TYPES[layer.type], item_type))
                         item_types.append(name)
                         #print layer.item.data
                         format = 'i' if name == 'quad_layer' else 'B'
-                        data = layer.add_data
                         fmt = '{0}{1}'.format(len(data), format)
                         data = pack(fmt, *data)
                         datas.append(data)

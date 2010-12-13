@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #import png
-from struct import unpack
+from struct import unpack, pack
 from zlib import decompress
 
 from constants import ITEM_TYPES, LAYER_TYPES
@@ -81,7 +81,6 @@ class Image(object):
     def __init__(self, item):
         self.version, self.width, self.height, self.external, self.image_name, self.image_data = item.info[2:]
         self.name = item.name
-        self.item = item
         self.image = item.data if not self.external else None
 
     #def save(self):
@@ -97,6 +96,20 @@ class Image(object):
     def itemdata(self):
         return (Image.size-8, 1, self.width, self.height, self.external,
                 self.image_name, self.image_data)
+
+    def add_data(self, id_):
+        name = self.name + chr(0)
+        self.image_name = id_
+        if self.image:
+            k = []
+            for i in self.image:
+                for j in i:
+                    k.append(j)
+            fmt = '{0}B'.format(len(k))
+            image_data = pack(fmt, *k)
+            self.image_data = id_+1
+            return [name, image_data]
+        return [name]
 
     def __repr__(self):
         return '<Image>'
@@ -263,8 +276,8 @@ class QuadLayer(Layer):
         return (QuadLayer.size-8, 1, self.type, self.flags, 1, self.num_quads,
                 self._data, self.image)
 
-    @property
-    def add_data(self):
+    def add_data(self, id_):
+        self._data = id_
         data = []
         for quad in self.quads:
             for point in quad.points:
@@ -318,8 +331,8 @@ class TileLayer(Layer):
                 self.color['b'], self.color['a'], self.color_env,
                 self.color_env_offset, self.image, self._data)
 
-    @property
-    def add_data(self):
+    def add_data(self, id_):
+        self._data = id_
         data = []
         for tile in self.tiles:
             data.extend([tile.index, tile.flags, tile.skip, tile.reserved])
