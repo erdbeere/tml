@@ -263,10 +263,7 @@ class Teemap(object):
                     item_types.append('version')
                 elif item_type == 'envpoint':
                     itemdata.append(i<<16)
-                    size = 0
-                    for envpoint in self.envpoints:
-                        size += 6*4
-                    itemdata.append(size)
+                    itemdata.append(len(self.envpoints)*6*4)
                     for envpoint in self.envpoints:
                         itemdata.append(envpoint.time)
                         itemdata.append(envpoint.curvetype)
@@ -351,6 +348,21 @@ class Teemap(object):
 
             f.close()
 
+    #def create_default(self):
+    #    """Creates the default map.
+
+    #    The default map consists out of two groups containing a quadlayer 
+    #    with the background and the game layer.
+    #    """
+
+    #    self.groups = []
+    #    background_group = items.Group()
+    #    background_group.default_background()
+    #    background_layer = items.QuadLayer()
+    #    game_layer = imtes.Layer()
+        
+
+        
     def __repr__(self):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)
 

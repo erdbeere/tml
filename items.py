@@ -6,6 +6,49 @@ from zlib import decompress
 
 from constants import ITEM_TYPES, LAYER_TYPES
 
+class Quad(object):
+    """Represents a quad of a quadlayer."""
+
+    def __init__(self, points=None, colors=None, texcoords=None, pos_env=-1,
+                    pos_env_offset=0, color_env=-1, color_env_offset=0):
+        self.points = []
+        if points:
+            for i in range(5):
+                point = {'x': points[i*2], 'y': points[i*2+1]}
+                self.points.append(point)
+            points = []
+        else:
+            for i in range(5):
+                point = {'x': 0, 'y': 0}
+                self.points.append(point)
+        self.colors = []
+        if colors:
+            for i in range(4):
+                color = {'r': colors[i*4], 'g': colors[i*4+1], 'b': colors[i*4+2], 'a': colors[i*4+3]}
+                self.colors.append(color)
+            colors = []
+        else:
+            for i in range(4):
+                color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
+                self.colors.append(color)
+        self.texcoords = []
+        if texcoords:
+            for j in range(4):
+                texcoord = {'x': texcoords[i*2], 'y': texcoords[i*2+1]}
+                self.texcoords.append(texcoord)
+            texcoords = []
+        else:
+            for j in range(4):
+                texcoord = {'x': 0, 'y': 0}
+                self.texcoords.append(texcoord)
+        self.pos_env = pos_env
+        self.pos_env_offset = pos_env_offset
+        self.color_env = color_env
+        self.color_env_offset = color_env_offset
+
+        def _repr__(self):
+            return '<Quad {0} {1}>'.format(self.pos_env, self.color_env)
+            
 class Tile(object):
     """Represents a tile of a tilelayer."""
 
@@ -171,6 +214,13 @@ class Group(object):
                 self.parallax_x, self.parallax_y, self.start_layer,
                 self.num_layers, self.use_clipping, self.clip_x, self.clip_y,
                 self.clip_w, self.clip_h)
+
+    def default_background(self):
+        """Creates the group optimised for the background."""
+
+        self.parallax_x = 0
+        self.parallax_y = 0
+
     def __repr__(self):
         return '<Group>'
 
@@ -191,7 +241,8 @@ class QuadLayer(Layer):
 
     size = 36
 
-    def __init__(self, item):
+    def __init__(self, item=None):
+        self.quads = []
         if item == None:
             # default values of a new tile layer
             info = 3, 0, 0, 0
@@ -200,25 +251,13 @@ class QuadLayer(Layer):
         else:
             info = item.info[5:]
             super(QuadLayer, self).__init__(item)
+             # load quads
+            i = 0
+            while(i < len(item.data)):
+                self.quads.append(Quad(item.data[i:i+10], item.data[i+10:i+26], item.data[i+26:i+34], item.data[i+34],
+                                        item.data[i+35], item.data[i+36], item.data[i+37]))
+                i += 38
         self.version, self.num_quads, self._data, self.image = info
-        # load quads
-        self.quads = []
-        points = []
-        for i in range(len(item.data)/38):
-            for j in range(5):
-                point = {'x': item.data[i*38+j*2], 'y': item.data[i*38+j*2+1]}
-                points.append(point)
-            colors = []
-            for j in range(4):
-                color = {'r': item.data[i*38+j*4+10], 'g': item.data[i*38+j*4+11], 'b': item.data[i*38+j*4+12], 'a': item.data[i*38+j*4+13]}
-                colors.append(color)
-            texcoords = []
-            for j in range(4):
-                texcoord = {'x': item.data[i*38+j*2+26], 'y': item.data[i*38+j*2+27]}
-                texcoords.append(texcoord)
-            quad = {'points': points, 'colors': colors, 'texcoords': texcoords, 'pos_env': item.data[i*38+34],
-                    'pos_env_off': item.data[i*38+35], 'color_env': item.data[i*38+36], 'color_env_off': item.data[i*38+37]}
-            self.quads.append(quad)
 
     @property
     def itemdata(self):
