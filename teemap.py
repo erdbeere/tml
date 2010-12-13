@@ -305,8 +305,9 @@ class Teemap(object):
                         item_types.append(name)
                         #print layer.item.data
                         format = 'i' if name == 'quad_layer' else 'B'
-                        fmt = '{0}{1}'.format(len(layer.data), format)
-                        data = pack(fmt, *layer.data)
+                        data = layer.add_data
+                        fmt = '{0}{1}'.format(len(data), format)
+                        data = pack(fmt, *data)
                         datas.append(data)
 
             # compress data
