@@ -107,8 +107,6 @@ class Header(object):
 class Teemap(object):
 
 
-    item_count = 0
-
     def __init__(self):
         self.name = ''
         self.w = self.h = 0
@@ -135,7 +133,6 @@ class Teemap(object):
             raise TypeError('Invalid file')
         with open(map_path, 'rb') as f:
             self.header = Header(self, f)
-            Teemap.item_count = self.header.num_items
             self.item_types = []
             for i in range(self.header.num_item_types):
                 val = unpack('3i', f.read(12))
