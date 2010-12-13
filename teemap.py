@@ -266,11 +266,12 @@ class Teemap(object):
                     size = 0
                     for envpoint in self.envpoints:
                         size += 6*4
+                    itemdata.append(size)
+                    for envpoint in self.envpoints:
                         itemdata.append(envpoint.time)
                         itemdata.append(envpoint.curvetype)
                         for value in envpoint.values:
                             itemdata.append(value)
-                    itemdata.append(size)
                     item_types.append('envpoint')
                 elif item_type == 'image':
                     for id_, image in enumerate(self.images):

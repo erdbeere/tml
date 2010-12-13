@@ -121,7 +121,6 @@ class Item(object):
 
         # load data to layers
         if self.type == 'layer':
-            print self.info[3]
             if LAYER_TYPES[self.info[3]] == 'tile':
                 data = decompress(data[self.info[-1]])
                 fmt = '{0}B'.format(len(data))
