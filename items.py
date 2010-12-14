@@ -24,7 +24,8 @@ class Quad(object):
         self.colors = []
         if colors:
             for i in range(4):
-                color = {'r': colors[i*4], 'g': colors[i*4+1], 'b': colors[i*4+2], 'a': colors[i*4+3]}
+                color = {'r': colors[i*4], 'g': colors[i*4+1],
+                        'b': colors[i*4+2], 'a': colors[i*4+3]}
                 self.colors.append(color)
             colors = []
         else:
@@ -39,7 +40,7 @@ class Quad(object):
             texcoords = []
         else:
             texcoord = [{'x': 0, 'y': 0}, {'x': 1<<10, 'y': 0},
-                        {'x': 0, 'y': 1<<10}, {'x': 1<<10, 'y': 1<<10}]
+                       {'x': 0, 'y': 1<<10}, {'x': 1<<10, 'y': 1<<10}]
             self.texcoords.extend(texcoord)
         self.pos_env = pos_env
         self.pos_env_offset = pos_env_offset
@@ -79,7 +80,8 @@ class Image(object):
     size = 32
 
     def __init__(self, item):
-        self.version, self.width, self.height, self.external, self.image_name, self.image_data = item.info[2:]
+        self.version, self.width, self.height, self.external, \
+        self.image_name, self.image_data = item.info[2:]
         self.name = item.name
         self.image = item.data if not self.external else None
 
@@ -120,7 +122,8 @@ class Envelope(object):
     size = 56
 
     def __init__(self, item):
-        self.version, self.channels, self.start_point, self.num_points = item.info[2:6]
+        self.version, self.channels, self.start_point, \
+        self.num_points = item.info[2:6]
         self.name = self.ints_to_string(item.info[6:])
         self.item = item
 
@@ -293,8 +296,10 @@ class QuadLayer(Layer):
              # load quads
             i = 0
             while(i < len(item.data)):
-                self.quads.append(Quad(item.data[i:i+10], item.data[i+10:i+26], item.data[i+26:i+34], item.data[i+34],
-                                        item.data[i+35], item.data[i+36], item.data[i+37]))
+                self.quads.append(Quad(item.data[i:i+10], item.data[i+10:i+26],
+                                       item.data[i+26:i+34], item.data[i+34],
+                                       item.data[i+35], item.data[i+36],
+                                       item.data[i+37]))
                 i += 38
         self.version, self.num_quads, self._data, self.image = info
 
@@ -313,14 +318,16 @@ class QuadLayer(Layer):
                 data.extend([color['r'], color['g'], color['b'], color['a']])
             for texcoord in quad.texcoords:
                 data.extend([texcoord['x'], texcoord['y']])
-            data.extend([quad.pos_env, quad.pos_env_offset, quad.color_env, quad.color_env_offset])
+            data.extend([quad.pos_env, quad.pos_env_offset, quad.color_env,
+                        quad.color_env_offset])
         return data
 
     def add_quad(self, points=None, colors=None, texcoords=None, pos_env=-1,
                     pos_env_offset=0, color_env=-1, color_env_offset=0):
         """Adds a quad to the layer and returns it."""
 
-        quad = Quad(points, colors, texcoords, pos_env, pos_env_offset, color_env, color_env_offset)
+        quad = Quad(points, colors, texcoords, pos_env, pos_env_offset,
+                    color_env, color_env_offset)
         self.quads.append(quad)
         self.num_quads += 1
         return quad
@@ -330,8 +337,10 @@ class QuadLayer(Layer):
 
         width = 800000
         height = 600000
-        points = [-width, -height, width, -height, -width, height, width, height, 32, 32]
-        colors = [94, 132, 174, 255, 94, 132, 174, 255, 204, 232, 255, 255, 204, 232, 255, 255]
+        points = [-width, -height, width, -height, -width, height, width,
+                 height, 32, 32]
+        colors = [94, 132, 174, 255, 94, 132, 174, 255, 204, 232, 255, 255,
+                 204, 232, 255, 255]
         background_quad = self.add_quad(points, colors)
 
     def __repr__(self):
