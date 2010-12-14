@@ -113,7 +113,7 @@ class Teemap(object):
         self.header = Header(self)
 
         # default list of item types
-        for type_ in ITEM_TYPES: 
+        for type_ in ITEM_TYPES:
             setattr(self, ''.join([type_, 's']), [])
 
     def load(self, map_path):
@@ -337,7 +337,7 @@ class Teemap(object):
     def create_default(self):
         """Creates the default map.
 
-        The default map consists out of two groups containing a quadlayer 
+        The default map consists out of two groups containing a quadlayer
         with the background and the game layer.
         """
 

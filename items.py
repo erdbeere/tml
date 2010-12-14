@@ -47,9 +47,9 @@ class Quad(object):
         self.color_env = color_env
         self.color_env_offset = color_env_offset
 
-        def __repr__(self):
-            return '<Quad {0} {1}>'.format(self.pos_env, self.color_env)
-            
+    def __repr__(self):
+        return '<Quad {0} {1}>'.format(self.pos_env, self.color_env)
+
 class Tile(object):
     """Represents a tile of a tilelayer."""
 
@@ -372,7 +372,7 @@ class TileLayer(Layer):
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
         self.version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
-        self.color_env_offset, self.image, self._data = info  
+        self.color_env_offset, self.image, self._data = info
 
     @property
     def is_gamelayer(self):
@@ -391,6 +391,6 @@ class TileLayer(Layer):
         for tile in self.tiles:
             data.extend([tile.index, tile.flags, tile.skip, tile.reserved])
         return data
-  
+
     def __repr__(self):
         return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
