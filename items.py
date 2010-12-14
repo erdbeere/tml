@@ -38,7 +38,8 @@ class Quad(object):
                 self.texcoords.append(texcoord)
             texcoords = []
         else:
-            texcoord = [{'x': 0, 'y': 0}, {'x': 1<10, 'y': 0}, {'x': 0, 'y': 1<10}, {'x': 1<10, 'y': 1<10}]
+            texcoord = [{'x': 0, 'y': 0}, {'x': 1<<10, 'y': 0},
+                        {'x': 0, 'y': 1<<10}, {'x': 1<<10, 'y': 1<<10}]
             self.texcoords.extend(texcoord)
         self.pos_env = pos_env
         self.pos_env_offset = pos_env_offset
