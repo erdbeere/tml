@@ -258,7 +258,7 @@ class Teemap(object):
                 elif item_type == 'image':
                     for id_, image in enumerate(self.images):
                         itemdata.append((i<<16)|id_)
-                        image_data = image.add_data(len(datas))
+                        image_data = image.get_data(len(datas))
                         for data in image_data:
                             datas.append(data)
                         itemdata.extend(image.itemdata)
@@ -279,7 +279,7 @@ class Teemap(object):
                 elif item_type == 'layer':
                     for id_, layer in enumerate(self.layers):
                         itemdata.append((i<<16)|id_)
-                        data = layer.add_data(len(datas))
+                        data = layer.get_data(len(datas))
                         itemdata.extend(layer.itemdata)
                         name = '_'.join((LAYER_TYPES[layer.type], item_type))
                         item_types.append(name)

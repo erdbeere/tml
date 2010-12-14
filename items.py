@@ -96,7 +96,7 @@ class Image(object):
         return (Image.size-8, 1, self.width, self.height, self.external,
                 self.image_name, self.image_data)
 
-    def add_data(self, id_):
+    def get_data(self, id_):
         name = self.name + chr(0)
         self.image_name = id_
         if self.image:
@@ -302,7 +302,7 @@ class QuadLayer(Layer):
         return (QuadLayer.size-8, 1, self.type, self.flags, 1, self.num_quads,
                 self._data, self.image)
 
-    def add_data(self, id_):
+    def get_data(self, id_):
         self._data = id_
         data = []
         for quad in self.quads:
@@ -375,7 +375,7 @@ class TileLayer(Layer):
                 self.color['b'], self.color['a'], self.color_env,
                 self.color_env_offset, self.image, self._data)
 
-    def add_data(self, id_):
+    def get_data(self, id_):
         self._data = id_
         data = []
         for tile in self.tiles:
