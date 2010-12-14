@@ -66,7 +66,7 @@ class Header(object):
         # calculate compressed data size and store the compressed data
         datas = []
         data_size = 0
-        for data in teemap.data:
+        for data in teemap.compressed_data:
             data_size += len(data)
             datas.append(data)
         # calculate the item size
@@ -116,14 +116,6 @@ class Teemap(object):
         for type_ in ITEM_TYPES: 
             setattr(self, ''.join([type_, 's']), [])
 
-        self.data = []
-        gamelayer = items.TileLayer()
-        gamelayer.game = 1
-        group = items.Group()
-        group.layers.append(gamelayer)
-        self.layers.append(gamelayer)
-        self.groups.append(group)
-
     def load(self, map_path):
         """Load a new teeworlds map."""
 
@@ -152,11 +144,11 @@ class Teemap(object):
             data_start_offset = self.header.size
             item_start_offset = self.header.size - self.header.item_size
 
-            self.data = []
+            self.compressed_data = []
             f.seek(data_start_offset)
             for offset in (self.data_offsets + (self.header.data_size,)):
                 if offset > 0:
-                    self.data.append(f.read(offset - last_offset))
+                    self.compressed_data.append(f.read(offset - last_offset))
                 last_offset = offset
 
             # calculate with the offsets and the whole item size the size of
@@ -173,7 +165,7 @@ class Teemap(object):
                 for i in range(item_type['num']):
                     size = sizes[item_type['start'] + i]
                     item = items.Item(item_type['type'])
-                    item.load(f.read(size), self.data)
+                    item.load(f.read(size), self.compressed_data)
                     self.itemlist.append(item)
 
             # order the items
@@ -219,16 +211,14 @@ class Teemap(object):
         if extension != ''.join([os.extsep, 'map']):
             map_path = ''.join([map_path, os.extsep, 'map'])
         with open(map_path, 'wb') as f:
-            # write header
-            self.header.write(f)
-            # write types
-            item_types = []
+            # get types
+            item_types_data = []
             count = 0
             for i, item_type in enumerate(ITEM_TYPES):
                 if item_type == 'info':
                     continue
                 elif item_type in ('version', 'envpoint'):
-                    item_types.append({
+                    item_types_data.append({
                         'type': i,
                         'start': count,
                         'num': 1
@@ -238,14 +228,12 @@ class Teemap(object):
                 name = ''.join([item_type, 's'])
                 typelist = getattr(self, name)
                 if typelist:
-                    item_types.append({
+                    item_types_data.append({
                         'type': i,
                         'start': count,
                         'num': len(typelist)
                     })
                     count += len(typelist)
-            for item_type in item_types:
-                f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
 
             # get items and create simultaneously a list of the corresponding
             # datas
@@ -295,14 +283,20 @@ class Teemap(object):
                         itemdata.extend(layer.itemdata)
                         name = '_'.join((LAYER_TYPES[layer.type], item_type))
                         item_types.append(name)
-                        #print layer.item.data
                         format = 'i' if name == 'quad_layer' else 'B'
                         fmt = '{0}{1}'.format(len(data), format)
                         data = pack(fmt, *data)
                         datas.append(data)
 
             # compress data
-            compressed_datas = [compress(data) for data in datas]
+            self.compressed_data = [compress(data) for data in datas]
+
+            # write header
+            self.header.write(f)
+
+            # write types
+            for item_type in item_types_data:
+                f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
 
             # write item offsets
             item_offsets = []
@@ -322,7 +316,7 @@ class Teemap(object):
 
             # write data offsets
             data_cur_offset = 0
-            for data in compressed_datas:
+            for data in self.compressed_data:
                 f.write(pack('i', data_cur_offset))
                 data_cur_offset += len(data)
 
@@ -335,26 +329,31 @@ class Teemap(object):
                 f.write(pack('i', int32(data)))
 
             # compress data and write it
-            for data in compressed_datas:
+            for data in self.compressed_data:
                 f.write(data)
 
             f.close()
 
-    #def create_default(self):
-    #    """Creates the default map.
+    def create_default(self):
+        """Creates the default map.
 
-    #    The default map consists out of two groups containing a quadlayer 
-    #    with the background and the game layer.
-    #    """
+        The default map consists out of two groups containing a quadlayer 
+        with the background and the game layer.
+        """
 
-    #    self.groups = []
-    #    background_group = items.Group()
-    #    background_group.default_background()
-    #    background_layer = items.QuadLayer()
-    #    game_layer = imtes.Layer()
-        
+        self.groups = []
+        self.layers = []
+        background_group = items.Group(self)
+        self.groups.append(background_group)
+        background_group.default_background()
+        background_layer = items.QuadLayer()
+        background_layer.add_background_quad()
+        background_group.add_layer(background_layer)
+        game_group = items.Group(self)
+        self.groups.append(game_group)
+        game_layer = items.TileLayer(game=1)
+        game_group.add_layer(game_layer)
 
-        
     def __repr__(self):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)
 

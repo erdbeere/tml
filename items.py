@@ -29,7 +29,7 @@ class Quad(object):
             colors = []
         else:
             for i in range(4):
-                color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
+                color = {'r': 255, 'g': 255, 'b': 255, 'a': 255}
                 self.colors.append(color)
         self.texcoords = []
         if texcoords:
@@ -38,9 +38,8 @@ class Quad(object):
                 self.texcoords.append(texcoord)
             texcoords = []
         else:
-            for i in range(4):
-                texcoord = {'x': 0, 'y': 0}
-                self.texcoords.append(texcoord)
+            texcoord = [{'x': 0, 'y': 0}, {'x': 1<10, 'y': 0}, {'x': 0, 'y': 1<10}, {'x': 1<10, 'y': 1<10}]
+            self.texcoords.extend(texcoord)
         self.pos_env = pos_env
         self.pos_env_offset = pos_env_offset
         self.color_env = color_env
@@ -211,7 +210,8 @@ class Group(object):
 
     size = 56
 
-    def __init__(self, item=None):
+    def __init__(self, teemap, item=None):
+        self.teemap = teemap
         if item == None:
             info = 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         else:
@@ -233,6 +233,32 @@ class Group(object):
 
         self.parallax_x = 0
         self.parallax_y = 0
+
+    def add_layer(self, layer, num=-1):
+        """Adds a layer to the group."""
+
+        # sort in the new layer
+        if num > 0:
+            if num < self.start_layer:
+                num = self.start_layer
+            elif num > self.start_layer+self.num_layers:
+                num = self.start_layer+self.num_layers
+            self.layers.insert(num-self.start_layer, layer)
+            self.teemap.layers.insert(num)
+        else:
+            self.layers.append(layer)
+            self.teemap.layers.insert(self.start_layer+self.num_layers, layer)
+        self.num_layers += 1
+        #check start_layer of all groups
+        self.check_start_layer()
+
+    def check_start_layer(self):
+        """Checks if the start_layers are set correctly."""
+
+        num = 0
+        for group in self.teemap.groups:
+            group.start_layer = num
+            num += group.num_layers
 
     def __repr__(self):
         return '<Group>'
@@ -257,7 +283,7 @@ class QuadLayer(Layer):
         self.quads = []
         if item == None:
             # default values of a new tile layer
-            info = 3, 0, 0, 0
+            info = 3, 0, -1, -1
             self.type = 3
             self.flags = 0
         else:
@@ -289,6 +315,24 @@ class QuadLayer(Layer):
             data.extend([quad.pos_env, quad.pos_env_offset, quad.color_env, quad.color_env_offset])
         return data
 
+    def add_quad(self, points=None, colors=None, texcoords=None, pos_env=-1,
+                    pos_env_offset=0, color_env=-1, color_env_offset=0):
+        """Adds a quad to the layer and returns it."""
+
+        quad = Quad(points, colors, texcoords, pos_env, pos_env_offset, color_env, color_env_offset)
+        self.quads.append(quad)
+        self.num_quads += 1
+        return quad
+
+    def add_background_quad(self):
+        """Adds the default background quad to the layer."""
+
+        width = 800000
+        height = 600000
+        points = [-width, -height, width, -height, -width, height, width, height, 32, 32]
+        colors = [94, 132, 174, 255, 94, 132, 174, 255, 204, 232, 255, 255, 204, 232, 255, 255]
+        background_quad = self.add_quad(points, colors)
+
     def __repr__(self):
         return '<Quad layer>'
 
@@ -297,15 +341,15 @@ class TileLayer(Layer):
 
     size = 68
 
-    def __init__(self, item=None):
+    def __init__(self, item=None, game=0, x=50, y=50):
         self.tiles = []
         if item == None:
             # default values of a new tile layer
-            info = 2, 50, 50, 0, 255, 255, 255, 255, -1, 0, -1, 0
-            self.data = [0 for i in range(50*50)]
+            info = 2, x, y, game, 255, 255, 255, 255, -1, 0, -1, -1
+            self.data = [0 for i in range(x*y)]
             self.type = 2
             self.flags = 0
-            for i in range(50*50):
+            for i in range(x*y):
                 self.tiles.append(Tile())
         else:
             info = item.info[5:]
@@ -337,6 +381,6 @@ class TileLayer(Layer):
         for tile in self.tiles:
             data.extend([tile.index, tile.flags, tile.skip, tile.reserved])
         return data
-
+  
     def __repr__(self):
         return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
