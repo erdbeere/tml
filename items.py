@@ -238,34 +238,34 @@ class Group(object):
         self.parallax_x = 0
         self.parallax_y = 0
 
-    def add_layer(self, layer, num=-1):
-        """Adds a layer to the group."""
-
-        # sort in the new layer
-        if num > 0:
-            if num < self.start_layer:
-                num = self.start_layer
-            elif num > self.start_layer+self.num_layers:
-                num = self.start_layer+self.num_layers
-            self.layers.insert(num-self.start_layer, layer)
-            self.teemap.layers.insert(num)
-        else:
-            self.layers.append(layer)
-            self.teemap.layers.insert(self.start_layer+self.num_layers, layer)
-        self.num_layers += 1
-        #check start_layer of all groups
-        self.check_start_layer()
-
-    def check_start_layer(self):
-        """Checks if the start_layers are set correctly."""
-
-        num = 0
-        for group in self.teemap.groups:
-            group.start_layer = num
-            num += group.num_layers
-
-    def __repr__(self):
-        return '<Group>'
+#    def add_layer(self, layer, num=-1):
+#        """Adds a layer to the group."""
+#
+#        # sort in the new layer
+#        if num > 0:
+#            if num < self.start_layer:
+#                num = self.start_layer
+#            elif num > self.start_layer+self.num_layers:
+#                num = self.start_layer+self.num_layers
+#            self.layers.insert(num-self.start_layer, layer)
+#            self.teemap.layers.insert(num)
+#        else:
+#            self.layers.append(layer)
+#            self.teemap.layers.insert(self.start_layer+self.num_layers, layer)
+#        self.num_layers += 1
+#        #check start_layer of all groups
+#        self.check_start_layer()
+#
+#    def check_start_layer(self):
+#        """Checks if the start_layers are set correctly."""
+#
+#        num = 0
+#        for group in self.teemap.groups:
+#            group.start_layer = num
+#            num += group.num_layers
+#
+#    def __repr__(self):
+#        return '<Group>'
 
 class Layer(object):
     """Represents the layer data every layer has."""

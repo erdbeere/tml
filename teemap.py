@@ -116,6 +116,8 @@ class Teemap(object):
         for type_ in ITEM_TYPES:
             setattr(self, ''.join([type_, 's']), [])
 
+        self.create_default()
+
     def load(self, map_path):
         """Load a new teeworlds map."""
 
@@ -359,5 +361,5 @@ class Teemap(object):
 
 if __name__ == '__main__':
     t = Teemap()
-    t.load('dm1_test.map')
+    #t.load('dm1_test.map')
     t.save()
