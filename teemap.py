@@ -172,8 +172,8 @@ class Teemap(object):
 
             # order the items
             for type_ in ITEM_TYPES:
-                # envpoints will be handled separately
-                if type_ == 'envpoint':
+                # envpoints and layers will be handled separately
+                if type_ in ('envpoint', 'layer'):
                     pass
                 else:
                     name = ''.join([type_, 's'])
@@ -181,28 +181,29 @@ class Teemap(object):
                     setattr(self, name, [class_(item) for item in self.itemlist
                                         if item.type == type_])
 
-            # devide the envpoints item into the single envpoints
+            # handle envpoints and layers
             self.envpoints = []
+            layers = []
             for item in self.itemlist:
+                # devide the envpoints item into the single envpoints
                 if item.type == 'envpoint':
                     for i in range((len(item.info)-2) / 6):
                         info = item.info[2+(i*6):2+(i*6+6)]
                         self.envpoints.append(items.Envpoint(info))
-
-            # specify layers (tile- or quadlayer)
-            layers = self.layers
-            self.layers = []
-            for layer in layers:
-                layerclass = ''.join([LAYER_TYPES[layer.type].title(), 'Layer'])
-                class_ = getattr(items, layerclass)
-                self.layers.append(class_(layer.item))
+                elif item.type == 'layer':
+                    layer = items.Layer(item)
+                    layerclass = ''.join([LAYER_TYPES[layer.type].title(),
+                                         'Layer'])
+                    class_ = getattr(items, layerclass)
+                    layers.append(class_(item))
 
             # assign layers to groups
             for group in self.groups:
                 start = group.start_layer
                 end = group.start_layer + group.num_layers
-                group.layers = [layer for layer in self.layers[start:end]]
-
+                print start, end
+                group.layers = [layer for layer in layers[start:end]]
+                print group.layers
             self.w, self.h = (0, 0) # should contain size of the game layer
 
     def save(self, map_path='unnamed'):
@@ -361,5 +362,5 @@ class Teemap(object):
 
 if __name__ == '__main__':
     t = Teemap()
-    #t.load('dm1_test.map')
+    t.load('dm1_test.map')
     t.save()
