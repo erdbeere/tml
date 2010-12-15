@@ -350,11 +350,11 @@ class Teemap(object):
         background_group.default_background()
         background_layer = items.QuadLayer()
         background_layer.add_background_quad()
-        background_group.add_layer(background_layer)
+        background_group.layers.append(background_layer)
         game_group = items.Group(self)
         self.groups.append(game_group)
         game_layer = items.TileLayer(game=1)
-        game_group.add_layer(game_layer)
+        game_group.layers.append(game_layer)
 
     def __repr__(self):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)
