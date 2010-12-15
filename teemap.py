@@ -114,9 +114,18 @@ class Teemap(object):
 
         # default list of item types
         for type_ in ITEM_TYPES:
-            setattr(self, ''.join([type_, 's']), [])
+            if type_ != 'layer':
+                setattr(self, ''.join([type_, 's']), [])
 
         self.create_default()
+
+    @property
+    def layers(self):
+        """Returns a list of all layers, collected from the groups."""
+        layers_ = []
+        for group in self.groups:
+            layers_.extend(group.layers)
+        return layers_
 
     def load(self, map_path):
         """Load a new teeworlds map."""
@@ -202,7 +211,6 @@ class Teemap(object):
                 start = group.start_layer
                 end = group.start_layer + group.num_layers
                 group.layers = [layer for layer in layers[start:end]]
-                print group.layers
             self.w, self.h = (0, 0) # should contain size of the game layer
 
     def save(self, map_path='unnamed'):
@@ -344,7 +352,6 @@ class Teemap(object):
         """
 
         self.groups = []
-        self.layers = []
         background_group = items.Group()
         self.groups.append(background_group)
         background_group.default_background()
