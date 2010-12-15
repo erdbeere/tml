@@ -295,15 +295,6 @@ class QuadLayer(Layer):
                         quad.color_env_offset])
         return data
 
-    def add_quad(self, points=None, colors=None, texcoords=None, pos_env=-1,
-                    pos_env_offset=0, color_env=-1, color_env_offset=0):
-        """Adds a quad to the layer and returns it."""
-
-        quad = Quad(points, colors, texcoords, pos_env, pos_env_offset,
-                    color_env, color_env_offset)
-        self.quads.append(quad)
-        return quad
-
     def add_background_quad(self):
         """Adds the default background quad to the layer."""
 
@@ -313,7 +304,7 @@ class QuadLayer(Layer):
                  height, 32, 32]
         colors = [94, 132, 174, 255, 94, 132, 174, 255, 204, 232, 255, 255,
                  204, 232, 255, 255]
-        background_quad = self.add_quad(points, colors)
+        self.quads.append(Quad(points, colors))
 
     def __repr__(self):
         return '<Quad layer>'
