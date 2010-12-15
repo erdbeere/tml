@@ -282,7 +282,11 @@ class Teemap(object):
                             itemdata.append(int_)
                         item_types.append('envelope')
                 elif item_type == 'group':
+                    num_layers = 0
                     for id_, group in enumerate(self.groups):
+                        # calculate new start_layer values
+                        group.start_layer = num_layers
+                        num_layers += len(group.layers)
                         itemdata.append((i<<16)|id_)
                         itemdata.extend(group.itemdata)
                         item_types.append('group')

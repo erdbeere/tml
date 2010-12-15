@@ -216,7 +216,7 @@ class Group(object):
 
     def __init__(self, item=None):
         if item == None:
-            info = 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            info = 2, 0, 0, 100, 100, 0, 0, 0, 0, 0, 0, 0
         else:
             info = item.info[2:]
         self.version, self.offset_x, self.offset_y, self.parallax_x, \
@@ -228,7 +228,7 @@ class Group(object):
     def itemdata(self):
         return (Group.size-8, 2, self.offset_x, self.offset_y,
                 self.parallax_x, self.parallax_y, self.start_layer,
-                self.num_layers, self.use_clipping, self.clip_x, self.clip_y,
+                len(self.layers), self.use_clipping, self.clip_x, self.clip_y,
                 self.clip_w, self.clip_h)
 
     def default_background(self):
