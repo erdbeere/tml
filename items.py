@@ -214,8 +214,7 @@ class Group(object):
 
     size = 56
 
-    def __init__(self, teemap, item=None):
-        self.teemap = teemap
+    def __init__(self, item=None):
         if item == None:
             info = 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         else:

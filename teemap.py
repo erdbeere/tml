@@ -201,7 +201,6 @@ class Teemap(object):
             for group in self.groups:
                 start = group.start_layer
                 end = group.start_layer + group.num_layers
-                print start, end
                 group.layers = [layer for layer in layers[start:end]]
                 print group.layers
             self.w, self.h = (0, 0) # should contain size of the game layer
@@ -346,13 +345,13 @@ class Teemap(object):
 
         self.groups = []
         self.layers = []
-        background_group = items.Group(self)
+        background_group = items.Group()
         self.groups.append(background_group)
         background_group.default_background()
         background_layer = items.QuadLayer()
         background_layer.add_background_quad()
         background_group.layers.append(background_layer)
-        game_group = items.Group(self)
+        game_group = items.Group()
         self.groups.append(game_group)
         game_layer = items.TileLayer(game=1)
         game_group.layers.append(game_layer)
