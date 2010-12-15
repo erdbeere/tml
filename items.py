@@ -278,7 +278,7 @@ class QuadLayer(Layer):
 
     @property
     def itemdata(self):
-        return (QuadLayer.size-8, 1, self.type, self.flags, 1, self.num_quads,
+        return (QuadLayer.size-8, 1, self.type, self.flags, 1, len(self.quads),
                 self._data, self.image)
 
     def get_data(self, id_):
@@ -302,7 +302,6 @@ class QuadLayer(Layer):
         quad = Quad(points, colors, texcoords, pos_env, pos_env_offset,
                     color_env, color_env_offset)
         self.quads.append(quad)
-        self.num_quads += 1
         return quad
 
     def add_background_quad(self):
