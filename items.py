@@ -320,15 +320,14 @@ class TileLayer(Layer):
 
     size = 68
 
-    def __init__(self, item=None, game=0, x=50, y=50):
+    def __init__(self, item=None, game=0, width=50, height=50):
         self.tiles = []
         if item == None:
             # default values of a new tile layer
-            info = 2, x, y, game, 255, 255, 255, 255, -1, 0, -1, -1
-            self.data = [0 for i in range(x*y)]
+            info = 2, width, height, game, 255, 255, 255, 255, -1, 0, -1, -1
             self.type = 2
             self.flags = 0
-            for i in range(x*y):
+            for i in range(width*height):
                 self.tiles.append(Tile())
         else:
             info = item.info[5:]
@@ -342,6 +341,44 @@ class TileLayer(Layer):
         self.version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
         self.color_env_offset, self.image, self._data = info
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        # rearrange the tile list
+        if hasattr(self, '_width'):
+            diff = value - self._width
+            tiles = []
+            for i in range(self.height):
+                start = i*self._width
+                if diff > 0:
+                    end = i*self._width + self._width
+                    tiles.extend(self.tiles[start:end])
+                    tiles.extend([Tile() for i in range(diff)])
+                elif diff < 0:
+                    end = i*self._width + self._width + diff
+                    tiles.extend(self.tiles[start:end])
+            self.tiles = tiles
+        self._width = value
+
+
+    @property
+    def height(self):
+        return self._height
+
+    @height.setter
+    def height(self, value):
+        # remove or add new tiles
+        if hasattr(self, '_height'):
+            diff = value - self._height
+            if diff > 0:
+                self.tiles.extend([Tile() for i in range(diff * self.width)])
+            elif diff < 0:
+                self.tiles = self.tiles[0:diff * self.width]
+        self._height = value
 
     @property
     def is_gamelayer(self):

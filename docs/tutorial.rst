@@ -14,9 +14,9 @@ and of course save them, you can give the path as the first parameter.
 The "map" file extension is optional.
 
 >>> from tml import Teemap
->>> my_map = Teemap()
->>> my_map.load('dm1_test')
->>> my_map.save('unnamed')
+>>> twmap = Teemap()
+>>> twmap.load('dm1_test')
+>>> twmap.save('unnamed')
 
 .. autoclass:: tml.Teemap
    :members: load, save
