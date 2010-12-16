@@ -115,7 +115,7 @@ class Teemap(object):
 
     def __init__(self):
         self.name = ''
-        self.w = self.h = 0
+        self.width = self.height = 0
         self.header = Header(self)
 
         # default list of item types
@@ -219,7 +219,7 @@ class Teemap(object):
                 start = group.start_layer
                 end = group.start_layer + group.num_layers
                 group.layers = [layer for layer in layers[start:end]]
-            self.w, self.h = (0, 0) # should contain size of the game layer
+            self.width, self.height = (0, 0) # should contain size of the game layer
 
     def save(self, map_path='unnamed'):
         """Save the current map to `map_path`."""
@@ -376,7 +376,8 @@ class Teemap(object):
         game_group.layers.append(game_layer)
 
     def __repr__(self):
-        return '<Teemap {0} ({1}x{2})>'.format(self.name, self.w, self.h)
+        return '<Teemap {0} ({1}x{2})>'.format(self.name, self.width,
+                                                self.height)
 
 if __name__ == '__main__':
     t = Teemap()

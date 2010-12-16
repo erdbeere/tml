@@ -344,6 +344,10 @@ class TileLayer(Layer):
 
     @property
     def width(self):
+        """Property for width.
+
+        This is necessarry to rearrange self.tiles corresponding to this value.
+        """
         return self._width
 
     @width.setter
@@ -367,6 +371,10 @@ class TileLayer(Layer):
 
     @property
     def height(self):
+        """Property for height.
+
+        This is necessarry to rearrange self.tiles corresponding to this value.
+        """
         return self._height
 
     @height.setter
