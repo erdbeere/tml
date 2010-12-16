@@ -2,8 +2,10 @@
 The Teeworlds map format
 ========================
 
-In this section I describe my current state of knowledge about how a teeworlds
-map is structured.
+In this section you will learn how a teeworlds map is structured. This
+knowledge is not needed for using the library, but it can be helpfull if you
+are interested in understanding what is going on behind the scenes or just want
+to hack a map yourself.
 
 Header
 ======
