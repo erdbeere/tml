@@ -138,7 +138,9 @@ class Teemap(object):
 
         path, filename = os.path.split(map_path)
         self.name, extension = os.path.splitext(filename)
-        if extension != ''.join([os.extsep, 'map']):
+        if extension == '':
+            map_path = os.extsep.join([map_path, 'map'])
+        elif extension != ''.join([os.extsep, 'map']):
             raise TypeError('Invalid file')
         with open(map_path, 'rb') as f:
             self.header = Header(self, f)
@@ -378,5 +380,5 @@ class Teemap(object):
 
 if __name__ == '__main__':
     t = Teemap()
-    t.load('dm1_test.map')
+    t.load('dm1_test')
     t.save()
