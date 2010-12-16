@@ -4,7 +4,7 @@
     A library which makes it possible to read, modify and save teeworlds
     map files.
 
-    :copyright: 2010 by the twmaplib Team, see AUTHORS for more details.
+    :copyright: 2010 by the TML Team, see AUTHORS for more details.
     :license: GNU GPL, see LICENSE for more details.
 """
 
