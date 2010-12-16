@@ -134,7 +134,7 @@ class Teemap(object):
         return layers_
 
     def load(self, map_path):
-        """Load a new teeworlds map."""
+        """Load a new teeworlds map from `map_path`."""
 
         path, filename = os.path.split(map_path)
         self.name, extension = os.path.splitext(filename)
