@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+    A library which makes it possible to read, modify and save teeworlds
+    map files.
+
+    :copyright: 2010 by the twmaplib Team, see AUTHORS for more details.
+    :license: GNU GPL, see LICENSE for more details.
+"""
 
 import os
 from struct import unpack, pack
@@ -105,7 +112,6 @@ class Header(object):
                            num_raw_data, item_size, data_size))
 
 class Teemap(object):
-
 
     def __init__(self):
         self.name = ''

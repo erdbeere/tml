@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+    Collection of different items.
+
+    :copyright: 2010 by the twmaplib Team, see AUTHORS for more details.
+    :license: GNU GPL, see LICENSE for more details.
+"""
 
 #import png
 from struct import unpack, pack
