@@ -6,6 +6,7 @@
     :license: GNU GPL, see LICENSE for more details.
 """
 
+import os
 from StringIO import StringIO
 from struct import unpack, pack
 from zlib import decompress
@@ -101,14 +102,17 @@ class Image(object):
         self.name = item.name
         self.image = item.data if not self.external else None
         if self.external:
-            self.image = None # TODO
+            path = os.sep.join(('mapres', self.name))
+            path = os.extsep.join((path, 'png'))
+            path = 'mapres/grass_main.png'
+            self.image = PIL.Image.open(path)
         else:
             # TODO: make this nicer, without a temporary file
             #w = png.Writer(self.width, self.height, alpha=True)
             #f = open('tmpfile.png', 'wb')
             #w.write(f, self.image)
             #f.close()
-            self.image = PIL.Image.open('tmpfile.png')
+            self.image = PIL.Image.open('mapres/grass_main.png')
 
     def get_shape(self, index):
         x = index % 16 * 64
