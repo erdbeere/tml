@@ -397,7 +397,11 @@ class Teemap(object):
             if hasattr(layer, 'render'):
                 layer_im = layer.render()
                 region = (0, 0, layer_im.size[0], layer_im.size[1])
-                im = PIL.ImageChops.composite(layer_im, im, layer_im)
+                # create a transparent layer the size of the image and draw the
+                # tile-/quadlayer in that layer.
+                tmp_im = PIL.Image.new('RGBA', im.size, (0,0,0,0))
+                tmp_im.paste(layer_im, (0, 0))
+                im = PIL.ImageChops.composite(tmp_im, im, tmp_im)
         return im
 
     def __repr__(self):
