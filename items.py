@@ -71,9 +71,38 @@ class Tile(object):
         self.layerimage = image
 
     @property
+    def vflip(self):
+        return self.flags & 1 != 0
+
+    @vflip.setter
+    def vflip(self, value):
+        if value:
+            self.flags |= 1
+        else:
+            if self.vflip:
+                self.flags ^= 1
+
+    @property
+    def hflip(self):
+        return self.flags & 2 != 0
+
+    @hflip.setter
+    def hflip(self, value):
+        if value:
+            self.flags |= 2
+        else:
+            if self.hflip:
+                self.flags ^= 2
+
+    @property
     def image(self):
         if self.layerimage is not None:
-            return self.layerimage.get_shape(self.index)
+            image = self.layerimage.get_shape(self.index)
+            if self.hflip:
+                image = image.transpose(1)
+            if self.vflip:
+                image = image.transpose(0)
+            return image
         return None
 
     def __repr__(self):
