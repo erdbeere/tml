@@ -133,6 +133,13 @@ class Teemap(object):
             layers_.extend(group.layers)
         return layers_
 
+    @property
+    def gamelayer(self):
+        """Just returns the gamelayer."""
+        for layer in self.layers:
+            if layer.is_gamelayer:
+                return layer
+
     def load(self, map_path):
         """Load a new teeworlds map from `map_path`."""
 
