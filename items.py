@@ -104,7 +104,6 @@ class Image(object):
         if self.external:
             path = os.sep.join(('mapres', self.name))
             path = os.extsep.join((path, 'png'))
-            path = 'mapres/grass_main.png'
             self.image = PIL.Image.open(path)
         else:
             # TODO: make this nicer, without a temporary file
@@ -431,7 +430,7 @@ class TileLayer(Layer):
 
     @property
     def image(self):
-        return self.images[self._image - 1] if self._image != -1 else None
+        return self.images[self._image] if self._image != -1 else None
 
     def render(self):
         im = PIL.Image.new('RGBA', (self.width*64, self.height*64))
