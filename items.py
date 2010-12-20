@@ -6,9 +6,12 @@
     :license: GNU GPL, see LICENSE for more details.
 """
 
-#import png
+from StringIO import StringIO
 from struct import unpack, pack
 from zlib import decompress
+
+import PIL.Image
+import png
 
 from constants import ITEM_TYPES, LAYER_TYPES
 
@@ -59,11 +62,18 @@ class Quad(object):
 class Tile(object):
     """Represents a tile of a tilelayer."""
 
-    def __init__(self, index=0, flags=0, skip=0, reserved=0):
+    def __init__(self, index=0, flags=0, skip=0, reserved=0, image=None):
         self.index = index
         self.flags = flags
         self.skip = skip
         self.reserved = reserved
+        self.layerimage = image
+
+    @property
+    def image(self):
+        if self.layerimage is not None:
+            return self.layerimage.get_shape(self.index)
+        return None
 
     def __repr__(self):
         return '<Tile {0}>'.format(self.index)
@@ -90,6 +100,20 @@ class Image(object):
         self.image_name, self.image_data = item.info[2:]
         self.name = item.name
         self.image = item.data if not self.external else None
+        if self.external:
+            self.image = None # TODO
+        else:
+            # TODO: make this nicer, without a temporary file
+            #w = png.Writer(self.width, self.height, alpha=True)
+            #f = open('tmpfile.png', 'wb')
+            #w.write(f, self.image)
+            #f.close()
+            self.image = PIL.Image.open('mapres/generic_unhookable.png')
+
+    def get_shape(self, index):
+        x = index % 16 * 64
+        y = index / 16 * 64
+        return self.image.crop((x, y, x+64, y+64))
 
     #def save(self):
     #    if not self.external:
@@ -262,7 +286,7 @@ class QuadLayer(Layer):
 
     size = 36
 
-    def __init__(self, item=None):
+    def __init__(self, item=None, image=None):
         self.quads = []
         if item == None:
             # default values of a new tile layer
@@ -280,12 +304,12 @@ class QuadLayer(Layer):
                                        item.data[i+35], item.data[i+36],
                                        item.data[i+37]))
                 i += 38
-        self.version, self.num_quads, self._data, self.image = info
+        self.version, self.num_quads, self._data, self._image = info
 
     @property
     def itemdata(self):
         return (QuadLayer.size-8, 1, self.type, self.flags, 1, len(self.quads),
-                self._data, self.image)
+                self._data, self._image)
 
     def get_data(self, id_):
         self._data = id_
@@ -320,7 +344,8 @@ class TileLayer(Layer):
 
     size = 68
 
-    def __init__(self, item=None, game=0, width=50, height=50):
+    def __init__(self, item=None, images=None, game=0, width=50, height=50):
+        self.images = images
         self.tiles = []
         if item == None:
             # default values of a new tile layer
@@ -334,13 +359,14 @@ class TileLayer(Layer):
             super(TileLayer, self).__init__(item)
             # load tile data
             i = 0
+            self._image = info[-2]
             while(i < len(item.data)):
-                self.tiles.append(Tile(*item.data[i:i+4]))
+                self.tiles.append(Tile(*item.data[i:i+4], image=self.image))
                 i += 4
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
         self.version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
-        self.color_env_offset, self.image, self._data = info
+        self.color_env_offset, self._image, self._data = info
 
     @property
     def width(self):
@@ -397,7 +423,21 @@ class TileLayer(Layer):
         return (TileLayer.size-8, 0, self.type, self.flags, 2, self.width,
                 self.height, self.game, self.color['r'], self.color['g'],
                 self.color['b'], self.color['a'], self.color_env,
-                self.color_env_offset, self.image, self._data)
+                self.color_env_offset, self._image, self._data)
+
+    @property
+    def image(self):
+        return self.images[self._image - 1]
+
+    def render(self):
+        im = PIL.Image.new('RGBA', (self.width*64, self.height*64))
+        for h in range(self.height):
+            for w in range(self.width):
+                tile = self.tiles[w+h*self.height]
+                print w+h*self.height, tile.index
+                region = (w*64, h*64, w*64+64, h*64+64)
+                im.paste(tile.image, region)
+        return im
 
     def get_data(self, id_):
         self._data = id_

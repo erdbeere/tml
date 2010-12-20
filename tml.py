@@ -202,7 +202,7 @@ class Teemap(object):
             self.envpoints = []
             layers = []
             for item in self.itemlist:
-                # devide the envpoints item into the single envpoints
+                # divide the envpoints item into the single envpoints
                 if item.type == 'envpoint':
                     for i in range((len(item.info)-2) / 6):
                         info = item.info[2+(i*6):2+(i*6+6)]
@@ -212,7 +212,7 @@ class Teemap(object):
                     layerclass = ''.join([LAYER_TYPES[layer.type].title(),
                                          'Layer'])
                     class_ = getattr(items, layerclass)
-                    layers.append(class_(item))
+                    layers.append(class_(item, self.images))
 
             # assign layers to groups
             for group in self.groups:
