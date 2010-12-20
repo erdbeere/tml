@@ -65,34 +65,34 @@ class Tile(object):
 
     def __init__(self, index=0, flags=0, skip=0, reserved=0, image=None):
         self.index = index
-        self.flags = flags
+        self._flags = flags
         self.skip = skip
         self.reserved = reserved
         self.layerimage = image
 
     @property
     def vflip(self):
-        return self.flags & 1 != 0
+        return self._flags & 1 != 0
 
     @vflip.setter
     def vflip(self, value):
         if value:
-            self.flags |= 1
+            self._flags |= 1
         else:
             if self.vflip:
-                self.flags ^= 1
+                self._flags ^= 1
 
     @property
     def hflip(self):
-        return self.flags & 2 != 0
+        return self._flags & 2 != 0
 
     @hflip.setter
     def hflip(self, value):
         if value:
-            self.flags |= 2
+            self._flags |= 2
         else:
             if self.hflip:
-                self.flags ^= 2
+                self._flags ^= 2
 
     @property
     def image(self):
