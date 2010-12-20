@@ -115,7 +115,6 @@ class Teemap(object):
 
     def __init__(self):
         self.name = ''
-        self.width = self.height = 0
         self.header = Header(self)
 
         # default list of item types
@@ -139,6 +138,14 @@ class Teemap(object):
         for layer in self.layers:
             if layer.is_gamelayer:
                 return layer
+
+    @property
+    def width(self):
+        return self.gamelayer.width
+
+    @property
+    def height(self):
+        return self.gamelayer.height
 
     def load(self, map_path):
         """Load a new teeworlds map from `map_path`."""
@@ -226,7 +233,6 @@ class Teemap(object):
                 start = group.start_layer
                 end = group.start_layer + group.num_layers
                 group.layers = [layer for layer in layers[start:end]]
-            self.width, self.height = (0, 0) # should contain size of the game layer
 
     def save(self, map_path='unnamed'):
         """Save the current map to `map_path`."""
@@ -381,6 +387,11 @@ class Teemap(object):
         self.groups.append(game_group)
         game_layer = items.TileLayer(game=1)
         game_group.layers.append(game_layer)
+
+    def render(self):
+        for layer in self.layers:
+            if hasattr(layer, 'render'):
+                im = layer.render()
 
     def __repr__(self):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.width,
