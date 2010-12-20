@@ -12,6 +12,9 @@ import os
 from struct import unpack, pack
 from zlib import decompress, compress
 
+import PIL.Image
+import PIL.ImageChops
+
 from constants import ITEM_TYPES, LAYER_TYPES
 import items
 
@@ -389,9 +392,13 @@ class Teemap(object):
         game_group.layers.append(game_layer)
 
     def render(self):
+        im = PIL.Image.new('RGBA', (self.width*64, self.height*64))
         for layer in self.layers:
             if hasattr(layer, 'render'):
-                im = layer.render()
+                layer_im = layer.render()
+                region = (0, 0, layer_im.size[0], layer_im.size[1])
+                im = PIL.ImageChops.composite(layer_im, im, layer_im)
+        return im
 
     def __repr__(self):
         return '<Teemap {0} ({1}x{2})>'.format(self.name, self.width,

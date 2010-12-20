@@ -467,7 +467,10 @@ class TileLayer(Layer):
             for w in range(self.width):
                 tile = self.tiles[w+h*self.width]
                 region = (w*64, h*64, w*64+64, h*64+64)
-                im.paste(tile.image, region)
+                try:
+                    im.paste(tile.image, region)
+                except SystemError:
+                    print 'Something went wrong'
         return im
 
     def get_data(self, id_):
