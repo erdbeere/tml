@@ -108,7 +108,7 @@ class Image(object):
             #f = open('tmpfile.png', 'wb')
             #w.write(f, self.image)
             #f.close()
-            self.image = PIL.Image.open('mapres/generic_unhookable.png')
+            self.image = PIL.Image.open('tmpfile.png')
 
     def get_shape(self, index):
         x = index % 16 * 64
@@ -427,14 +427,13 @@ class TileLayer(Layer):
 
     @property
     def image(self):
-        return self.images[self._image - 1]
+        return self.images[self._image - 1] if self._image != -1 else None
 
     def render(self):
         im = PIL.Image.new('RGBA', (self.width*64, self.height*64))
         for h in range(self.height):
             for w in range(self.width):
-                tile = self.tiles[w+h*self.height]
-                print w+h*self.height, tile.index
+                tile = self.tiles[w+h*self.width]
                 region = (w*64, h*64, w*64+64, h*64+64)
                 im.paste(tile.image, region)
         return im
