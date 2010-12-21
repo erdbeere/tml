@@ -391,17 +391,24 @@ class Teemap(object):
         game_layer = items.TileLayer(game=1)
         game_group.layers.append(game_layer)
 
-    def render(self):
+    def _render_on_top(self, img1, img2):
+        region = (0, 0, img1.size[0], img1.size[1])
+        # create a transparent layer the size of the image and draw the
+        # tile-/quadlayer in that layer.
+        im = PIL.Image.new('RGBA', img1.size, (0,0,0,0))
+        im.paste(img2, (0, 0))
+        mask = im#.convert('1') # TODO: transparency bug
+        return PIL.ImageChops.composite(im, img1, mask)
+
+    def render(self, gamelayer_on_top=False):
         im = PIL.Image.new('RGBA', (self.width*64, self.height*64))
         for layer in self.layers:
+            if layer.is_gamelayer and gamelayer_on_top:
+                continue
             if hasattr(layer, 'render'):
-                layer_im = layer.render()
-                region = (0, 0, layer_im.size[0], layer_im.size[1])
-                # create a transparent layer the size of the image and draw the
-                # tile-/quadlayer in that layer.
-                tmp_im = PIL.Image.new('RGBA', im.size, (0,0,0,0))
-                tmp_im.paste(layer_im, (0, 0))
-                im = PIL.ImageChops.composite(tmp_im, im, tmp_im)
+                im = self._render_on_top(im, layer.render())
+        if gamelayer_on_top:
+                im = self._render_on_top(im, self.gamelayer.render())
         return im
 
     def __repr__(self):
