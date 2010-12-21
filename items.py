@@ -16,6 +16,8 @@ import png
 
 from constants import ITEM_TYPES, LAYER_TYPES
 
+GAMELAYER_IMAGE = PIL.Image.open(os.extsep.join(('entities', 'png')))
+
 class Quad(object):
     """Represents a quad of a quadlayer."""
 
@@ -97,7 +99,13 @@ class Tile(object):
     @property
     def image(self):
         if self.layerimage is not None:
-            image = self.layerimage.get_shape(self.index)
+            if self.layerimage == 'gamelayer':
+                image = GAMELAYER_IMAGE
+                x = self.index % 16 * 64
+                y = self.index / 16 * 64
+                image = image.crop((x, y, x+64, y+64))
+            else:
+                image = self.layerimage.get_shape(self.index)
             if self.hflip:
                 image = image.transpose(1)
             if self.vflip:
@@ -391,6 +399,7 @@ class TileLayer(Layer):
             super(TileLayer, self).__init__(item)
             # load tile data
             i = 0
+            self.game = info[3]
             self._image = info[-2]
             while(i < len(item.data)):
                 self.tiles.append(Tile(*item.data[i:i+4], image=self.image))
@@ -450,6 +459,7 @@ class TileLayer(Layer):
     def is_gamelayer(self):
         return self.game == 1
 
+
     @property
     def itemdata(self):
         return (TileLayer.size-8, 0, self.type, self.flags, 2, self.width,
@@ -459,6 +469,8 @@ class TileLayer(Layer):
 
     @property
     def image(self):
+        if self.is_gamelayer:
+            return 'gamelayer'
         return self.images[self._image] if self._image != -1 else None
 
     def render(self):
