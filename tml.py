@@ -196,13 +196,13 @@ class Teemap(object):
                 last_offset = offset
 
             f.seek(item_start_offset)
-            self.itemlist = []
+            itemlist = []
             for item_type in self.item_types:
                 for i in range(item_type['num']):
                     size = sizes[item_type['start'] + i]
                     item = items.Item(item_type['type'])
                     item.load(f.read(size), self.compressed_data)
-                    self.itemlist.append(item)
+                    itemlist.append(item)
 
             # order the items
             for type_ in ITEM_TYPES:
@@ -212,13 +212,13 @@ class Teemap(object):
                 else:
                     name = ''.join([type_, 's'])
                     class_ = getattr(items, type_.title())
-                    setattr(self, name, [class_(item) for item in self.itemlist
+                    setattr(self, name, [class_(item) for item in itemlist
                                         if item.type == type_])
 
             # handle envpoints and layers
             self.envpoints = []
             layers = []
-            for item in self.itemlist:
+            for item in itemlist:
                 # divide the envpoints item into the single envpoints
                 if item.type == 'envpoint':
                     for i in range((len(item.info)-2) / 6):
