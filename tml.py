@@ -401,6 +401,11 @@ class Teemap(object):
         return PIL.ImageChops.composite(im, img1, mask)
 
     def render(self, gamelayer_on_top=False):
+        """Renders all tilelayers together.
+
+        The returned value is a PIL Image which can e.g. be saved with
+        ``image.save('path')``
+        """
         im = PIL.Image.new('RGBA', (self.width*64, self.height*64))
         for layer in self.layers:
             if layer.is_gamelayer and gamelayer_on_top:
