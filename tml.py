@@ -237,6 +237,9 @@ class Teemap(object):
                 end = group.start_layer + group.num_layers
                 group.layers = [layer for layer in layers[start:end]]
 
+        # usefull for some people like bnn :P
+        return self
+
     def save(self, map_path='unnamed'):
         """Save the current map to `map_path`."""
 
