@@ -17,7 +17,7 @@ setup(
     name = "tml",
     version = __import__('tml').get_version().replace(' ', '-'),
     url = '',
-    author = '',
+    author = 'TML Team',
     author_email = '',
     description = DESC,
     long_description = read_file('README'),
