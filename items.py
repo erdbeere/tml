@@ -184,7 +184,7 @@ class Image(object):
         return [name]
 
     def __repr__(self):
-        return '<Image>'
+        return '<Image "{0}">'.format(self.name)
 
 class Envelope(object):
     """Represents an envelope."""
