@@ -14,9 +14,10 @@ from zlib import decompress
 import PIL.Image
 import png
 
-from constants import ITEM_TYPES, LAYER_TYPES
+from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR
 
-GAMELAYER_IMAGE = PIL.Image.open(os.extsep.join(('entities', 'png')))
+GAMELAYER_IMAGE = PIL.Image.open(os.path.join(TML_DIR,
+	os.extsep.join(('entities', 'png'))))
 
 class Quad(object):
     """Represents a quad of a quadlayer."""
@@ -141,14 +142,14 @@ class Image(object):
         if self.external:
             path = os.sep.join(('mapres', self.name))
             path = os.extsep.join((path, 'png'))
-            self.image = PIL.Image.open(path)
+            self.image = PIL.Image.open(os.path.join(TML_DIR, path))
         else:
             # TODO: make this nicer, without a temporary file
             #w = png.Writer(self.width, self.height, alpha=True)
             #f = open('tmpfile.png', 'wb')
             #w.write(f, self.image)
             #f.close()
-            self.image = PIL.Image.open('mapres/grass_main.png')
+            self.image = PIL.Image.open(os.path.join(TML_DIR, 'mapres/grass_main.png'))
 
     def get_shape(self, index):
         x = index % 16 * 64
