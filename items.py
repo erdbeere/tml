@@ -402,8 +402,10 @@ class TileLayer(Layer):
             self.game = info[3]
             self._image = info[-2]
             while(i < len(item.data)):
-                self.tiles.append(Tile(*item.data[i:i+4], image=self.image))
+                #self.tiles.append(Tile(*item.data[i:i+4], image=self.image))
+                self.tiles.append(None)
                 i += 4
+            print len(self.tiles)
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
         self.version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
