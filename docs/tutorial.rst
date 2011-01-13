@@ -13,12 +13,11 @@ If you want you can load an existing teeworlds map with the load method
 and of course save them, you can give the path as the first parameter.
 The "map" fileextension is optional.
 
->>> from tml import Teemap
->>> twmap = Teemap()
->>> twmap.load('dm1_test')
+>>> from tml.tml import Teemap
+>>> twmap = Teemap('dm1_test')
 >>> twmap.save('unnamed')
 
-.. autoclass:: tml.Teemap
+.. autoclass:: tml.tml.Teemap
    :members: load, save
 
 Accessing the data
@@ -30,9 +29,8 @@ Gamelayer (which is a Tilelayer with a special flag). Also there are three more
 lists with the images (image name and if it is embedded additional the image
 itself), envelopes and envpoints.
 
->>> from tml import Teemap
->>> t = Teemap()
->>> t.load('dm1_test')
+>>> from tml.tml import Teemap
+>>> t = Teemap('dm1_test')
 >>> t.envelopes
 [<Envelope>, <Envelope>, <Envelope>, <Envelope>, <Envelope>, <Envelope>]
 >>> t.envpoints
@@ -49,10 +47,17 @@ itself), envelopes and envpoints.
 [<Quad layer>, <Quad layer>]
 >>> t.groups[6].layers
 [<Tile layer (60x50)>, <Tile layer (60x50)>, <Tile layer (60x50)>, <Tile layer (60x50)>, <Tile layer (60x50)>]
+>>> t.gamelayer
+<Tile layer (60x50)>
 
+Here are a view examples to fetch some information.
+
+>>> solid_tiles = len([tile for tile in t.gamelayer.tiles if tile.index == 1])
+>>> print 'The map contains {0} solid tiles'.format(solid_tiles)
+The map contains 1535 solid tiles
 
 Modifying
 =========
 
-.. autoclass:: items.TileLayer
+.. autoclass:: tml.items.TileLayer
    :members:
