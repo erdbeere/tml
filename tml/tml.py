@@ -116,7 +116,7 @@ class Header(object):
 
 class Teemap(object):
 
-    def __init__(self):
+    def __init__(self, map_path=None):
         self.name = ''
         self.header = Header(self)
 
@@ -125,7 +125,10 @@ class Teemap(object):
             if type_ != 'layer':
                 setattr(self, ''.join([type_, 's']), [])
 
-        self.create_default()
+        if map_path:
+            self.load(map_path)
+        else:
+            self.create_default()
 
     @property
     def layers(self):
@@ -403,20 +406,38 @@ class Teemap(object):
         mask = im#.convert('1') # TODO: transparency bug
         return PIL.ImageChops.composite(im, img1, mask)
 
-    def render(self, gamelayer_on_top=False):
+    def render(self, max_size=(5000, 5000), gamelayer_on_top=False):
         """Renders all tilelayers together.
 
         The returned value is a PIL Image which can e.g. be saved with
         ``image.save('path')``
+
+        :param max_size: Tupel containing maximum width and height for image.
+                         Pass (0, 0) to not resize the image. This can eat up
+                         huge amounts of memory, depending on the map size!
+        :param gamelayer_on_top: Decide if the gamelayer should be placed on
+                                 top
         """
-        im = PIL.Image.new('RGBA', (self.width*64, self.height*64))
+        # computer the new tile and map size
+        old_ratio = self.width / float(self.height)
+        new_ratio = max_size[0] / float(max_size[1])
+        if new_ratio < old_ratio:
+            width = max_size[0] / 64 * 64
+            tilesize = width / self.width
+        else:
+            height = max_size[1] / 64 * 64
+            tilesize = height / self.height
+        width = self.width * tilesize
+        height = self.height * tilesize
+
+        im = PIL.Image.new('RGBA', (width, height))
         for layer in self.layers:
             if layer.is_gamelayer and gamelayer_on_top:
                 continue
             if hasattr(layer, 'render'):
-                im = self._render_on_top(im, layer.render())
+                im = self._render_on_top(im, layer.render(tilesize))
         if gamelayer_on_top:
-                im = self._render_on_top(im, self.gamelayer.render())
+                im = self._render_on_top(im, self.gamelayer.render(tilesize))
         return im
 
     def __repr__(self):
