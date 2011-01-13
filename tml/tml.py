@@ -429,6 +429,8 @@ class Teemap(object):
             tilesize = height / self.height
         width = self.width * tilesize
         height = self.height * tilesize
+        if tilesize < 1:
+            raise ValueError('Map to big for this scaling (one tile < 1 pixel)')
 
         im = PIL.Image.new('RGBA', (width, height))
         for layer in self.layers:
