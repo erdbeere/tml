@@ -138,18 +138,16 @@ class Image(object):
         self.version, self.width, self.height, self.external, \
         self.image_name, self.image_data = item.info[2:]
         self.name = item.name
-        self.image = item.data if not self.external else None
-        if self.external:
-            path = os.sep.join(('mapres', self.name))
-            path = os.extsep.join((path, 'png'))
-            self.image = PIL.Image.open(os.path.join(TML_DIR, path))
-        else:
+        path = os.path.join('mapres', self.name)
+        path = os.extsep.join((path, 'png'))
+        path = os.path.join(TML_DIR, path)
+        if not self.external:
             # TODO: make this nicer, without a temporary file
-            #w = png.Writer(self.width, self.height, alpha=True)
-            #f = open('tmpfile.png', 'wb')
-            #w.write(f, self.image)
-            #f.close()
-            self.image = PIL.Image.open(os.path.join(TML_DIR, 'mapres/grass_main.png'))
+            w = png.Writer(self.width, self.height, alpha=True)
+            f = open(path, 'wb')
+            w.write(f, item.data)
+            f.close()
+        self.image = PIL.Image.open(path)
 
     def get_shape(self, index):
         x = index % 16 * 64
@@ -472,7 +470,7 @@ class TileLayer(Layer):
     def image(self):
         if self.is_gamelayer:
             return 'gamelayer'
-        return self.images[self._image] if self._image != -1 else None
+        return self.images[self._image]
 
     def render(self, size=64):
         width = self.width * size
