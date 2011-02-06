@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+    Important constants.
+
+    :copyright: 2010-2011 by the TML Team, see AUTHORS for more details.
+    :license: GNU GPL, see LICENSE for more details.
+"""
 
 import os
 

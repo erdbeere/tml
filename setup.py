@@ -1,3 +1,10 @@
+"""
+    setup for tml.
+
+    :copyright: 2010-2011 by the TML Team, see AUTHORS for more details.
+    :license: GNU GPL, see LICENSE for more details.
+"""
+
 import os
 from setuptools import setup, find_packages
 

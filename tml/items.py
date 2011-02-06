@@ -2,7 +2,7 @@
 """
     Collection of different items.
 
-    :copyright: 2010 by the TML Team, see AUTHORS for more details.
+    :copyright: 2010-2011 by the TML Team, see AUTHORS for more details.
     :license: GNU GPL, see LICENSE for more details.
 """
 
