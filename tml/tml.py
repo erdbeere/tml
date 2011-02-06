@@ -116,6 +116,31 @@ class Header(object):
 
 class Teemap(object):
 
+    @staticmethod
+    def check(map_path):
+        try:
+            path, filename = os.path.split(map_path)
+            name, extension = os.path.splitext(filename)
+            if extension == '':
+                map_path = os.extsep.join([map_path, 'map'])
+            elif extension != ''.join([os.extsep, 'map']):
+                raise TypeError('Invalid file')
+            with open(map_path, 'rb') as f:
+                sig = ''.join(unpack('4c', f.read(4)))
+                if sig not in ('DATA', 'ATAD'):
+                    raise TypeError('Invalid signature')
+                version = unpack('i', f.read(4))[0]
+
+                if version != 4:
+                    raise TypeError('Wrong version')
+            return True
+        except TypeError as error:
+            print 'No valid mapfile ({0})'.format(error.message)
+            return False
+        except IOError as (errno, strerror):
+            print "I/O error({0}): {1}".format(errno, strerror)
+            return False
+
     def __init__(self, map_path=None):
         self.name = ''
         self.header = Header(self)
