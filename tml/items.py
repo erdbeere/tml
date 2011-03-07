@@ -124,7 +124,7 @@ class TileTele(object):
         self.number = number
         self.type = type
 
-    @property
+    """@property
     def telein(self):
         return self.number > 0 and self.type == 26
 
@@ -148,7 +148,7 @@ class TileTele(object):
 
     @number.setter
     def number(self, value):
-        self.number = max(0, min(value, 255))
+        self.number = max(0, min(value, 255))"""
 
 class TileSpeedup(object):
     """Represents an overlay tile with speedup data."""
@@ -157,7 +157,7 @@ class TileSpeedup(object):
         self.force = force
         self.angle = angle
 
-    @property
+    """@property
     def force(self):
         return self.force
 
@@ -171,7 +171,7 @@ class TileSpeedup(object):
 
     @angle.setter
     def angle(self, value):
-        self.angle = max(0, min(value, 359))
+        self.angle = max(0, min(value, 359))"""
 
 class Version(object):
 
@@ -306,24 +306,24 @@ class Item(object):
         # load data to layers
         if self.type == 'layer':
             if LAYER_TYPES[self.info[3]] == 'tile':
-                data = decompress(data[self.info[16]])
-                fmt = '{0}B'.format(len(data))
-                self.data = list(unpack(fmt, data))
-                self.tele_data = []
-                self.speedup_data = []
+                _data = decompress(data[self.info[16]])
+                fmt = '{0}B'.format(len(_data))
+                self.data = list(unpack(fmt, _data))
+                self.tele_data = None
+                self.speedup_data = None
                 if is_race:
                     if self.info[17] > 0:
-                        data = decompress(data[self.info[17]])
-                        fmt = '{0}B'.format(len(data))
-                        self.tele_data.append(unpack(fmt, data))
+                        _data = decompress(data[self.info[17]])
+                        fmt = '{0}B'.format(len(_data))
+                        self.tele_data = list(unpack(fmt, _data))
                     if self.info[18] > 0:
-                        data = decompress(data[self.info[18]])
-                        fmt = '{0}B'.format(len(data))
-                        self.speedup_data.append(unpack(fmt, data))
+                        _data = decompress(data[self.info[18]])
+                        fmt = '{0}B{1}h'.format(len(_data)/2, len(_data)/2)
+                        self.speedup_data = list(unpack(fmt, _data))
             elif LAYER_TYPES[self.info[3]] == 'quad':
-                data = decompress(data[self.info[-2]])
-                fmt = '{0}i'.format(len(data) / 4)
-                self.data = list(unpack(fmt, data))
+                _data = decompress(data[self.info[-2]])
+                fmt = '{0}i'.format(len(_data) / 4)
+                self.data = list(unpack(fmt, _data))
         # load image data
         if self.type == 'image':
             name = decompress(data[self.info[-2]])
@@ -472,13 +472,13 @@ class TileLayer(Layer):
             self.game = info[3]
             self._image = info[10]
             if len(info) > 12:
-                if info[12] > 0:
+                if info[12] > 0 and item.tele_data:
                     while(i < len(item.tele_data)):
                         self.teleporter.append(TileTele(*item.tele_data[i:i+2]))
                         i += 2
                     i = 0
                     self.tele_data = info[12]
-                if info[13] > 0:
+                if info[13] > 0 and item.speedup_data:
                     while(i < len(item.speedup_data)):
                         self.teleporter.append(TileSpeedup(*item.speedup_data[i:i+2]))
                         i += 2
