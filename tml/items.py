@@ -387,6 +387,14 @@ class Layer(object):
     def is_gamelayer(self):
         return False
 
+    @property
+    def is_telelayer(self):
+        return False
+
+    @property
+    def is_speeduplayer(self):
+        return False
+
 class QuadLayer(Layer):
     """Represents a quad layer."""
 
@@ -542,6 +550,14 @@ class TileLayer(Layer):
     @property
     def is_gamelayer(self):
         return self.game == 1
+
+    @property
+    def is_telelayer(self):
+        return self.game == 2
+
+    @property
+    def is_speeduplayer(self):
+        return self.game == 4
 
 
     @property

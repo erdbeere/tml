@@ -171,6 +171,20 @@ class Teemap(object):
                 return layer
 
     @property
+    def telelayer(self):
+        """Just returns the telelayer."""
+        for layer in self.layers:
+            if layer.is_telelayer:
+                return layer
+
+    @property
+    def speeduplayer(self):
+        """Just returns the speeduplayer."""
+        for layer in self.layers:
+            if layer.is_speeduplayer:
+                return layer
+
+    @property
     def width(self):
         return self.gamelayer.width
 
