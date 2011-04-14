@@ -255,11 +255,11 @@ class Envelope(object):
     def ints_to_string(self, num):
         string = ''
         for i in range(len(num)):
-            string += chr(((num[i]>>24)&0xff)-128)
-            string += chr(((num[i]>>16)&0xff)-128)
-            string += chr(((num[i]>>8)&0xff)-128)
+            string += chr(max(0, min(((num[i]>>24)&0xff)-128, 255)))
+            string += chr(max(0, min(((num[i]>>16)&0xff)-128, 255)))
+            string += chr(max(0, min(((num[i]>>8)&0xff)-128, 255)))
             if i < 7:
-                string += chr((num[i]&0xff)-128)
+                string += chr(max(0, min((num[i]&0xff)-128, 255)))
         return string
 
     def string_to_ints(self):
@@ -312,11 +312,13 @@ class Item(object):
                 self.tele_data = None
                 self.speedup_data = None
                 if is_race:
-                    if self.info[17] > 0:
+                    if self.info[17] > 0 and self.info[8] == 2:
+                        print "tele", self.info[17]
                         _data = decompress(data[self.info[17]])
                         fmt = '{0}B'.format(len(_data))
                         self.tele_data = list(unpack(fmt, _data))
-                    if self.info[18] > 0:
+                    if self.info[18] > 0 and self.info[8] == 4:
+                        print "speedup", self.info[18]
                         _data = decompress(data[self.info[18]])
                         fmt = '{0}B{1}h'.format(len(_data)/2, len(_data)/2)
                         self.speedup_data = list(unpack(fmt, _data))
