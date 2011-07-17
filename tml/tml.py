@@ -243,7 +243,8 @@ class Teemap(object):
             for item_type in self.item_types:
                 for i in range(item_type['num']):
                     size = sizes[item_type['start'] + i]
-                    if self.race == False and size == 76: # detect race map
+                    print size
+                    if self.race == False and (size == 76 or size == 88): # detect race map
                         self.race = True
                     item = items.Item(item_type['type'])
                     item.load(f.read(size), self.compressed_data, self.race)

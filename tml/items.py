@@ -321,7 +321,7 @@ class Item(object):
                         fmt = '{0}B{1}h'.format(len(_data)/2, len(_data)/2)
                         self.speedup_data = list(unpack(fmt, _data))
             elif LAYER_TYPES[self.info[3]] == 'quad':
-                _data = decompress(data[self.info[-2]])
+                _data = decompress(data[self.info[7]])
                 fmt = '{0}i'.format(len(_data) / 4)
                 self.data = list(unpack(fmt, _data))
         # load image data
@@ -357,7 +357,7 @@ class Group(object):
             info = item.info[2:]
         self.version, self.offset_x, self.offset_y, self.parallax_x, \
         self.parallax_y, self.start_layer, self.num_layers, self.use_clipping, \
-        self.clip_x, self.clip_y, self.clip_w, self.clip_h = info
+        self.clip_x, self.clip_y, self.clip_w, self.clip_h = info[:12]
         self.layers = []
 
     @property
@@ -418,7 +418,7 @@ class QuadLayer(Layer):
                                        item.data[i+35], item.data[i+36],
                                        item.data[i+37]))
                 i += 38
-        self.version, self.num_quads, self._data, self._image = info
+        self.version, self.num_quads, self._data, self._image = info[:4]
 
     @property
     def itemdata(self):
