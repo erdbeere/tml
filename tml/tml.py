@@ -6,7 +6,7 @@
     :copyright: 2010-2011 by the TML Team, see AUTHORS for more details.
     :license: GNU GPL, see LICENSE for more details.
 """
-
+import pdb
 import os
 from struct import unpack, pack
 from zlib import decompress, compress
@@ -48,11 +48,9 @@ class Header(object):
 
             # calculate the size of the whole header
             self.size = sum([
+                36, # header data before the offsets 
                 self.num_item_types * 12,
-                (self.num_items + self.num_raw_data) * 4,
-                self.num_raw_data * 4,
-                self.item_size,
-                36, #XXX: find out why 36
+                (self.num_items + (2 * self.num_raw_data)) * 4 # item offsets, data offsets, uncompressed data sizes
             ])
 
 class Teemap(object):
@@ -136,40 +134,40 @@ class Teemap(object):
     def get_item_type(self, item_type):
         """Returns the index of the first item and the number of items for the type."""
         for i in range(self.header.num_item_types):
-            if self.item_types[i]['type'] == type:
+            if self.item_types[i]['type'] == item_type:
                 return (self.item_types[i]['start'], self.item_types[i]['num'])
         return (0, 0)
 
     def _get_item_size(self, index):
         """Returns the size of the item."""
-        if index == self.num_items -1:
+        if index == self.header.num_items - 1:
             return self.header.item_size - self.item_offsets[index]
         return self.item_offsets[index+1] - self.item_offsets[index]
 
     def get_item(self, f, index):
         """Returns the item from the file."""
         if index < self.header.num_items:
-            f.seek((self.header.size - self.header.item_size) + self.item_offsets[index])
-            return f.read(_get_item_size(index))
+            f.seek(self.header.size + self.item_offsets[index])
+            return f.read(self._get_item_size(index))
         return None
 
     def find_item(self, f, item_type, index):
         """Finds the item and returns it from the file."""
-        start, num = get_item_type(item_type)
+        start, num = self.get_item_type(item_type)
         if index < num:
             return get_item(f, start+index)
         return None
 
     def _get_compressed_data_size(self, index):
         """Returns the size of the compressed data part."""
-        if index == self.num_items -1:
+        if index == self.header.num_raw_data - 1:
             return self.header.data_size - self.data_offsets[index]
-        return self.data_offset[index+1] - self.data_offsets[index]
+        return self.data_offsets[index+1] - self.data_offsets[index]
 
     def get_compressed_data(self, f, index):
         """Returns the compressed data and size of it from the file."""
-        size = _get_compressed_data_size(index)
-        f.seek(self.header.size + self.data_offsets[index])
+        size = self._get_compressed_data_size(index)
+        f.seek(self.header.size + self.header.item_size + self.data_offsets[index])
         return (size, f.read(size))
 
     def load(self, map_path):
@@ -199,8 +197,8 @@ class Teemap(object):
             # "data uncompressed size"
             # print repr(f.read(self.header.num_raw_data * 4))
 
-            data_start_offset = self.header.size
-            item_start_offset = self.header.size - self.header.item_size
+            data_start_offset = self.header.size + self.header.item_size
+            item_start_offset = self.header.size
 
             self.compressed_data = []
             f.seek(data_start_offset)
