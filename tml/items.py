@@ -486,7 +486,7 @@ class TileLayer(Layer):
             while(i < len(item.data)):
                 self.tiles.append(Tile(*item.data[i:i+4], image=self.image)) # what is this? oO
                 i += 4
-            
+
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
         self.version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \

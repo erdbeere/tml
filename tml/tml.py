@@ -238,7 +238,7 @@ class Teemap(object):
                 last_offset = offset
 
             f.seek(item_start_offset)
-            itemlist = []
+            layers = []
             for item_type in self.item_types:
                 for i in range(item_type['num']):
                     size = sizes[item_type['start'] + i]
@@ -247,34 +247,21 @@ class Teemap(object):
                         self.race = True
                     item = items.Item(item_type['type'])
                     item.load(f.read(size), self.compressed_data, self.race)
-                    itemlist.append(item)
 
-            # order the items
-            for type_ in ITEM_TYPES:
-                # envpoints and layers will be handled separately
-                if type_ in ('envpoint', 'layer'):
-                    pass
-                else:
-                    name = ''.join([type_, 's'])
-                    class_ = getattr(items, type_.title())
-                    setattr(self, name, [class_(item) for item in itemlist
-                                        if item.type == type_])
-
-            # handle envpoints and layers
-            self.envpoints = []
-            layers = []
-            for item in itemlist:
-                # divide the envpoints item into the single envpoints
-                if item.type == 'envpoint':
-                    for i in range((len(item.info)-2) / 6):
-                        info = item.info[2+(i*6):2+(i*6+6)]
-                        self.envpoints.append(items.Envpoint(info))
-                elif item.type == 'layer':
-                    layer = items.Layer(item)
-                    layerclass = ''.join([LAYER_TYPES[layer.type].title(),
-                                         'Layer'])
-                    class_ = getattr(items, layerclass)
-                    layers.append(class_(item, self.images))
+                    if item.type == 'envpoint':
+                        for i in range((len(item.info)-2) / 6):
+                            info = item.info[2+(i*6):2+(i*6+6)]
+                            self.envpoints.append(items.Envpoint(info))
+                    elif item.type == 'layer':
+                        layer = items.Layer(item)
+                        layerclass = ''.join([LAYER_TYPES[layer.type].title(),
+                                             'Layer'])
+                        class_ = getattr(items, layerclass)
+                        layers.append(class_(item, self.images))
+                    else:
+                        name = ''.join([item.type, 's'])
+                        class_ = getattr(items, item.type.title())
+                        getattr(self, name).append(class_(item))
 
             # assign layers to groups
             for group in self.groups:
