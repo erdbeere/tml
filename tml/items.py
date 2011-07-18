@@ -573,24 +573,6 @@ class TileLayer(Layer):
             return 'gamelayer'
         return self.images[self._image]
 
-    def render(self, size=64):
-        width = self.width * size
-        height = self.height * size
-        im = PIL.Image.new('RGBA', (width, height))
-        for h in range(self.height):
-            for w in range(self.width):
-                tile = self.tiles[w+h*self.width]
-                region = (w*size, h*size, w*size+size, h*size+size)
-                try:
-                    if size != 64:
-                        tile_im = tile.image.resize((size, size))
-                    else:
-                        tile_im = tile.image
-                    im.paste(tile_im, region)
-                except SystemError:
-                    print 'Something went wrong'
-        return im
-
     def get_data(self, id_):
         self._data = id_
         data = []

@@ -440,54 +440,6 @@ class Teemap(object):
         game_layer = items.TileLayer(game=1)
         game_group.layers.append(game_layer)
 
-    def _render_on_top(self, img1, img2):
-        region = (0, 0, img1.size[0], img1.size[1])
-        # create a transparent layer the size of the image and draw the
-        # tile-/quadlayer in that layer.
-        im = PIL.Image.new('RGBA', img1.size, (0,0,0,0))
-        im.paste(img2, (0, 0))
-        mask = im#.convert('1') # TODO: transparency bug
-        return PIL.ImageChops.composite(im, img1, mask)
-
-    def render(self, max_size=(5000, 5000), gamelayer_on_top=False):
-        """Renders all tilelayers together.
-
-        The returned value is a PIL Image which can e.g. be saved with
-        ``image.save('path')``
-
-        :param max_size: Tupel containing maximum width and height for image.
-                         Pass (0, 0) to not resize the image. This can eat up
-                         huge amounts of memory, depending on the map size!
-        :param gamelayer_on_top: Decide if the gamelayer should be placed on
-                                 top
-        """
-        # computer the new tile and map size
-        old_ratio = self.width / float(self.height)
-        new_ratio = max_size[0] / float(max_size[1])
-        if new_ratio < old_ratio:
-            width = max_size[0] / 64 * 64
-            tilesize = width / self.width
-        else:
-            height = max_size[1] / 64 * 64
-            tilesize = height / self.height
-        width = self.width * tilesize
-        height = self.height * tilesize
-        if tilesize < 1:
-            raise ValueError('Map to big for this scaling (one tile < 1 pixel)')
-
-        im = PIL.Image.new('RGBA', (width, height))
-        for layer in self.layers:
-            if layer.is_gamelayer and gamelayer_on_top:
-                continue
-            if hasattr(layer, 'render'):
-                im = self._render_on_top(im, layer.render(tilesize))
-        if gamelayer_on_top:
-                im = self._render_on_top(im, self.gamelayer.render(tilesize))
-        return im
-
-    def __repr__(self):
-        return '<Teemap {0} ({1}x{2})>'.format(self.name, self.width,
-                                                self.height)
 
 if __name__ == '__main__':
     t = Teemap()
