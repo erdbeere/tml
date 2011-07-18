@@ -210,15 +210,6 @@ class Image(object):
         y = index / 16 * 64
         return self.image.crop((x, y, x+64, y+64))
 
-    #def save(self):
-    #    if not self.external:
-    #        if not os.path.isdir('images'):
-    #            os.mkdir('images')
-    #        f = open(os.path.join('images', self.name)+'.png', 'wb')
-    #        w = png.Writer(self.width, self.height, alpha=True)
-    #        w.write(f, self.image)
-    #        f.close()
-
     @property
     def itemdata(self):
         return (Image.size-8, 1, self.width, self.height, self.external,

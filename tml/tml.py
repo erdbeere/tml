@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    A library which makes it possible to read, modify and save teeworlds
-    map files.
+    A library which makes it possible to read teeworlds map files.
 
     :copyright: 2010-2011 by the TML Team, see AUTHORS for more details.
     :license: GNU GPL, see LICENSE for more details.
@@ -286,141 +285,6 @@ class Teemap(object):
         # usefull for some people like bnn :P
         return self
 
-    def save(self, map_path='unnamed'):
-        """Save the current map to `map_path`."""
-
-        path, filename = os.path.split(map_path)
-        self.name, extension = os.path.splitext(filename)
-        if extension != ''.join([os.extsep, 'map']):
-            map_path = ''.join([map_path, os.extsep, 'map'])
-        with open(map_path, 'wb') as f:
-            # get types
-            item_types_data = []
-            count = 0
-            for i, item_type in enumerate(ITEM_TYPES):
-                if item_type == 'info':
-                    continue
-                elif item_type in ('version', 'envpoint'):
-                    item_types_data.append({
-                        'type': i,
-                        'start': count,
-                        'num': 1
-                    })
-                    count += 1
-                    continue
-                name = ''.join([item_type, 's'])
-                typelist = getattr(self, name)
-                if typelist:
-                    item_types_data.append({
-                        'type': i,
-                        'start': count,
-                        'num': len(typelist)
-                    })
-                    count += len(typelist)
-
-            # get items and create simultaneously a list of the corresponding
-            # datas
-            itemdata = []
-            item_types = []
-            datas = []
-            for i, item_type in enumerate(ITEM_TYPES):
-                if item_type == 'version':
-                    itemdata.append(i) # type and id
-                    itemdata.append(4) # size
-                    itemdata.append(1) # version
-                    item_types.append('version')
-                elif item_type == 'envpoint':
-                    itemdata.append(i<<16)
-                    itemdata.append(len(self.envpoints)*6*4)
-                    for envpoint in self.envpoints:
-                        itemdata.append(envpoint.time)
-                        itemdata.append(envpoint.curvetype)
-                        for value in envpoint.values:
-                            itemdata.append(value)
-                    item_types.append('envpoint')
-                elif item_type == 'image':
-                    for id_, image in enumerate(self.images):
-                        itemdata.append((i<<16)|id_)
-                        image_data = image.get_data(len(datas))
-                        for data in image_data:
-                            datas.append(data)
-                        itemdata.extend(image.itemdata)
-                        item_types.append('image')
-                elif item_type == 'envelope':
-                    for id_, envelope in enumerate(self.envelopes):
-                        itemdata.append((i<<16)|id_)
-                        itemdata.extend(envelope.itemdata)
-                        name = envelope.string_to_ints()
-                        for int_ in name:
-                            itemdata.append(int_)
-                        item_types.append('envelope')
-                elif item_type == 'group':
-                    num_layers = 0
-                    for id_, group in enumerate(self.groups):
-                        # calculate new start_layer values
-                        group.start_layer = num_layers
-                        num_layers += len(group.layers)
-                        itemdata.append((i<<16)|id_)
-                        itemdata.extend(group.itemdata)
-                        item_types.append('group')
-                elif item_type == 'layer':
-                    for id_, layer in enumerate(self.layers):
-                        itemdata.append((i<<16)|id_)
-                        data = layer.get_data(len(datas))
-                        itemdata.extend(layer.itemdata)
-                        name = '_'.join((LAYER_TYPES[layer.type], item_type))
-                        item_types.append(name)
-                        format = 'i' if name == 'quad_layer' else 'B'
-                        fmt = '{0}{1}'.format(len(data), format)
-                        data = pack(fmt, *data)
-                        datas.append(data)
-
-            # compress data
-            self.compressed_data = [compress(data) for data in datas]
-
-            # write header
-            self.header.write(f)
-
-            # write types
-            for item_type in item_types_data:
-                f.write(pack('3i', item_type['type'], item_type['start'], item_type['num']))
-
-            # write item offsets
-            item_offsets = []
-            item_cur_offset = 0
-            for type_ in item_types:
-                item_offsets.append(item_cur_offset)
-                if type_ == 'envpoint':
-                    pass
-                elif type_ == 'tile_layer':
-                    item_cur_offset += items.TileLayer.size
-                elif type_ == 'quad_layer':
-                    item_cur_offset += items.QuadLayer.size
-                else:
-                    item_cur_offset += getattr(items, type_.title()).size
-            for item_offset in item_offsets:
-                f.write(pack('i', item_offset))
-
-            # write data offsets
-            data_cur_offset = 0
-            for data in self.compressed_data:
-                f.write(pack('i', data_cur_offset))
-                data_cur_offset += len(data)
-
-            # write uncompressed data sizes
-            for data in datas:
-                f.write(pack('i', len(data)))
-
-            # finally write items
-            for data in itemdata:
-                f.write(pack('i', int32(data)))
-
-            # compress data and write it
-            for data in self.compressed_data:
-                f.write(data)
-
-            f.close()
-
     def create_default(self):
         """Creates the default map.
 
@@ -444,4 +308,3 @@ class Teemap(object):
 if __name__ == '__main__':
     t = Teemap()
     t.load('dm1_test')
-    t.save()
