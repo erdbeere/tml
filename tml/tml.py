@@ -148,8 +148,17 @@ class Teemap(object):
 
     def get_item(self, f, index):
         """Returns the item from the file."""
-        f.seek((self.header.size - self.header.item_size) + self.item_offsets[index])
-        return f.read(_get_item_size(index))
+        if index < self.header.num_items:
+            f.seek((self.header.size - self.header.item_size) + self.item_offsets[index])
+            return f.read(_get_item_size(index))
+        return None
+
+    def find_item(self, f, item_type, index):
+        """Finds the item and returns it from the file."""
+        start, num = get_item_type(item_type)
+        if index < num:
+            return get_item(f, start+index)
+        return None
 
     def _get_compressed_data_size(self, index):
         """Returns the size of the compressed data part."""
