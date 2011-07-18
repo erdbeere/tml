@@ -243,7 +243,6 @@ class Teemap(object):
             for item_type in self.item_types:
                 for i in range(item_type['num']):
                     size = sizes[item_type['start'] + i]
-                    print size
                     #FIXME: Workaround to detect race maps
                     if size in (76, 88):
                         race = True

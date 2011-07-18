@@ -66,12 +66,11 @@ class Quad(object):
 class Tile(object):
     """Represents a tile of a tilelayer."""
 
-    def __init__(self, index=0, flags=0, skip=0, reserved=0, image=None):
+    def __init__(self, index=0, flags=0, skip=0, reserved=0):
         self.index = index
         self._flags = flags
         self.skip = skip
         self.reserved = reserved
-        self.layerimage = image
 
     @property
     def vflip(self):
@@ -96,23 +95,6 @@ class Tile(object):
         else:
             if self.hflip:
                 self._flags ^= 2
-
-    @property
-    def image(self):
-        if self.layerimage is not None:
-            if self.layerimage == 'gamelayer':
-                image = GAMELAYER_IMAGE
-                x = self.index % 16 * 64
-                y = self.index / 16 * 64
-                image = image.crop((x, y, x+64, y+64))
-            else:
-                image = self.layerimage.get_shape(self.index)
-            if self.hflip:
-                image = image.transpose(1)
-            if self.vflip:
-                image = image.transpose(0)
-            return image
-        return None
 
     def __repr__(self):
         return '<Tile {0}>'.format(self.index)
@@ -184,53 +166,6 @@ class Info(object):
 
     def __init__(self, item):
         self.item = item
-
-class Image(object):
-    """Represents an image."""
-
-    size = 32
-
-    def __init__(self, item):
-        self.version, self.width, self.height, self.external, \
-        self.image_name, self.image_data = item.info[2:]
-        self.name = item.name
-        path = os.path.join('mapres', self.name)
-        path = os.extsep.join((path, 'png'))
-        path = os.path.join(TML_DIR, path)
-        if not self.external:
-            # TODO: make this nicer, without a temporary file
-            w = png.Writer(self.width, self.height, alpha=True)
-            f = open(path, 'wb')
-            w.write(f, item.data)
-            f.close()
-        self.image = PIL.Image.open(path)
-
-    def get_shape(self, index):
-        x = index % 16 * 64
-        y = index / 16 * 64
-        return self.image.crop((x, y, x+64, y+64))
-
-    @property
-    def itemdata(self):
-        return (Image.size-8, 1, self.width, self.height, self.external,
-                self.image_name, self.image_data)
-
-    def get_data(self, id_):
-        name = self.name + chr(0)
-        self.image_name = id_
-        if self.image:
-            k = []
-            for i in self.image:
-                for j in i:
-                    k.append(j)
-            fmt = '{0}B'.format(len(k))
-            image_data = pack(fmt, *k)
-            self.image_data = id_+1
-            return [name, image_data]
-        return [name]
-
-    def __repr__(self):
-        return '<Image "{0}">'.format(self.name)
 
 class Envelope(object):
     """Represents an envelope."""
@@ -319,11 +254,7 @@ class Item(object):
         if self.type == 'image':
             name = decompress(data[self.info[-2]])
             fmt = '{0}c'.format(len(name))
-            self.name = ''
-            for char in unpack(fmt, name):
-                if char == '\x00':
-                    break
-                self.name += char
+            self.name = ''.join(unpack(fmt, name)).partition('\x00')[0]
 
             if not self.info[5]:
                 data = decompress(data[self.info[-1]])
