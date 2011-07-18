@@ -201,7 +201,6 @@ class Teemap(object):
         elif extension != ''.join([os.extsep, 'map']):
             raise TypeError('Invalid file')
         with open(map_path, 'rb') as f:
-            self.race = False
             self.header = Header(self, f)
             self.item_types = []
             for i in range(self.header.num_item_types):
@@ -238,15 +237,18 @@ class Teemap(object):
                 last_offset = offset
 
             f.seek(item_start_offset)
-            layers = []
+            self.layers = []
+            self.envpoints = []
+            race = False
             for item_type in self.item_types:
                 for i in range(item_type['num']):
                     size = sizes[item_type['start'] + i]
                     print size
-                    if self.race == False and (size == 76 or size == 88): # detect race map
-                        self.race = True
+                    #FIXME: Workaround to detect race maps
+                    if size in (76, 88):
+                        race = True
                     item = items.Item(item_type['type'])
-                    item.load(f.read(size), self.compressed_data, self.race)
+                    item.load(f.read(size), self.compressed_data, race)
 
                     if item.type == 'envpoint':
                         for i in range((len(item.info)-2) / 6):
@@ -267,7 +269,7 @@ class Teemap(object):
             for group in self.groups:
                 start = group.start_layer
                 end = group.start_layer + group.num_layers
-                group.layers = [layer for layer in layers[start:end]]
+                group.layers = [layer for layer in self.layers[start:end]]
 
         # usefull for some people like bnn :P
         return self
