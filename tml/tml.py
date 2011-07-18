@@ -237,7 +237,7 @@ class Teemap(object):
                 last_offset = offset
 
             f.seek(item_start_offset)
-            self.layers = []
+            layers = []
             self.envpoints = []
             race = False
             for item_type in self.item_types:
@@ -269,7 +269,7 @@ class Teemap(object):
             for group in self.groups:
                 start = group.start_layer
                 end = group.start_layer + group.num_layers
-                group.layers = [layer for layer in self.layers[start:end]]
+                group.layers = [layer for layer in layers[start:end]]
 
         # usefull for some people like bnn :P
         return self
@@ -296,4 +296,4 @@ class Teemap(object):
 
 if __name__ == '__main__':
     t = Teemap()
-    t.load('dm1_test')
+    t.load('tml/maps/dm1')
