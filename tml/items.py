@@ -11,13 +11,10 @@ from StringIO import StringIO
 from struct import unpack, pack
 from zlib import decompress
 
-import PIL.Image
-import png
-
 from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR
 
-GAMELAYER_IMAGE = PIL.Image.open(os.path.join(TML_DIR,
-	os.extsep.join(('entities', 'png'))))
+#GAMELAYER_IMAGE = PIL.Image.open(os.path.join(TML_DIR,
+#	os.extsep.join(('entities', 'png'))))
 
 class Quad(object):
     """Represents a quad of a quadlayer."""
