@@ -11,9 +11,6 @@ import os
 from struct import unpack, pack
 from zlib import decompress, compress
 
-import PIL.Image
-import PIL.ImageChops
-
 from constants import ITEM_TYPES, LAYER_TYPES
 import items
 
@@ -35,8 +32,7 @@ class Header(object):
     Note that the file won't be rewinded!
     """
 
-    def __init__(self, teemap, f=None):
-        self.teemap = teemap
+    def __init__(self, f=None):
         self.version = 4
         self.size = 0
         if f != None:
@@ -51,67 +47,13 @@ class Header(object):
                 raise TypeError('Wrong version')
 
             # calculate the size of the whole header
-            self.size = self.num_item_types * 12
-            self.size += (self.num_items + self.num_raw_data) * 4
-            self.size += self.num_raw_data * 4
-            self.size += self.item_size
-
-        # why the hell 36?
-        self.size += 36
-
-    def write(self, f):
-        """Write the header itself in tw map format to a file.
-
-        It calculates the item sizes. Every item consists of a special number of
-        ints plus two additional ints which are added later (this is the +8).
-        There is allways one envpoint item and one version item. All other items
-        counted.
-        """
-
-        # count all items
-        teemap = self.teemap
-        item_size = len(teemap.layers + teemap.groups + teemap.images + \
-                        teemap.envelopes) + 1 # 1 = envpoint item
-        # calculate compressed data size and store the compressed data
-        datas = []
-        data_size = 0
-        for data in teemap.compressed_data:
-            data_size += len(data)
-            datas.append(data)
-        # calculate the item size
-        layers_size = 0
-        for layer in teemap.layers:
-            if LAYER_TYPES[layer.type] == 'tile':
-                layers_size += items.TileLayer.size
-            else:
-                layers_size += items.QuadLayer.size
-        version_size = 4+8
-        envelopes_size = len(teemap.envelopes)*items.Envelope.size
-        groups_size = len(teemap.groups)*items.Group.size
-        envpoints_size = len(teemap.envpoints)*24+8
-        images_size = len(teemap.images)*items.Image.size
-        item_size = version_size+groups_size+layers_size+envelopes_size \
-                    +images_size+envpoints_size
-        num_items = len(teemap.envelopes + teemap.groups + teemap.layers + \
-                        teemap.images) + 2 # 2 = version item + envpoint item
-        num_item_types = 2 # version and envpoints
-        for type_ in ITEM_TYPES[2:]:
-            if type_ == 'envpoint':
-                continue
-            name = ''.join([type_, 's'])
-            if getattr(teemap, name):
-                num_item_types += 1
-        num_raw_data = len(datas)
-        # calculate some other sizes
-        header_size = 36
-        type_size = num_item_types*12
-        offset_size = (num_items+2*num_raw_data)*4
-        size = header_size+type_size+offset_size+item_size+data_size-16
-        swaplen = size-data_size
-
-        f.write(pack('4c', *'DATA'))
-        f.write(pack('8i', 4, size, swaplen, num_item_types, num_items,
-                           num_raw_data, item_size, data_size))
+            self.size = sum([
+                self.num_item_types * 12,
+                (self.num_items + self.num_raw_data) * 4,
+                self.num_raw_data * 4,
+                self.item_size,
+                36, #XXX: find out why 36
+            ])
 
 class Teemap(object):
 
@@ -142,7 +84,7 @@ class Teemap(object):
 
     def __init__(self, map_path=None):
         self.name = ''
-        self.header = Header(self)
+        self.header = Header()
 
         # default list of item types
         for type_ in ITEM_TYPES:
@@ -201,7 +143,7 @@ class Teemap(object):
         elif extension != ''.join([os.extsep, 'map']):
             raise TypeError('Invalid file')
         with open(map_path, 'rb') as f:
-            self.header = Header(self, f)
+            self.header = Header(f)
             self.item_types = []
             for i in range(self.header.num_item_types):
                 val = unpack('3i', f.read(12))
@@ -270,7 +212,6 @@ class Teemap(object):
                 end = group.start_layer + group.num_layers
                 group.layers = [layer for layer in layers[start:end]]
 
-        # usefull for some people like bnn :P
         return self
 
     def create_default(self):
