@@ -167,6 +167,11 @@ class Info(object):
     def __init__(self, item):
         self.item = item
 
+class Image(object):
+
+    def __init__(self, item):
+        self.item = item
+
 class Envelope(object):
     """Represents an envelope."""
 
@@ -415,7 +420,7 @@ class TileLayer(Layer):
                     i = 0
                     self.speedup_data = info[13]
             while(i < len(item.data)):
-                self.tiles.append(Tile(*item.data[i:i+4], image=self.image)) # what is this? oO
+                self.tiles.append(Tile(*item.data[i:i+4]))
                 i += 4
 
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
