@@ -133,6 +133,36 @@ class Teemap(object):
     def height(self):
         return self.gamelayer.height
 
+    def get_item_type(self, item_type):
+        """Returns the index of the first item and the number of items for the type."""
+        for i in range(self.header.num_item_types):
+            if self.item_types[i]['type'] == type:
+                return (self.item_types[i]['start'], self.item_types[i]['num'])
+        return (0, 0)
+
+    def _get_item_size(self, index):
+        """Returns the size of the item."""
+        if index == self.num_items -1:
+            return self.header.item_size - self.item_offsets[index]
+        return self.item_offsets[index+1] - self.item_offsets[index]
+
+    def get_item(self, f, index):
+        """Returns the item from the file."""
+        f.seek((self.header.size - self.header.item_size) + self.item_offsets[index])
+        return f.read(_get_item_size(index))
+
+    def _get_compressed_data_size(self, index):
+        """Returns the size of the compressed data part."""
+        if index == self.num_items -1:
+            return self.header.data_size - self.data_offsets[index]
+        return self.data_offset[index+1] - self.data_offsets[index]
+
+    def get_compressed_data(self, f, index):
+        """Returns the compressed data and size of it from the file."""
+        size = _get_compressed_data_size(index)
+        f.seek(self.header.size + self.data_offsets[index])
+        return (size, f.read(size))
+
     def load(self, map_path):
         """Load a new teeworlds map from `map_path`."""
 
