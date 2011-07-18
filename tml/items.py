@@ -152,22 +152,43 @@ class TileSpeedup(object):
     def angle(self, value):
         self.angle = max(0, min(value, 359))"""
 
-class Version(object):
-
-    size = 12
-
-    def __init__(self, item):
-        self.item = item
-
-class Info(object):
-
-    def __init__(self, item):
-        self.item = item
-
 class Image(object):
 
-    def __init__(self, item):
-        self.item = item
+    type_size = 6 # size in ints
+
+    def __init__(self, teemap, f, item):
+        self.teemap = teemap
+        item_size, item_data = item
+        fmt = '{0}i'.format(item_size/4)
+        item_data = unpack(fmt, item_data)
+        version, self.width, self.height, self.external_, image_name, \
+        image_data = item_data[:Image.type_size]
+        self._get_image_name(f, image_name)
+
+        # load image data
+        if self.external_ != 0 and image_data > -1:
+            self._get_image_data(f, image_data)
+
+    def _get_image_name(self, f, image_name):
+        self.name = decompress(self.teemap.get_compressed_data(f, image_name))
+        self.name = self.name[:-1] # remove 0 termination
+
+    def _get_image_data(self, f, image_data):
+        self.image_data = decompress(self.teemap.get_compressed_data(f, 
+                            image_data))
+
+    def __repr__(self):
+        return '<Image {0}>'.format(self.name)
+
+    @property
+    def resolution(self):
+        return '{0} x {1}'.format(self.width, self.height)
+
+    @property
+    def external(self):
+        if self.external_:
+            return True
+        return False
 
 class Envelope(object):
     """Represents an envelope."""
@@ -221,81 +242,23 @@ class Envpoint(object):
     def __repr__(self):
         return '<Envpoint>'.format()
 
-class Item(object):
-    """Represents an item."""
-
-    def __init__(self, type_num):
-        self.type = ITEM_TYPES[type_num]
-
-    def load(self, info, data, is_race):
-        fmt = '{0}i'.format(len(info) / 4)
-        self.info = unpack(fmt, info)
-
-        # load data to layers
-        if self.type == 'layer':
-            if LAYER_TYPES[self.info[3]] == 'tile':
-                _data = decompress(data[self.info[16]])
-                fmt = '{0}B'.format(len(_data))
-                self.data = list(unpack(fmt, _data))
-                self.tele_data = None
-                self.speedup_data = None
-                if is_race:
-                    if self.info[17] > 0 and self.info[8] == 2:
-                        _data = decompress(data[self.info[17]])
-                        fmt = '{0}B'.format(len(_data))
-                        self.tele_data = list(unpack(fmt, _data))
-                    if self.info[18] > 0 and self.info[8] == 4:
-                        _data = decompress(data[self.info[18]])
-                        fmt = '{0}B{1}h'.format(len(_data)/2, len(_data)/2)
-                        self.speedup_data = list(unpack(fmt, _data))
-            elif LAYER_TYPES[self.info[3]] == 'quad':
-                _data = decompress(data[self.info[7]])
-                fmt = '{0}i'.format(len(_data) / 4)
-                self.data = list(unpack(fmt, _data))
-        # load image data
-        if self.type == 'image':
-            name = decompress(data[self.info[-2]])
-            fmt = '{0}c'.format(len(name))
-            self.name = ''.join(unpack(fmt, name)).partition('\x00')[0]
-
-            if not self.info[5]:
-                data = decompress(data[self.info[-1]])
-                fmt = '{0}B'.format(len(data))
-                data = list(unpack(fmt, data))
-                self.data = []
-                for i in range(self.info[4]):
-                    self.data.append(data[i*self.info[3]*4:(self.info[3]*4)+(i*self.info[3]*4)])
-
-    def __repr__(self):
-        return '<{0} Item>'.format(self.type.title())
-
 class Group(object):
     """Represents a group."""
 
-    size = 56
+    type_size = 12
 
-    def __init__(self, item=None):
-        if item == None:
-            info = 2, 0, 0, 100, 100, 0, 0, 0, 0, 0, 0, 0
-        else:
-            info = item.info[2:]
-        self.version, self.offset_x, self.offset_y, self.parallax_x, \
-        self.parallax_y, self.start_layer, self.num_layers, self.use_clipping, \
-        self.clip_x, self.clip_y, self.clip_w, self.clip_h = info[:12]
+    def __init__(self, teemap, f, item):
+        self.teemap = teemap
+        item_size, item_data = item
+        fmt = '{0}i'.format(item_size/4)
+        item_data = unpack(fmt, item_data)
+        version, self.offset_x, self.offset_y, self.parallax_x, \
+        self.parallax_y, start_layer, num_layers, self.use_clipping, \
+        self.clip_x, self.clip_y, self.clip_w, self.clip_h = item_data[:Group.type_size]
         self.layers = []
 
-    @property
-    def itemdata(self):
-        return (Group.size-8, 2, self.offset_x, self.offset_y,
-                self.parallax_x, self.parallax_y, self.start_layer,
-                len(self.layers), self.use_clipping, self.clip_x, self.clip_y,
-                self.clip_w, self.clip_h)
-
-    def default_background(self):
-        """Creates the group optimised for the background."""
-
-        self.parallax_x = 0
-        self.parallax_y = 0
+    def add_layer(self, layer):
+        self.layers.append(layer)
 
     def __repr__(self):
         return '<Group>'
@@ -303,76 +266,37 @@ class Group(object):
 class Layer(object):
     """Represents the layer data every layer has."""
 
-    def __init__(self, item):
-        self.version, self.type, self.flags = item.info[2:5]
-        self.item = item
+    type_size = 3
 
-    @property
-    def is_gamelayer(self):
-        return False
-
-    @property
-    def is_telelayer(self):
-        return False
-
-    @property
-    def is_speeduplayer(self):
-        return False
+    def __init__(self, teemap, f, item):
+        self.teemap = teemap
+        item_size, item_data = item
+        fmt = '{0}i'.format(item_size/4)
+        item_data = unpack(fmt, item_data)
+        self.version, self.type, self.flags = item_data[:Layer.type_size]
 
 class QuadLayer(Layer):
     """Represents a quad layer."""
 
-    size = 36
+    type_size = 7
 
-    def __init__(self, item=None, image=None):
+    def __init__(self, teemap, f, item):
+        self.teemap = teemap
+        item_size, item_data = item
+        fmt = '{0}i'.format(item_size/4)
+        item_data = unpack(fmt, item_data)
+        super(QuadLayer, self).__init__(teemap, f, item)
+        version, self.num_quads, self._data, self._image = item_data[3:QuadLayer.type_size]
         self.quads = []
-        if item == None:
-            # default values of a new tile layer
-            info = 3, 0, -1, -1
-            self.type = 3
-            self.flags = 0
-        else:
-            info = item.info[5:]
-            super(QuadLayer, self).__init__(item)
-             # load quads
-            i = 0
-            while(i < len(item.data)):
-                self.quads.append(Quad(item.data[i:i+10], item.data[i+10:i+26],
-                                       item.data[i+26:i+34], item.data[i+34],
-                                       item.data[i+35], item.data[i+36],
-                                       item.data[i+37]))
-                i += 38
-        self.version, self.num_quads, self._data, self._image = info[:4]
 
-    @property
-    def itemdata(self):
-        return (QuadLayer.size-8, 1, self.type, self.flags, 1, len(self.quads),
-                self._data, self._image)
-
-    def get_data(self, id_):
-        self._data = id_
-        data = []
-        for quad in self.quads:
-            for point in quad.points:
-                data.extend([point['x'], point['y']])
-            for color in quad.colors:
-                data.extend([color['r'], color['g'], color['b'], color['a']])
-            for texcoord in quad.texcoords:
-                data.extend([texcoord['x'], texcoord['y']])
-            data.extend([quad.pos_env, quad.pos_env_offset, quad.color_env,
-                        quad.color_env_offset])
-        return data
-
-    def add_background_quad(self):
-        """Adds the default background quad to the layer."""
-
-        width = 800000
-        height = 600000
-        points = [-width, -height, width, -height, -width, height, width,
-                 height, 32, 32]
-        colors = [94, 132, 174, 255, 94, 132, 174, 255, 204, 232, 255, 255,
-                 204, 232, 255, 255]
-        self.quads.append(Quad(points, colors))
+        # load quads
+        """i = 0
+        while(i < len(item.data)):
+            self.quads.append(Quad(item.data[i:i+10], item.data[i+10:i+26],
+                                   item.data[i+26:i+34], item.data[i+34],
+                                   item.data[i+35], item.data[i+36],
+                                   item.data[i+37]))
+            i += 38"""
 
     def __repr__(self):
         return '<Quad layer>'
@@ -380,129 +304,45 @@ class QuadLayer(Layer):
 class TileLayer(Layer):
     """Represents a tile layer."""
 
-    size = 68
+    type_size = 15
 
-    def __init__(self, item=None, images=None, game=0, width=50, height=50):
-        self.images = images
-        self.tiles = []
-        self.teleporter = []
-        self.speedups = []
-        self.tele_data = 0
-        self.speedup_data = 0
-        if item == None:
-            # default values of a new tile layer
-            info = 2, width, height, game, 255, 255, 255, 255, -1, 0, -1, -1
-            self.type = 2
-            self.flags = 0
-            for i in range(width*height):
-                self.tiles.append(Tile())
-        else:
-            info = list(item.info[5:])
-            super(TileLayer, self).__init__(item)
-            # load tile data
-            i = 0
-            self.game = info[3]
-            self._image = info[10]
-            if len(info) > 12:
-                if info[12] > 0 and item.tele_data:
-                    while(i < len(item.tele_data)):
-                        self.teleporter.append(TileTele(*item.tele_data[i:i+2]))
-                        i += 2
-                    i = 0
-                    self.tele_data = info[12]
-                if info[13] > 0 and item.speedup_data:
-                    while(i < len(item.speedup_data)):
-                        self.teleporter.append(TileSpeedup(*item.speedup_data[i:i+2]))
-                        i += 2
-                    i = 0
-                    self.speedup_data = info[13]
-            while(i < len(item.data)):
-                self.tiles.append(Tile(*item.data[i:i+4]))
-                i += 4
-
+    def __init__(self, teemap, f, item):
+        self.teemap = teemap
+        item_size, item_data = item
+        fmt = '{0}i'.format(item_size/4)
+        item_data = unpack(fmt, item_data)
+        super(TileLayer, self).__init__(teemap, f, item)
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
-        self.version, self.width, self.height, self.game, self.color['r'], \
+        version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
-        self.color_env_offset, self._image, self._data = info[:12]
+        self.color_env_offset, self._image, self._data = item_data[3:TileLayer.type_size]
 
-    @property
-    def width(self):
-        """Property for width.
-
-        This is necessarry to rearrange self.tiles corresponding to this value.
-        """
-        return self._width
-
-    @width.setter
-    def width(self, value):
-        # rearrange the tile list
-        if hasattr(self, '_width'):
-            diff = value - self._width
-            tiles = []
-            for i in range(self.height):
-                start = i*self._width
-                if diff > 0:
-                    end = i*self._width + self._width
-                    tiles.extend(self.tiles[start:end])
-                    tiles.extend([Tile() for i in range(diff)])
-                elif diff < 0:
-                    end = i*self._width + self._width + diff
-                    tiles.extend(self.tiles[start:end])
-            self.tiles = tiles
-        self._width = value
-
-
-    @property
-    def height(self):
-        """Property for height.
-
-        This is necessarry to rearrange self.tiles corresponding to this value.
-        """
-        return self._height
-
-    @height.setter
-    def height(self, value):
-        # remove or add new tiles
-        if hasattr(self, '_height'):
-            diff = value - self._height
-            if diff > 0:
-                self.tiles.extend([Tile() for i in range(diff * self.width)])
-            elif diff < 0:
-                self.tiles = self.tiles[0:diff * self.width]
-        self._height = value
+        # load tile data
+        """i = 0
+        self.game = info[3]
+        self._image = info[10]
+        if len(info) > 12:
+            if info[12] > 0 and item.tele_data:
+                while(i < len(item.tele_data)):
+                    self.teleporter.append(TileTele(*item.tele_data[i:i+2]))
+                    i += 2
+                i = 0
+                self.tele_data = info[12]
+            if info[13] > 0 and item.speedup_data:
+                while(i < len(item.speedup_data)):
+                    self.teleporter.append(TileSpeedup(*item.speedup_data[i:i+2]))
+                    i += 2
+                i = 0
+                self.speedup_data = info[13]
+        while(i < len(item.data)):
+            self.tiles.append(Tile(*item.data[i:i+4]))
+            i += 4"""
 
     @property
     def is_gamelayer(self):
         return self.game == 1
 
-    @property
-    def is_telelayer(self):
-        return self.game == 2
-
-    @property
-    def is_speeduplayer(self):
-        return self.game == 4
-
-
-    @property
-    def itemdata(self):
-        return (TileLayer.size-8, 0, self.type, self.flags, 2, self.width,
-                self.height, self.game, self.color['r'], self.color['g'],
-                self.color['b'], self.color['a'], self.color_env,
-                self.color_env_offset, self._image, self._data)
-
-    @property
-    def image(self):
-        if self.is_gamelayer:
-            return 'gamelayer'
-        return self.images[self._image]
-
-    def get_data(self, id_):
-        self._data = id_
-        data = []
-        for tile in self.tiles:
-            data.extend([tile.index, tile.flags, tile.skip, tile.reserved])
-        return data
-
     def __repr__(self):
+        if self.game == 1:
+            return '<Game layer ({0}x{1})>'.format(self.width, self.height)
         return '<Tile layer ({0}x{1})>'.format(self.width, self.height)

@@ -6,12 +6,12 @@
     :copyright: 2010-2011 by the TML Team, see AUTHORS for more details.
     :license: GNU GPL, see LICENSE for more details.
 """
-import pdb
+
 import os
 from struct import unpack, pack
 from zlib import decompress, compress
 
-from constants import ITEM_TYPES, LAYER_TYPES
+from constants import *
 import items
 
 def int32(x):
@@ -86,7 +86,7 @@ class Teemap(object):
 
         # default list of item types
         for type_ in ITEM_TYPES:
-            if type_ != 'layer':
+            if type_ != 'version' and type_ != 'layer':
                 setattr(self, ''.join([type_, 's']), [])
 
         if map_path:
@@ -141,21 +141,22 @@ class Teemap(object):
     def _get_item_size(self, index):
         """Returns the size of the item."""
         if index == self.header.num_items - 1:
-            return self.header.item_size - self.item_offsets[index]
-        return self.item_offsets[index+1] - self.item_offsets[index]
+            return (self.header.item_size - self.item_offsets[index]) - 8   # -8 to cut out type_and_id and size
+        return (self.item_offsets[index+1] - self.item_offsets[index]) - 8
 
     def get_item(self, f, index):
         """Returns the item from the file."""
         if index < self.header.num_items:
-            f.seek(self.header.size + self.item_offsets[index])
-            return f.read(self._get_item_size(index))
+            f.seek(self.header.size + self.item_offsets[index] + 8) # +8 to cut out type_and_id and size
+            size = self._get_item_size(index)
+            return (size, f.read(size))
         return None
 
     def find_item(self, f, item_type, index):
         """Finds the item and returns it from the file."""
         start, num = self.get_item_type(item_type)
         if index < num:
-            return get_item(f, start+index)
+            return self.get_item(f, start+index)
         return None
 
     def _get_compressed_data_size(self, index):
@@ -168,7 +169,7 @@ class Teemap(object):
         """Returns the compressed data and size of it from the file."""
         size = self._get_compressed_data_size(index)
         f.seek(self.header.size + self.header.item_size + self.data_offsets[index])
-        return (size, f.read(size))
+        return f.read(size)
 
     def load(self, map_path):
         """Load a new teeworlds map from `map_path`."""
@@ -194,62 +195,46 @@ class Teemap(object):
             fmt = '{0}i'.format(self.header.num_raw_data)
             self.data_offsets = unpack(fmt, f.read(self.header.num_raw_data * 4))
 
-            # "data uncompressed size"
-            # print repr(f.read(self.header.num_raw_data * 4))
+            # check version
+            item_size, version_item = self.find_item(f, ITEM_VERSION, 0)
+            fmt = '{0}i'.format(item_size/4)
+            version = unpack(fmt, version_item)[0] # we only expect 1 element here
+            if version != 1:
+                raise TypeError('Wrong version')
 
-            data_start_offset = self.header.size + self.header.item_size
-            item_start_offset = self.header.size
+            # load items
+            # begin with images
+            start, num = self.get_item_type(ITEM_IMAGE)
+            for i in range(num):
+                self.images.append(items.Image(self, f, self.get_item(f, start+i)))
 
-            self.compressed_data = []
-            f.seek(data_start_offset)
-            for offset in (self.data_offsets + (self.header.data_size,)):
-                if offset > 0:
-                    self.compressed_data.append(f.read(offset - last_offset))
-                last_offset = offset
+            # load groups
+            group_item_start, group_item_num = self.get_item_type(ITEM_GROUP)
+            for i in range(group_item_num):
+                group_size, group_item = self.get_item(f, group_item_start+i)
+                group = items.Group(self, f, (group_size, group_item))
+                fmt = '{0}i'.format(group_size/4)
+                group_item = unpack(fmt, group_item)
+                start_layer, num_layers = group_item[5:7]
 
-            # calculate with the offsets and the whole item size the size of
-            # each item
-            sizes = []
-            for offset in self.item_offsets + (self.header.item_size,):
-                if offset > 0:
-                    sizes.append(offset - last_offset)
-                last_offset = offset
+                # load layers in group
+                layer_item_start, layer_item_num = self.get_item_type(ITEM_LAYER)
+                for j in range(num_layers):
+                    # create general layer
+                    layer_item = self.get_item(f, layer_item_start+start_layer+j)
+                    layer = items.Layer(self, f, layer_item)
 
-            f.seek(item_start_offset)
-            layers = []
-            self.envpoints = []
-            race = False
-            for item_type in self.item_types:
-                for i in range(item_type['num']):
-                    size = sizes[item_type['start'] + i]
-                    #FIXME: Workaround to detect race maps
-                    if size in (76, 88):
-                        race = True
-                    item = items.Item(item_type['type'])
-                    item.load(f.read(size), self.compressed_data, race)
+                    #find out which layer we have
+                    if LAYER_TYPES[layer.type] == 'tile':
+                        layer = items.TileLayer(self, f, layer_item)
+                    elif LAYER_TYPES[layer.type] == 'quad':
+                        layer = items.QuadLayer(self, f, layer_item)
 
-                    if item.type == 'envpoint':
-                        for i in range((len(item.info)-2) / 6):
-                            info = item.info[2+(i*6):2+(i*6+6)]
-                            self.envpoints.append(items.Envpoint(info))
-                    elif item.type == 'layer':
-                        layer = items.Layer(item)
-                        layerclass = ''.join([LAYER_TYPES[layer.type].title(),
-                                             'Layer'])
-                        class_ = getattr(items, layerclass)
-                        layers.append(class_(item, self.images))
-                    else:
-                        name = ''.join([item.type, 's'])
-                        class_ = getattr(items, item.type.title())
-                        getattr(self, name).append(class_(item))
+                    # add layer to group
+                    group.add_layer(layer)
 
-            # assign layers to groups
-            for group in self.groups:
-                start = group.start_layer
-                end = group.start_layer + group.num_layers
-                group.layers = [layer for layer in layers[start:end]]
-
-        return self
+                # add group
+                self.groups.append(group)
 
     def create_default(self):
         """Creates the default map.
