@@ -193,15 +193,19 @@ class Image(object):
 class Envelope(object):
     """Represents an envelope."""
 
-    size = 56
+    type_size = 12
 
-    def __init__(self, item):
+    def __init__(self, teemap, f, item):
+        self.teemap = teemap
+        item_size, item_data = item
+        fmt = '{0}i'.format(item_size/4)
+        item_data = unpack(fmt, item_data)
         self.version, self.channels, self.start_point, \
-        self.num_points = item.info[2:6]
-        self.name = self.ints_to_string(item.info[6:])
-        self.item = item
+        self.num_points = item_data[:Envelope.type_size-8] # -8 to strip envelope name
+        self.name = self._ints_to_string(item_data[4:Envelope.type_size]) \
+                        .partition('\x00')[0]
 
-    def ints_to_string(self, num):
+    def _ints_to_string(self, num):
         string = ''
         for i in range(len(num)):
             string += chr(max(0, min(((num[i]>>24)&0xff)-128, 255)))
@@ -211,7 +215,7 @@ class Envelope(object):
                 string += chr(max(0, min((num[i]&0xff)-128, 255)))
         return string
 
-    def string_to_ints(self):
+    def _string_to_ints(self):
         ints = []
         for i in range(8):
             string = ''
@@ -224,20 +228,17 @@ class Envelope(object):
         ints[-1] &= 0xffffff00
         return ints
 
-    @property
-    def itemdata(self):
-        return (Envelope.size-8, 1, self.channels, self.start_point,
-                self.num_points)
-
     def __repr__(self):
         return '<Envelope>'
 
 class Envpoint(object):
     """Represents an envpoint."""
 
-    def __init__(self, info):
-        self.time, self.curvetype = info[:2]
-        self.values = info[2:]
+    type_size = 6
+    def __init__(self, teemap, point):
+        self.teemap = teemap
+        self.time, self.curvetype = point[:Envpoint.type_size-4] # -4 to strip values
+        self.values = point[2:Envpoint.type_size]
 
     def __repr__(self):
         return '<Envpoint>'.format()
@@ -286,20 +287,33 @@ class QuadLayer(Layer):
         fmt = '{0}i'.format(item_size/4)
         item_data = unpack(fmt, item_data)
         super(QuadLayer, self).__init__(teemap, f, item)
-        version, self.num_quads, self._data, self._image = item_data[3:QuadLayer.type_size]
+        version, self.num_quads, data, self._image = item_data[3:QuadLayer.type_size]
         self.quads = []
 
         # load quads
-        """i = 0
-        while(i < len(item.data)):
-            self.quads.append(Quad(item.data[i:i+10], item.data[i+10:i+26],
-                                   item.data[i+26:i+34], item.data[i+34],
-                                   item.data[i+35], item.data[i+36],
-                                   item.data[i+37]))
-            i += 38"""
+        self._load_quads(f, data)
+
+    def _load_quads(self, f, data):
+        quad_data = decompress(self.teemap.get_compressed_data(f, data))
+        fmt = '{0}i'.format(len(quad_data)/4)
+        quad_data = unpack(fmt, quad_data)
+        self.quads = []
+        i = 0
+        while(i < len(quad_data)):
+            self.quads.append(Quad(quad_data[i:i+10], quad_data[i+10:i+26],
+                                   quad_data[i+26:i+34], quad_data[i+34],
+                                   quad_data[i+35], quad_data[i+36],
+                                   quad_data[i+37]))
+            i += 38
+
+    @property
+    def image(self):
+        if self._image > -1:
+            return self.teemap.images[self._image]
+        return None
 
     def __repr__(self):
-        return '<Quad layer>'
+        return '<Quad layer ({0})>'.format(self.num_quads)
 
 class TileLayer(Layer):
     """Represents a tile layer."""
@@ -315,28 +329,26 @@ class TileLayer(Layer):
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
         version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
-        self.color_env_offset, self._image, self._data = item_data[3:TileLayer.type_size]
+        self.color_env_offset, self._image, data = item_data[3:TileLayer.type_size]
 
         # load tile data
-        """i = 0
-        self.game = info[3]
-        self._image = info[10]
-        if len(info) > 12:
-            if info[12] > 0 and item.tele_data:
-                while(i < len(item.tele_data)):
-                    self.teleporter.append(TileTele(*item.tele_data[i:i+2]))
-                    i += 2
-                i = 0
-                self.tele_data = info[12]
-            if info[13] > 0 and item.speedup_data:
-                while(i < len(item.speedup_data)):
-                    self.teleporter.append(TileSpeedup(*item.speedup_data[i:i+2]))
-                    i += 2
-                i = 0
-                self.speedup_data = info[13]
-        while(i < len(item.data)):
-            self.tiles.append(Tile(*item.data[i:i+4]))
-            i += 4"""
+        self._load_tiles(f, data)
+
+    def _load_tiles(self, f, data):
+        tile_data = decompress(self.teemap.get_compressed_data(f, data))
+        fmt = '{0}B'.format(len(tile_data))
+        tile_data = unpack(fmt, tile_data)
+        self.tiles = []
+        i = 0
+        while(i < len(tile_data)):
+            self.tiles.append(Tile(*tile_data[i:i+4]))
+            i += 4
+
+    @property
+    def image(self):
+        if self._image > -1:
+            return self.teemap.images[self._image]
+        return None
 
     @property
     def is_gamelayer(self):

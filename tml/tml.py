@@ -236,6 +236,19 @@ class Teemap(object):
                 # add group
                 self.groups.append(group)
 
+            # load envelopes
+            start, num = self.get_item_type(ITEM_ENVELOPE)
+            for i in range(num):
+                self.envelopes.append(items.Envelope(self, f, self.get_item(f, start+i)))
+
+            # load envpoints
+            item_size, item = self.find_item(f, ITEM_ENVPOINT, 0)
+            fmt = '{0}i'.format(item_size/4)
+            item = unpack(fmt, item)
+            for i in range(len(item)/6):
+                point = item[(i*6):(i*6+6)]
+                self.envpoints.append(items.Envpoint(self, point))
+
     def create_default(self):
         """Creates the default map.
 
