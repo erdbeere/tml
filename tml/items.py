@@ -9,6 +9,7 @@
 import os
 from StringIO import StringIO
 from struct import unpack, pack
+from utils import ints_to_string
 from zlib import decompress
 
 from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR
@@ -202,31 +203,7 @@ class Envelope(object):
         item_data = unpack(fmt, item_data)
         self.version, self.channels, self.start_point, \
         self.num_points = item_data[:Envelope.type_size-8] # -8 to strip envelope name
-        self.name = self._ints_to_string(item_data[4:Envelope.type_size]) \
-                        .partition('\x00')[0]
-
-    def _ints_to_string(self, num):
-        string = ''
-        for i in range(len(num)):
-            string += chr(max(0, min(((num[i]>>24)&0xff)-128, 255)))
-            string += chr(max(0, min(((num[i]>>16)&0xff)-128, 255)))
-            string += chr(max(0, min(((num[i]>>8)&0xff)-128, 255)))
-            if i < 7:
-                string += chr(max(0, min((num[i]&0xff)-128, 255)))
-        return string
-
-    def _string_to_ints(self):
-        ints = []
-        for i in range(8):
-            string = ''
-            for j in range(i*4, i*4+4):
-                if j < len(self.name):
-                    string += self.name[j]
-                else:
-                    string += chr(0)
-            ints.append(((ord(string[0])+128)<<24)|((ord(string[1])+128)<<16)|((ord(string[2])+128)<<8)|(ord(string[3])+128))
-        ints[-1] &= 0xffffff00
-        return ints
+        self.name = ints_to_string(item_data[4:Envelope.type_size])
 
     def __repr__(self):
         return '<Envelope>'
@@ -246,7 +223,7 @@ class Envpoint(object):
 class Group(object):
     """Represents a group."""
 
-    type_size = 12
+    type_size = 15
 
     def __init__(self, teemap, f, item):
         self.teemap = teemap
@@ -255,7 +232,12 @@ class Group(object):
         item_data = unpack(fmt, item_data)
         version, self.offset_x, self.offset_y, self.parallax_x, \
         self.parallax_y, start_layer, num_layers, self.use_clipping, \
-        self.clip_x, self.clip_y, self.clip_w, self.clip_h = item_data[:Group.type_size]
+        self.clip_x, self.clip_y, self.clip_w, self.clip_h = item_data[:Group.type_size-3] # group name
+        self.name = None
+        if version >= 3:
+            name = ints_to_string(item_data[Group.type_size-3:Group.type_size])
+            if name:
+                self.name = name
         self.layers = []
 
     def add_layer(self, layer):
@@ -279,7 +261,7 @@ class Layer(object):
 class QuadLayer(Layer):
     """Represents a quad layer."""
 
-    type_size = 7
+    type_size = 10
 
     def __init__(self, teemap, f, item):
         self.teemap = teemap
@@ -287,7 +269,12 @@ class QuadLayer(Layer):
         fmt = '{0}i'.format(item_size/4)
         item_data = unpack(fmt, item_data)
         super(QuadLayer, self).__init__(teemap, f, item)
-        version, self.num_quads, data, self._image = item_data[3:QuadLayer.type_size]
+        version, self.num_quads, data, self._image = item_data[3:QuadLayer.type_size-3] # layer name
+        self.name = None
+        if version >= 2:
+            name = ints_to_string(item_data[QuadLayer.type_size-3:QuadLayer.type_size])
+            if name:
+                self.name = name
         self.quads = []
 
         # load quads
@@ -318,7 +305,7 @@ class QuadLayer(Layer):
 class TileLayer(Layer):
     """Represents a tile layer."""
 
-    type_size = 15
+    type_size = 18
 
     def __init__(self, teemap, f, item):
         self.teemap = teemap
@@ -329,7 +316,12 @@ class TileLayer(Layer):
         self.color = {'r': 0, 'g': 0, 'b': 0, 'a': 0}
         version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
-        self.color_env_offset, self._image, data = item_data[3:TileLayer.type_size]
+        self.color_env_offset, self._image, data = item_data[3:TileLayer.type_size-3] # layer name
+        self.name = None
+        if version >= 3:
+            name = ints_to_string(item_data[TileLayer.type_size-3:TileLayer.type_size])
+            if name:
+                self.name = name
 
         # load tile data
         self._load_tiles(f, data)

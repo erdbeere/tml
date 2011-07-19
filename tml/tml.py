@@ -14,17 +14,6 @@ from zlib import decompress, compress
 from constants import *
 import items
 
-def int32(x):
-    if x>0xFFFFFFFF:
-        raise OverflowError
-    if x>0x7FFFFFFF:
-        x=int(0x100000000-x)
-        if x<2147483648:
-            return -x
-        else:
-            return -2147483648
-    return x
-
 class Header(object):
     """Contains fileheader information.
 
@@ -267,7 +256,6 @@ class Teemap(object):
         self.groups.append(game_group)
         game_layer = items.TileLayer(game=1)
         game_group.layers.append(game_layer)
-
 
 if __name__ == '__main__':
     t = Teemap()
