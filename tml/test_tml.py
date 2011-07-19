@@ -75,5 +75,10 @@ class TestTeemap(unittest.TestCase):
         self.assertEqual(len(t.envelopes[0].envpoints), 4)
         self.assertEqual(len(t.envelopes[1].envpoints), 5)
 
+        for i, envpoint in enumerate(t.envelopes[0].envpoints):
+            self.assertIs(envpoint, t.envpoints[i])
+        for i, envpoint in enumerate(t.envelopes[1].envpoints):
+            self.assertIs(envpoint, t.envpoints[i+4])
+
 if __name__ == '__main__':
     unittest.main()
