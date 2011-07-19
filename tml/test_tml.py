@@ -54,6 +54,15 @@ class TestTeemap(unittest.TestCase):
             self.assertIsInstance(layer, classes[i])
             self.assertEqual(layer.name, names[i])
 
+        for layer in t.layers:
+            if isinstance(layer, TileLayer):
+                if layer.name == 'TestTiles':
+                    self.assertEqual(layer.width, 42)
+                    self.assertEqual(layer.height, 84)
+                else:
+                    self.assertEqual(layer.width, 50)
+                    self.assertEqual(layer.height, 50)
+
     def test_envelopes(self):
         t = Teemap('tml/test_maps/vanilla')
         self.assertEqual(len(t.envelopes), 2)
