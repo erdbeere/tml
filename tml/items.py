@@ -104,54 +104,12 @@ class TileTele(object):
         self.number = number
         self.type = type
 
-    """@property
-    def telein(self):
-        return self.number > 0 and self.type == 26
-
-    @property
-    def teleout(self):
-        return self.number > 0 and self.type == 27
-
-    @property
-    def number(self):
-        return self.number
-
-    @telein.setter
-    def telein(self, value):
-        if value:
-            self.type = 26
-
-    @teleout.setter
-    def teleout(self, value):
-        if value:
-            self.type = 27
-
-    @number.setter
-    def number(self, value):
-        self.number = max(0, min(value, 255))"""
-
 class TileSpeedup(object):
     """Represents an overlay tile with speedup data."""
 
     def __init__(self, force=0, angle=0):
         self.force = force
         self.angle = angle
-
-    """@property
-    def force(self):
-        return self.force
-
-    @property
-    def angle(self):
-        return self.angle
-
-    @force.setter
-    def force(self, value):
-        self.force = max(0, min(value, 255))
-
-    @angle.setter
-    def angle(self, value):
-        self.angle = max(0, min(value, 359))"""
 
 class Image(object):
 
@@ -333,6 +291,38 @@ class TileLayer(Layer):
         # load tile data
         self._load_tiles(f, data)
 
+        # check for telelayer
+        self.tele_tiles = []
+        if self.game == 2:
+            if version >= 3:
+                # num of tele data is right after the default type length
+                if len(item_data) > TileLayer.type_size: # some security
+                    tele_data = item_data[TileLayer.type_size]
+                    if tele_data > -1 and tele_data < self.teemap.header.num_raw_data:
+                        self._load_tele_tiles(f, tele_data)
+            else:
+                # num of tele data is right after num of data for old maps
+                if len(item_data) > TileLayer.type_size-3: # some security
+                    tele_data = item_data[TileLayer.type_size-3]
+                    if tele_data > -1 and tele_data < self.teemap.header.num_raw_data:
+                        self._load_tele_tiles(f, tele_data)
+
+        # check for speeduplayer
+        self.speedup_tiles = []
+        if self.game == 4:
+            if version >= 3:
+                # num of speedup data is right after tele data
+                if len(item_data) > TileLayer.type_size+1: # some security
+                    speedup_data = item_data[TileLayer.type_size+1]
+                    if speedup_data > -1 and speedup_data < self.teemap.header.num_raw_data:
+                        self._load_speedup_tiles(f, speedup_data)
+            else:
+                # num of speedup data is right after tele data
+                if len(item_data) > TileLayer.type_size-2: # some security
+                    speedup_data = item_data[TileLayer.type_size-2]
+                    if speedup_data > -1 and speedup_data < self.teemap.header.num_raw_data:
+                        self._load_speedup_tiles(f, speedup_data)
+
     def _load_tiles(self, f, data):
         tile_data = decompress(self.teemap.get_compressed_data(f, data))
         fmt = '{0}B'.format(len(tile_data))
@@ -342,6 +332,24 @@ class TileLayer(Layer):
         while(i < len(tile_data)):
             self.tiles.append(Tile(*tile_data[i:i+4]))
             i += 4
+
+    def _load_tele_tiles(self, f, data):
+        tele_data = decompress(self.teemap.get_compressed_data(f, data))
+        fmt = '{0}B'.format(len(tele_data))
+        tele_data = unpack(fmt, tele_data)
+        i = 0
+        while(i < len(tele_data)):
+            self.tele_tiles.append(TileTele(*tele_data[i:i+2]))
+            i += 2
+
+    def _load_speedup_tiles(self, f, data):
+        speedup_data = decompress(self.teemap.get_compressed_data(f, data))
+        fmt = '{0}B{0}h'.format(len(speedup_data)/3)
+        speedup_data = unpack(fmt, speedup_data)
+        i = 0
+        while(i < len(speedup_data)):
+            self.speedup_tiles.append(TileSpeedup(*speedup_data[i:i+2]))
+            i += 2
 
     @property
     def image(self):
@@ -353,7 +361,19 @@ class TileLayer(Layer):
     def is_gamelayer(self):
         return self.game == 1
 
+    @property
+    def is_telelayer(self):
+        return self.game == 2
+
+    @property
+    def is_speeduplayer(self):
+        return self.game == 4
+
     def __repr__(self):
         if self.game == 1:
             return '<Game layer ({0}x{1})>'.format(self.width, self.height)
+        elif self.game == 2 and self.tele_tiles:
+            return '<Tele layer ({0}x{1})>'.format(self.width, self.height)
+        elif self.game == 4 and self.speedup_tiles:
+            return '<Speedup layer ({0}x{1})>'.format(self.width, self.height)
         return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
