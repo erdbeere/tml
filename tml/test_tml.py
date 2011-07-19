@@ -3,6 +3,7 @@
 
 import unittest
 from tml import Header, Teemap
+from items import Layer, QuadLayer, TileLayer
 
 class TestHeader(unittest.TestCase):
 
@@ -26,12 +27,36 @@ class TestTeemap(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_num(self):
+    def test_groups(self):
         t = Teemap('tml/test_maps/vanilla')
         self.assertEqual(len(t.groups), 7)
+        names = [None, None, None, 'NamedGroup', None, None, 'OtherGroup']
+        for i, group in enumerate(t.groups):
+            self.assertEqual(group.name, names[i])
+
+    def test_layers(self):
+        t = Teemap('tml/test_maps/vanilla')
         self.assertEqual(len(t.layers), 6)
         for i, num in enumerate([1,2,1,0,2,0,0]):
             self.assertEqual(len(t.groups[i].layers), num)
+        names = ['TestQuads', None, 'TestTiles', None, None, 'LastTiles']
+        classes = [QuadLayer, QuadLayer, TileLayer, QuadLayer, QuadLayer,
+                   QuadLayer]
+        for i, layer in enumerate(t.layers):
+            self.assertIsInstance(layer, classes)
+            self.assertEqual(layer.name, names[i])
+
+    def test_envelopes(self):
+        t = Teemap('tml/test_maps/vanilla')
+        self.assertEqual(len(t.envelopes), 2)
+        self.assertEqual(t.envelopes[0].name, 'PosEnv')
+        self.assertEqual(t.envelopes[1].name, 'ColorEnv')
+
+    def test_envpoints(self):
+        t = Teemap('tml/test_maps/vanilla')
+        self.assertEqual(len(t.envpoints), 1)
+        self.assertEqual(len(t.envelopes[0].envpoints), 4)
+        self.assertEqual(len(t.envelopes[1].envpoints), 5)
 
 if __name__ == '__main__':
     unittest.main()
