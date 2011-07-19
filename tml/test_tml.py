@@ -47,7 +47,7 @@ class TestTeemap(unittest.TestCase):
         self.assertIs(t.groups[4].layers[0], t.layers[4])
         self.assertIs(t.groups[4].layers[1], t.layers[5])
 
-        names = ['TestQuads', None, 'TestTiles', None, None, 'LastTiles']
+        names = ['TestQuads', None, 'TestTiles', 'Game', None, 'LastTiles']
         classes = [QuadLayer, QuadLayer, TileLayer, QuadLayer, QuadLayer,
                    QuadLayer]
         for i, layer in enumerate(t.layers):
