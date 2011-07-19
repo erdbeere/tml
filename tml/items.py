@@ -201,12 +201,19 @@ class Envelope(object):
         item_size, item_data = item
         fmt = '{0}i'.format(item_size/4)
         item_data = unpack(fmt, item_data)
-        self.version, self.channels, self.start_point, \
-        self.num_points = item_data[:Envelope.type_size-8] # -8 to strip envelope name
+        self.version, self.channels, start_point, \
+        num_points = item_data[:Envelope.type_size-8] # -8 to strip envelope name
         self.name = ints_to_string(item_data[4:Envelope.type_size])
 
+        # assign envpoints
+        self._assign_envpoints(start_point, num_points)
+
+    def _assign_envpoints(self, start, num):
+        self.envpoints = []
+        self.envpoints.extend(self.teemap.envpoints[start:start+num])
+    
     def __repr__(self):
-        return '<Envelope>'
+        return '<Envelope ({0})>'.format(len(self.envpoints))
 
 class Envpoint(object):
     """Represents an envpoint."""

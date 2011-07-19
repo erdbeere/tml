@@ -30,7 +30,7 @@ class TestTeemap(unittest.TestCase):
     def test_groups(self):
         t = Teemap('tml/test_maps/vanilla')
         self.assertEqual(len(t.groups), 7)
-        names = [None, None, None, 'NamedGroup', None, None, 'OtherGroup']
+        names = [None, None, 'Game', 'NamedGroup', None, None, 'OtherGroup']
         for i, group in enumerate(t.groups):
             self.assertEqual(group.name, names[i])
 
@@ -48,8 +48,8 @@ class TestTeemap(unittest.TestCase):
         self.assertIs(t.groups[4].layers[1], t.layers[5])
 
         names = ['TestQuads', 'Quads', 'TestTiles', 'Game', None, 'LastTiles']
-        classes = [QuadLayer, QuadLayer, TileLayer, QuadLayer, QuadLayer,
-                   QuadLayer]
+        classes = [QuadLayer, QuadLayer, TileLayer, TileLayer, TileLayer,
+                   TileLayer]
         for i, layer in enumerate(t.layers):
             self.assertIsInstance(layer, classes[i])
             self.assertEqual(layer.name, names[i])
@@ -71,7 +71,7 @@ class TestTeemap(unittest.TestCase):
 
     def test_envpoints(self):
         t = Teemap('tml/test_maps/vanilla')
-        self.assertEqual(len(t.envpoints), 1)
+        self.assertEqual(len(t.envpoints), 9)
         self.assertEqual(len(t.envelopes[0].envpoints), 4)
         self.assertEqual(len(t.envelopes[1].envpoints), 5)
 
