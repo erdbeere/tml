@@ -92,7 +92,7 @@ class Teemap(object):
         if map_path:
             self.load(map_path)
         else:
-            self.create_default()
+            pass#self.create_default()
 
     @property
     def layers(self):
