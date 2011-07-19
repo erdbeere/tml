@@ -111,7 +111,32 @@ class TileSpeedup(object):
         self.force = force
         self.angle = angle
 
+class Info(object):
+    """Represents a map info object."""
+
+    type_size = 6
+
+    def __init__(self, teemap, f, item):
+        self.teemap = teemap
+        item_size, item_data = item
+        fmt = '{0}i'.format(item_size/4)
+        item_data = unpack(fmt, item_data)
+        version, self.author, self.map_version, self.credits, self.license, \
+        self.settings = item_data[:Info.type_size]
+        for type_ in ('author', 'map_version', 'credits', 'license'):    
+            if getattr(self, type_) > -1:
+                setattr(self, type_, decompress(self.teemap.get_compressed_data(f, getattr(self, type_)))[:-1])
+            else:
+                setattr(self, type_, None)
+        # load server settings
+        if self.settings > -1:
+            self.settings = decompress(self.teemap.get_compressed_data(f, self.settings)).split('\x00')[:-1]
+
+    def __repr__(self):
+        return '<MapInfo {0}>'.format(self.author)
+
 class Image(object):
+    """Represents an image."""
 
     type_size = 6 # size in ints
 
