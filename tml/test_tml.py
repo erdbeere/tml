@@ -21,6 +21,11 @@ class TestHeader(unittest.TestCase):
         t = Teemap()
         t.load('tml/maps/dm1')
 
+class TestTeemap(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
     def test_num(self):
         maps = [
             {'name': 'ctf1', 'layers_per_group': [1,2,1,1,4]},
