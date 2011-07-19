@@ -39,11 +39,19 @@ class TestTeemap(unittest.TestCase):
         self.assertEqual(len(t.layers), 6)
         for i, num in enumerate([1,2,1,0,2,0,0]):
             self.assertEqual(len(t.groups[i].layers), num)
+
+        self.assertIs(t.groups[0].layers[0], t.layers[0])
+        self.assertIs(t.groups[1].layers[0], t.layers[1])
+        self.assertIs(t.groups[1].layers[1], t.layers[2])
+        self.assertIs(t.groups[2].layers[0], t.layers[3])
+        self.assertIs(t.groups[4].layers[0], t.layers[4])
+        self.assertIs(t.groups[4].layers[1], t.layers[5])
+
         names = ['TestQuads', None, 'TestTiles', None, None, 'LastTiles']
         classes = [QuadLayer, QuadLayer, TileLayer, QuadLayer, QuadLayer,
                    QuadLayer]
         for i, layer in enumerate(t.layers):
-            self.assertIsInstance(layer, classes)
+            self.assertIsInstance(layer, classes[i])
             self.assertEqual(layer.name, names[i])
 
     def test_envelopes(self):
