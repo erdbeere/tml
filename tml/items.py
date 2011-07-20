@@ -219,7 +219,11 @@ class TileManager(object):
             self.tiles = tiles
 
     def __getitem__(self, value):
-        return Tile(*self.tiles[value])
+        if len(self.tiles[value]) == 2:
+            return TeleTile(self.tiles[value])
+        elif len(self.tiles[value]) == 3:
+            return SpeedupTile(self.tiles[value])
+        return Tile(self.tiles[value])
 
     def append(self, value):
         self.tiles.append(value)
@@ -227,38 +231,29 @@ class TileManager(object):
 class Tile(object):
     """Represents a tile of a tilelayer."""
 
-    def __init__(self, index=0, flags=0, skip=0, reserved=0):
-        self.index = index
-        self._flags = flags
-        self.skip = skip
-        self.reserved = reserved
-
-    @property
-    def vflip(self):
-        return self._flags & 1 != 0
-
-    @vflip.setter
-    def vflip(self, value):
-        if value:
-            self._flags |= 1
-        else:
-            if self.vflip:
-                self._flags ^= 1
-
-    @property
-    def hflip(self):
-        return self._flags & 2 != 0
-
-    @hflip.setter
-    def hflip(self, value):
-        if value:
-            self._flags |= 2
-        else:
-            if self.hflip:
-                self._flags ^= 2
+    def __init__(self, data):
+        self.index, self.flags, self.skip, self.reserved = unpack('4B', data)
 
     def __repr__(self):
         return '<Tile {0}>'.format(self.index)
+
+class TeleTile(object):
+    """Represents a tele tile of a tilelayer."""
+
+    def __init__(self, data):
+        self.number, self.type = unpack('2B', data)
+
+    def __repr__(self):
+        return '<TeleTile {0}>'.format(self.number)
+
+class SpeedupTile(object):
+    """Represents a speedup tile of a tilelayer."""
+
+    def __init__(self, data):
+        self.force, self.angle = unpack('=Bh', data)
+
+    def __repr__(self):
+        return '<SpeedupTile>'.format(self.index)
 
 class QuadLayer(Layer):
     """Represents a quad layer."""
@@ -374,18 +369,20 @@ class TileLayer(Layer):
         tele_data = decompress(self.teemap.get_compressed_data(f, data))
         #fmt = '{0}B'.format(len(tele_data))
         #tele_data = unpack(fmt, tele_data)
+        self.tele_tiles = TileManager()
         i = 0
         while(i < len(tele_data)):
-            self.tele_tiles.append(tele_data[i:i+3])
+            self.tele_tiles.append(tele_data[i:i+2])
             i += 3
 
     def _load_speedup_tiles(self, f, data):
         speedup_data = decompress(self.teemap.get_compressed_data(f, data))
         #fmt = '{0}B{0}h'.format(len(speedup_data)/3)
         #speedup_data = unpack(fmt, speedup_data)
+        self.speedup_tiles = TileManager()
         i = 0
         while(i < len(speedup_data)):
-            self.speedup_tiles.append(speedup_data[i:i+2])
+            self.speedup_tiles.append(speedup_data[i:i+3])
             i += 2
 
     @property
