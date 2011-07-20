@@ -294,7 +294,6 @@ class SpeedupTile(object):
 
     def __init__(self, data):
         self.force, self.angle = unpack('=Bh', data)
->>>>>>> 4a8b66e83efb647f3e1d9e30b00bf8404aa5acb3
 
     def __repr__(self):
         return '<SpeedupTile>'.format(self.index)
