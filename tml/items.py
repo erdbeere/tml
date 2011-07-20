@@ -17,50 +17,6 @@ from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR
 #GAMELAYER_IMAGE = PIL.Image.open(os.path.join(TML_DIR,
 #	os.extsep.join(('entities', 'png'))))
 
-class Quad(object):
-    """Represents a quad of a quadlayer."""
-
-    def __init__(self, points=None, colors=None, texcoords=None, pos_env=-1,
-                    pos_env_offset=0, color_env=-1, color_env_offset=0):
-        self.points = []
-        if points:
-            for i in range(5):
-                point = {'x': points[i*2], 'y': points[i*2+1]}
-                self.points.append(point)
-            points = []
-        else:
-            for i in range(5):
-                point = {'x': 0, 'y': 0}
-                self.points.append(point)
-        self.colors = []
-        if colors:
-            for i in range(4):
-                color = {'r': colors[i*4], 'g': colors[i*4+1],
-                        'b': colors[i*4+2], 'a': colors[i*4+3]}
-                self.colors.append(color)
-            colors = []
-        else:
-            for i in range(4):
-                color = {'r': 255, 'g': 255, 'b': 255, 'a': 255}
-                self.colors.append(color)
-        self.texcoords = []
-        if texcoords:
-            for i in range(4):
-                texcoord = {'x': texcoords[i*2], 'y': texcoords[i*2+1]}
-                self.texcoords.append(texcoord)
-            texcoords = []
-        else:
-            texcoord = [{'x': 0, 'y': 0}, {'x': 1<<10, 'y': 0},
-                       {'x': 0, 'y': 1<<10}, {'x': 1<<10, 'y': 1<<10}]
-            self.texcoords.extend(texcoord)
-        self.pos_env = pos_env
-        self.pos_env_offset = pos_env_offset
-        self.color_env = color_env
-        self.color_env_offset = color_env_offset
-
-    def __repr__(self):
-        return '<Quad {0} {1}>'.format(self.pos_env, self.color_env)
-
 class Info(object):
     """Represents a map info object."""
 
@@ -211,6 +167,50 @@ class Layer(object):
         return False
 
 
+class QuadManager(object):
+
+    def __init__(self, quads=None):
+        self.quads = []
+        if quads:
+            self.quads = quads
+
+    def __getitem__(self, value):
+        return Quad(self.quads[value])
+
+    def append(self, value):
+        self.quads.append(value)
+
+class Quad(object):
+    """Represents a quad of a quadlayer."""
+
+    def __init__(self, data):
+        points = []
+        for i in range(5):
+            points.append(unpack('2i', data[i*8:i*8+8]))
+        colors = []
+        for i in range(4):
+            colors.append(unpack('4i', data[40+i*16:40+i*16+16]))
+        texcoords = []
+        for i in range(4):
+            texcoords.append(unpack('2i', data[104+i*8:104+i*8+8]))
+        self.pos_env = unpack('i', data[136:140])[0]
+        self.pos_env_offset = unpack('i', data[140:144])[0]
+        self.color_env = unpack('i', data[144:148])[0]
+        self.color_env_offset = unpack('i', data[148:152])[0]
+        self.points = []
+        for point in points:
+            self.points.append({'x': points[i][0], 'y': points[i][1]})
+        self.colors = []
+        for color in colors:
+            self.colors.append({'r': colors[i][0], 'g': colors[i][1],
+                                'b': colors[i][2], 'a': colors[i][3]})
+        self.texcoords = []
+        for texcoord in texcoords:
+            self.texcoords.append({'x': texcoords[i][0], 'y': texcoords[i][1]})
+
+    def __repr__(self):
+        return '<Quad {0} {1}>'.format(self.pos_env, self.color_env)
+
 class TileManager(object):
 
     def __init__(self, tiles=None):
@@ -272,23 +272,19 @@ class QuadLayer(Layer):
             name = ints_to_string(item_data[QuadLayer.type_size-3:QuadLayer.type_size])
             if name:
                 self.name = name
-        self.quads = []
 
         # load quads
         self._load_quads(f, data)
 
     def _load_quads(self, f, data):
         quad_data = decompress(self.teemap.get_compressed_data(f, data))
-        fmt = '{0}i'.format(len(quad_data)/4)
-        quad_data = unpack(fmt, quad_data)
-        self.quads = []
+        #fmt = '{0}i'.format(len(quad_data)/4)
+        #quad_data = unpack(fmt, quad_data)
+        self.quads = QuadManager()
         i = 0
         while(i < len(quad_data)):
-            self.quads.append((quad_data[i:i+10], quad_data[i+10:i+26],
-                                   quad_data[i+26:i+34], quad_data[i+34],
-                                   quad_data[i+35], quad_data[i+36],
-                                   quad_data[i+37]))
-            i += 38
+            self.quads.append((quad_data[i:i+152]))
+            i += 152
 
     @property
     def image(self):
