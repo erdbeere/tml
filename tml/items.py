@@ -61,56 +61,6 @@ class Quad(object):
     def __repr__(self):
         return '<Quad {0} {1}>'.format(self.pos_env, self.color_env)
 
-class Tile(object):
-    """Represents a tile of a tilelayer."""
-
-    def __init__(self, index=0, flags=0, skip=0, reserved=0):
-        self.index = index
-        self._flags = flags
-        self.skip = skip
-        self.reserved = reserved
-
-    @property
-    def vflip(self):
-        return self._flags & 1 != 0
-
-    @vflip.setter
-    def vflip(self, value):
-        if value:
-            self._flags |= 1
-        else:
-            if self.vflip:
-                self._flags ^= 1
-
-    @property
-    def hflip(self):
-        return self._flags & 2 != 0
-
-    @hflip.setter
-    def hflip(self, value):
-        if value:
-            self._flags |= 2
-        else:
-            if self.hflip:
-                self._flags ^= 2
-
-    def __repr__(self):
-        return '<Tile {0}>'.format(self.index)
-
-class TileTele(object):
-    """Represents an overlay tile with teleport data."""
-
-    def __init__(self, number=0, type=0):
-        self.number = number
-        self.type = type
-
-class TileSpeedup(object):
-    """Represents an overlay tile with speedup data."""
-
-    def __init__(self, force=0, angle=0):
-        self.force = force
-        self.angle = angle
-
 class Info(object):
     """Represents a map info object."""
 
@@ -277,7 +227,7 @@ class QuadLayer(Layer):
         self.quads = []
         i = 0
         while(i < len(quad_data)):
-            self.quads.append(Quad(quad_data[i:i+10], quad_data[i+10:i+26],
+            self.quads.append((quad_data[i:i+10], quad_data[i+10:i+26],
                                    quad_data[i+26:i+34], quad_data[i+34],
                                    quad_data[i+35], quad_data[i+36],
                                    quad_data[i+37]))
@@ -350,30 +300,30 @@ class TileLayer(Layer):
 
     def _load_tiles(self, f, data):
         tile_data = decompress(self.teemap.get_compressed_data(f, data))
-        fmt = '{0}B'.format(len(tile_data))
-        tile_data = unpack(fmt, tile_data)
+        #fmt = '{0}B'.format(len(tile_data))
+        #tile_data = unpack(fmt, tile_data)
         self.tiles = []
         i = 0
         while(i < len(tile_data)):
-            self.tiles.append(Tile(*tile_data[i:i+4]))
+            self.tiles.append(tile_data[i:i+4])
             i += 4
 
     def _load_tele_tiles(self, f, data):
         tele_data = decompress(self.teemap.get_compressed_data(f, data))
-        fmt = '{0}B'.format(len(tele_data))
-        tele_data = unpack(fmt, tele_data)
+        #fmt = '{0}B'.format(len(tele_data))
+        #tele_data = unpack(fmt, tele_data)
         i = 0
         while(i < len(tele_data)):
-            self.tele_tiles.append(TileTele(*tele_data[i:i+2]))
-            i += 2
+            self.tele_tiles.append(tele_data[i:i+3])
+            i += 3
 
     def _load_speedup_tiles(self, f, data):
         speedup_data = decompress(self.teemap.get_compressed_data(f, data))
-        fmt = '{0}B{0}h'.format(len(speedup_data)/3)
-        speedup_data = unpack(fmt, speedup_data)
+        #fmt = '{0}B{0}h'.format(len(speedup_data)/3)
+        #speedup_data = unpack(fmt, speedup_data)
         i = 0
         while(i < len(speedup_data)):
-            self.speedup_tiles.append(TileSpeedup(*speedup_data[i:i+2]))
+            self.speedup_tiles.append(speedup_data[i:i+2])
             i += 2
 
     @property
