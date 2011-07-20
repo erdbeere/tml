@@ -61,6 +61,8 @@ class TestTeemap(unittest.TestCase):
                     self.assertEqual(layer.width, 50)
                     self.assertEqual(layer.height, 50)
 
+        self.assertIs(self.teemap.layers[3], self.teemap.gamelayer)
+
     def test_envelopes(self):
         self.assertEqual(len(self.teemap.envelopes), 2)
         self.assertEqual(self.teemap.envelopes[0].name, 'PosEnv')
@@ -90,6 +92,9 @@ class TestTeemap(unittest.TestCase):
         self.assertTrue(self.teemap.images[0].external)
         self.assertFalse(self.teemap.images[1].external)
         self.assertTrue(self.teemap.images[2].external)
+
+    def test_tiles(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()

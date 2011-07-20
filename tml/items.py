@@ -202,6 +202,64 @@ class Layer(object):
     def is_gamelayer(self):
         return False
 
+    @property
+    def is_telelayer(self):
+        return False
+
+    @property
+    def is_speeduplayer(self):
+        return False
+
+
+class TileManager(object):
+
+    def __init__(self, tiles=None):
+        self.tiles = []
+        if tiles:
+            self.tiles = tiles
+
+    def __getitem__(self, value):
+        return Tile(*self.tiles[value])
+
+    def append(self, value):
+        self.tiles.append(value)
+
+class Tile(object):
+    """Represents a tile of a tilelayer."""
+
+    def __init__(self, index=0, flags=0, skip=0, reserved=0):
+        self.index = index
+        self._flags = flags
+        self.skip = skip
+        self.reserved = reserved
+
+    @property
+    def vflip(self):
+        return self._flags & 1 != 0
+
+    @vflip.setter
+    def vflip(self, value):
+        if value:
+            self._flags |= 1
+        else:
+            if self.vflip:
+                self._flags ^= 1
+
+    @property
+    def hflip(self):
+        return self._flags & 2 != 0
+
+    @hflip.setter
+    def hflip(self, value):
+        if value:
+            self._flags |= 2
+        else:
+            if self.hflip:
+                self._flags ^= 2
+
+    def __repr__(self):
+        return '<Tile {0}>'.format(self.index)
+
 class QuadLayer(Layer):
     """Represents a quad layer."""
 
@@ -272,7 +330,7 @@ class TileLayer(Layer):
 
         # check for telelayer
         self.tele_tiles = []
-        if self.game == 2:
+        if self.is_telelayer:
             if version >= 3:
                 # num of tele data is right after the default type length
                 if len(item_data) > TileLayer.type_size: # some security
@@ -288,7 +346,7 @@ class TileLayer(Layer):
 
         # check for speeduplayer
         self.speedup_tiles = []
-        if self.game == 4:
+        if self.is_speeduplayer:
             if version >= 3:
                 # num of speedup data is right after tele data
                 if len(item_data) > TileLayer.type_size+1: # some security
@@ -306,7 +364,7 @@ class TileLayer(Layer):
         tile_data = decompress(self.teemap.get_compressed_data(f, data))
         #fmt = '{0}B'.format(len(tile_data))
         #tile_data = unpack(fmt, tile_data)
-        self.tiles = []
+        self.tiles = TileManager()
         i = 0
         while(i < len(tile_data)):
             self.tiles.append(tile_data[i:i+4])
