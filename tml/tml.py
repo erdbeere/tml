@@ -192,7 +192,12 @@ class Teemap(object):
                 raise TypeError('Wrong version')
 
             # load items
-            # begin with images
+            # begin with map info
+            info_item = self.find_item(f, ITEM_INFO, 0)
+            if info_item:
+                self.map_info = items.Info(self, f, info_item)
+
+            # load images
             start, num = self.get_item_type(ITEM_IMAGE)
             for i in range(num):
                 self.images.append(items.Image(self, f, self.get_item(f, start+i)))
