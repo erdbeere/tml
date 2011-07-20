@@ -12,7 +12,8 @@ from struct import unpack, pack
 from utils import ints_to_string
 from zlib import decompress
 
-from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR
+from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR, TILEFLAG_VFLIP,
+     TILEFLAG_HFLIP, TILEFLAG_OPAQUE, TILEFLAG_ROTATE
 
 #GAMELAYER_IMAGE = PIL.Image.open(os.path.join(TML_DIR,
 #	os.extsep.join(('entities', 'png'))))
@@ -235,27 +236,45 @@ class Tile(object):
 
     @property
     def vflip(self):
-        return self._flags & 1 != 0
+        return self._flags & TILEFLAG_VFLIP != 0
 
     @vflip.setter
     def vflip(self, value):
         if value:
-            self._flags |= 1
+            self._flags |= TILEFLAG_VFLIP
         else:
             if self.vflip:
-                self._flags ^= 1
+                self._flags ^= TILEFLAG_VFLIP
 
     @property
     def hflip(self):
-        return self._flags & 2 != 0
+        return self._flags & TILEFLAG_HFLIP != 0
 
     @hflip.setter
     def hflip(self, value):
         if value:
-            self._flags |= 2
+            self._flags |= TILEFLAG_HFLIP
         else:
             if self.hflip:
-                self._flags ^= 2
+                self._flags ^= TILEFLAG_HFLIP
+
+    @property
+    def rotation(self):
+        value = self._flags & TILEFLAG_ROTATE
+        if value == 0:
+            return 0
+        elif value == 1:
+            return 90
+        elif value == 2:
+            return 180
+        elif value == 3:
+            return 270
+
+    @rotation.setter
+    def rotation(self, value):
+        if value not in (0, 90, 180, 270):
+            raise ValueError('You can only rotate 0°, 90°, 180° or 270°')
+        # TODO
 
     def __repr__(self):
         return '<Tile {0}>'.format(self.index)
