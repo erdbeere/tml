@@ -198,6 +198,10 @@ class Layer(object):
         item_data = unpack(fmt, item_data)
         self.version, self.type, self.flags = item_data[:Layer.type_size]
 
+    @property
+    def is_gamelayer(self):
+        return False
+
 class QuadLayer(Layer):
     """Represents a quad layer."""
 
