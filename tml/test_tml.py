@@ -76,5 +76,20 @@ class TestTeemap(unittest.TestCase):
         for i, envpoint in enumerate(self.teemap.envelopes[1].envpoints):
             self.assertIs(envpoint, self.teemap.envpoints[i+4])
 
+    def test_images(self):
+        images = [None, None, 'grass_main', None, 'grass_main', 'test']
+        for i, layer in enumerate(self.teemap.layers):
+            if images[i] is None:
+                self.assertIs(layer.image, None)
+            else:
+                self.assertEqual(layer.image.name, images[i])
+
+        self.assertIs(self.teemap.layers[2].image, self.teemap.images[0])
+        self.assertIs(self.teemap.layers[4].image, self.teemap.images[0])
+        self.assertIs(self.teemap.layers[5].image, self.teemap.images[1])
+        self.assertTrue(self.teemap.images[0].external)
+        self.assertFalse(self.teemap.images[1].external)
+        self.assertTrue(self.teemap.images[2].external)
+
 if __name__ == '__main__':
     unittest.main()
