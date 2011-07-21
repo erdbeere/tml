@@ -187,6 +187,8 @@ class QuadManager(object):
             self.quads = quads
 
     def __getitem__(self, value):
+        if isinstance(value, slice):
+            return QuadManager(self.quads[value])
         return Quad(self.quads[value])
 
     def __len__(self):
@@ -234,6 +236,8 @@ class TileManager(object):
             self.tiles = tiles
 
     def __getitem__(self, value):
+        if isinstance(value, slice):
+            return TileManager(self.tiles[value])
         if len(self.tiles[value]) == 2:
             return TeleTile(self.tiles[value])
         elif len(self.tiles[value]) == 3:
