@@ -247,24 +247,24 @@ class Tile(object):
         self.index, self._flags, self.skip, self.reserved = unpack('4B', data)
 
     def vflip(self):
-        if self._flags & TILEFLAG_ROTATE:
+        if self.flags['rotation']:
             self._flags ^= TILEFLAG_HFLIP
         else:
             self._flags ^= TILEFLAG_VFLIP
 
     def hflip(self):
-        if self._flags & TILEFLAG_ROTATE:
+        if self.flags['rotation']:
             self._flags ^= TILEFLAG_VFLIP
         else:
             self._flags ^= TILEFLAG_HFLIP
 
     def rotation(self, value):
         if value == 'r':
-            if self._flags & TILEFLAG_ROTATE:
+            if self.flags['rotation']:
                 self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
             self._flags ^= TILEFLAG_ROTATE
         elif value == 'l':
-            if self._flags & TILEFLAG_ROTATE:
+            if self.flags['rotation']:
                 self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
             self._flags ^= TILEFLAG_ROTATE
             self.vflip()
