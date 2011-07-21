@@ -297,7 +297,7 @@ class Tile(object):
     @property
     def coords(self):
         return self.index % 16, self.index / 16
-     
+
     @property
     def flags(self):
         return {'rotation': self._flags & TILEFLAG_ROTATE != 0,
