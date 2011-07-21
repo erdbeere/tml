@@ -87,7 +87,7 @@ class TestTeemap(unittest.TestCase):
             self.assertIs(envpoint, self.teemap.envpoints[i+4])
 
     def test_images(self):
-        images = [None, None, 'grass_main', None, 'grass_main', 'test']
+        images = [None, 'grass_main', 'grass_main', None, 'grass_main', 'test']
         for i, layer in enumerate(self.teemap.layers):
             if images[i] is None:
                 self.assertIs(layer.image_id, -1)
@@ -135,6 +135,65 @@ class TestTeemap(unittest.TestCase):
         ]
         for i, tile in enumerate(tiles[:6]):
             self.assertEqual(tile.flags, flags[i])
+
+    def test_quads(self):
+        self.assertEqual(len(self.teemap.layers[0].quads), 1)
+        self.assertEqual(len(self.teemap.layers[1].quads), 2)
+        pos_envs = [-1, -1, 0]
+        pos_env_offsets = [0, 0, 0]
+        color_envs = [-1, -1, 1]
+        color_env_offsets = [0, 0, 0]
+        points = [
+            [
+                {'x': -800000, 'y': -600000},
+                {'x': 800000, 'y': -600000},
+                {'x': -800000, 'y': 600000},
+                {'x': 800000, 'y': 600000},
+                {'x': 32768, 'y': 32768}
+            ], [
+                {'x': 329099, 'y': 208820},
+                {'x': 608709, 'y': 162163},
+                {'x': 304402, 'y': 515873},
+                {'x': 773381, 'y': 589973},
+                {'x': 361867, 'y': 241588}
+            ], [
+                {'x': -194633, 'y': 306165},
+                {'x': -13007, 'y': 301225},
+                {'x': -286028, 'y': 556954},
+                {'x': -13007, 'y': 492731},
+                {'x': -111637, 'y': 400134}
+            ]
+        ]
+        texcoords = [
+            [
+                {'x': 0, 'y': 0},
+                {'x': 1024, 'y': 0},
+                {'x': 0, 'y': 1024},
+                {'x': 1024, 'y': 1024}
+            ], [
+                {'x': 0, 'y': 0},
+                {'x': 1024, 'y': 0},
+                {'x': 0, 'y': 1024},
+                {'x': 1024, 'y': 1024}
+            ], [
+                {'x': 2215, 'y': -1076},
+                {'x': 3204, 'y': -1076},
+                {'x': 2215, 'y': 946},
+                {'x': 3204, 'y': 946}
+            ]
+        ]
+
+        quads = []
+        for layer in self.teemap.layers:
+            if isinstance(layer, QuadLayer):
+                quads.extend(layer.quads)
+        for i, quad in enumerate(quads):
+            self.assertEqual(quad.pos_env, pos_envs[i])
+            self.assertEqual(quad.pos_env_offset, pos_env_offsets[i])
+            self.assertEqual(quad.color_env, color_envs[i])
+            self.assertEqual(quad.color_env_offset, color_env_offsets[i])
+            self.assertEqual(quad.texcoords, texcoords[i])
+            self.assertEqual(quad.points, points[i])
 
     def test_envpoints(self):
         times = [0, 722, 835, 2062, 0, 99, 643, 861, 1000]
