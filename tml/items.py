@@ -454,8 +454,8 @@ class TileLayer(Layer):
                             i += 4
 
     def _get_tile(self, tiles, x, y):
-        x = max(0, min(x, self.width))
-        y = max(0, min(y, self.height))
+        x = max(0, min(x, self.width-1))
+        y = max(0, min(y, self.height-1))
         return tiles[y*self.width+x]
 
     def get_tile(self, x, y):
@@ -468,8 +468,8 @@ class TileLayer(Layer):
         return self._get_tile(self.speedup_tiles)
 
     def select(self, x, y, w=1, h=1):
-        x = max(0, min(x, self.width))
-        y = max(0, min(y, self.height))
+        x = max(0, min(x, self.width-1))
+        y = max(0, min(y, self.height-1))
         w = max(1, min(w, self.width-x))
         h = max(1, min(h, self.height-y))
         layer = TileLayer(w, h)
