@@ -220,9 +220,9 @@ class Teemap(object):
 
                     #find out which layer we have
                     if LAYER_TYPES[layer.type] == 'tile':
-                        layer = items.TileLayer(self, f, layer_item)
+                        layer = items.TileLayer(teemap=self, f=f, item=layer_item)
                     elif LAYER_TYPES[layer.type] == 'quad':
-                        layer = items.QuadLayer(self, f, layer_item)
+                        layer = items.QuadLayer(teemap=self, f=f, item=layer_item)
 
                     # add layer to group
                     group.add_layer(layer)

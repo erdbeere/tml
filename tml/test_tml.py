@@ -92,7 +92,8 @@ class TestTeemap(unittest.TestCase):
             if images[i] is None:
                 self.assertIs(layer.image_id, -1)
             else:
-                self.assertEqual(self.teemap.images[layer.image_id].name, images[i])
+                self.assertEqual(self.teemap.images[layer.image_id].name,
+                                 images[i])
 
         self.assertIs(self.teemap.layers[2].image_id, 0)
         self.assertIs(self.teemap.layers[4].image_id, 0)

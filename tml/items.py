@@ -371,7 +371,7 @@ class TileLayer(Layer):
 
     type_size = 18
 
-    def __init__(self, teemap=None, f=None, item=None, width=50, height=50):
+    def __init__(self, width=50, height=50, teemap=None, f=None, item=None):
         self.name = None
         self.color = {'r': 255, 'g': 255, 'b': 255, 'a': 255}
         self.width, self.height, self.game, self.color_env, \
@@ -388,7 +388,7 @@ class TileLayer(Layer):
         item_size, item_data = item
         fmt = '{0}i'.format(item_size/4)
         item_data = unpack(fmt, item_data)
-        super(TileLayer, self).__init__(teemap, f, item)
+        super(TileLayer, self).__init__(teemap=teemap, f=f, item=item)
         version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
         self.color_env_offset, self.image_id, data = item_data[3:TileLayer.type_size-3] # layer name
@@ -472,7 +472,7 @@ class TileLayer(Layer):
         y = max(0, min(y, self.height))
         w = max(1, min(w, self.width-x))
         h = max(1, min(h, self.height-y))
-        layer = TileLayer(width=w, height=h)
+        layer = TileLayer(w, h)
         layer.color = self.color
         layer.game = self.game
         for _y in range(h):
