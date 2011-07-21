@@ -63,13 +63,13 @@ class Image(object):
             self._get_image_data(f, image_data)
         else:
             try:
-                png_path = os.sep.join(['mapres', self.name])
+                png_path = os.sep.join(['tml', 'mapres', self.name])
                 png_path = os.extsep.join([png_path, 'png'])
                 png.Reader(png_path).asRGBA()
             except png.Error:
                 warnings.warn('Image is not in RGBA format')
-            except:
-                warnings.warn('External image does not exist')
+            except IOError:
+                warnings.warn('External image „%s“ does not exist' % self.name)
 
     def _get_image_name(self, f, image_name):
         self.name = decompress(self.teemap.get_compressed_data(f, image_name))
