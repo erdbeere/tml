@@ -295,6 +295,10 @@ class Tile(object):
             raise ValueError('You can only rotate left (\'l\') and right (\'r\')')
 
     @property
+    def coords(self):
+        return self.index % 16, self.index / 16
+     
+    @property
     def flags(self):
         return {'rotation': self._flags & TILEFLAG_ROTATE != 0,
                 'vflip': self._flags & TILEFLAG_VFLIP != 0,
