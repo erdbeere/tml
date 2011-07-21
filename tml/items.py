@@ -450,12 +450,18 @@ class TileLayer(Layer):
             i += 2
 
     def get_tile(self, x, y):
+        x = max(0, min(x, self.width))
+        y = max(0, min(y, self.height))
         return self.tiles[y*self.width+x]
 
     def get_tele_tile(self, x, y):
+        x = max(0, min(x, self.width))
+        y = max(0, min(y, self.height))
         return self.tele_tiles[y*self.width+x]
 
     def get_speedup_tile(self, x, y):
+        x = max(0, min(x, self.width))
+        y = max(0, min(y, self.height))
         return self.speedup_tiles[y*self.width+x]
 
     @property
