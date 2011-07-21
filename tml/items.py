@@ -461,20 +461,19 @@ class TileLayer(Layer):
                             self.speedup_tiles.append(speedup_data[i:i+4])
                             i += 4
 
-    def get_tile(self, x, y):
+    def _get_tile(self, tiles, x, y):
         x = max(0, min(x, self.width))
         y = max(0, min(y, self.height))
-        return self.tiles[y*self.width+x]
+        return tiles[y*self.width+x]
+
+    def get_tile(self, x, y):
+        return self._get_tile(self.tiles)
 
     def get_tele_tile(self, x, y):
-        x = max(0, min(x, self.width))
-        y = max(0, min(y, self.height))
-        return self.tele_tiles[y*self.width+x]
+        return self._get_tile(self.tele_tiles)
 
     def get_speedup_tile(self, x, y):
-        x = max(0, min(x, self.width))
-        y = max(0, min(y, self.height))
-        return self.speedup_tiles[y*self.width+x]
+        return self._get_tile(self.speedup_tiles)
 
     def select(self, x, y, w=1, h=1):
         x = max(0, min(x, self.width))
