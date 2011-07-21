@@ -6,6 +6,7 @@
     :license: GNU GPL, see LICENSE for more details.
 """
 
+import png
 import os
 from StringIO import StringIO
 from struct import unpack, pack
@@ -57,8 +58,17 @@ class Image(object):
         self._get_image_name(f, image_name)
 
         # load image data
-        if self.external_ != 0 and image_data > -1:
+        if self.external_ == 0:
             self._get_image_data(f, image_data)
+        else:
+            try:
+                png_path = os.sep.join(['mapres', self.name])
+                png_path = os.extsep.join([png_path, 'png'])
+                png.Reader(png_path).asRGBA()
+            except png.Error:
+                print 'Warning: Image is not in RGBA format'
+            except:
+                print 'Warning: External image does not exist'
 
     def _get_image_name(self, f, image_name):
         self.name = decompress(self.teemap.get_compressed_data(f, image_name))
