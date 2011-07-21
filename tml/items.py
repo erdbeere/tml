@@ -275,8 +275,8 @@ class Tile(object):
     @property
     def flags(self):
         return {'rotation': self._flags & TILEFLAG_ROTATE != 0,
-                'vlip': self._flags & TILEFLAG_VFLIP != 0,
-                'hlip': self._flags & TILEFLAG_HFLIP != 0}
+                'vflip': self._flags & TILEFLAG_VFLIP != 0,
+                'hflip': self._flags & TILEFLAG_HFLIP != 0}
 
     def __repr__(self):
         return '<Tile {0}>'.format(self.index)
