@@ -244,49 +244,39 @@ class Tile(object):
     """Represents a tile of a tilelayer."""
 
     def __init__(self, data):
-        self.index, self.flags, self.skip, self.reserved = unpack('4B', data)
+        self.index, self._flags, self.skip, self.reserved = unpack('4B', data)
 
-    @property
     def vflip(self):
-        return self._flags & TILEFLAG_VFLIP != 0
-
-    @vflip.setter
-    def vflip(self, value):
-        if value:
-            self._flags |= TILEFLAG_VFLIP
+        if self._flags & TILEFLAG_ROTATE:
+            self._flags ^= TILEFLAG_HFLIP
         else:
-            if self.vflip:
-                self._flags ^= TILEFLAG_VFLIP
+            self._flags ^= TILEFLAG_VFLIP
 
-    @property
     def hflip(self):
-        return self._flags & TILEFLAG_HFLIP != 0
-
-    @hflip.setter
-    def hflip(self, value):
-        if value:
-            self._flags |= TILEFLAG_HFLIP
+        if self._flags & TILEFLAG_ROTATE:
+            self._flags ^= TILEFLAG_VFLIP
         else:
-            if self.hflip:
-                self._flags ^= TILEFLAG_HFLIP
+            self._flags ^= TILEFLAG_HFLIP
+
+    def rotation(self, value):
+        if value == 'r':
+            if self._flags & TILEFLAG_ROTATE:
+                self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
+            self._flags ^= TILEFLAG_ROTATE
+        elif value == 'l':
+            if self._flags & TILEFLAG_ROTATE:
+                self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
+            self._flags ^= TILEFLAG_ROTATE
+            self.vflip()
+            self.hflip()
+        else:
+            raise ValueError('You can only rotate left (\'l\') and right (\'r\')')
 
     @property
-    def rotation(self):
-        value = self._flags & TILEFLAG_ROTATE
-        if value == 0:
-            return 0
-        elif value == 1:
-            return 90
-        elif value == 2:
-            return 180
-        elif value == 3:
-            return 270
-
-    @rotation.setter
-    def rotation(self, value):
-        if value not in (0, 90, 180, 270):
-            raise ValueError('You can only rotate 0°, 90°, 180° or 270°')
-        # TODO
+    def tile_flags(self):
+        return {'rotation': self._flags & TILEFLAG_ROTATE != 0,
+                'vlip': self._flags & TILEFLAG_VFLIP != 0,
+                'hlip': self._flags & TILEFLAG_HFLIP != 0}
 
     def __repr__(self):
         return '<Tile {0}>'.format(self.index)
