@@ -245,7 +245,8 @@ class Quad(object):
 
 class TileManager(object):
 
-    def __init__(self, tiles=None):
+    def __init__(self, _type=0, tiles=None):
+        self.type = _type
         self.tiles = []
         if tiles:
             self.tiles = tiles
@@ -253,9 +254,9 @@ class TileManager(object):
     def __getitem__(self, value):
         if isinstance(value, slice):
             return TileManager(self.tiles[value])
-        if len(self.tiles[value]) == 2:
+        if self.type == 1:
             return TeleTile(self.tiles[value])
-        elif len(self.tiles[value]) == 3:
+        elif self.type == 2:
             return SpeedupTile(self.tiles[value])
         return Tile(self.tiles[value])
 
@@ -323,7 +324,7 @@ class SpeedupTile(object):
     """Represents a speedup tile of a tilelayer."""
 
     def __init__(self, data):
-        self.force, self.angle = unpack('=Bh', data)
+        self.force, self.angle = unpack('Bh', data)
 
     def __repr__(self):
         return '<SpeedupTile>'.format(self.index)
@@ -378,8 +379,8 @@ class TileLayer(Layer):
         self.width, self.height, self.game, self.color_env, \
         self.color_env_offset, self._image = width, height, 0, -1, 0, -1
         self.tiles = TileManager()
-        self.tele_tiles = TileManager()
-        self.speedup_tiles = TileManager()
+        self.tele_tiles = TileManager(1)
+        self.speedup_tiles = TileManager(2)
         if teemap and f and item:
             self._load_from_file(teemap, f, item)
         else:
@@ -398,8 +399,8 @@ class TileLayer(Layer):
             if name:
                 self.name = name
         self._load_tiles(f, data)
-        self._load_tele_tiles(f, data, item_data, version)
-        self._load_speedup_tiles(f, data, item_data, version)
+        self._load_tele_tiles(f, item_data, version)
+        self._load_speedup_tiles(f, item_data, version)
 
     def _load_tiles(self, f, data):
         tile_data = decompress(self.teemap.get_compressed_data(f, data))
@@ -408,51 +409,51 @@ class TileLayer(Layer):
             self.tiles.append(tile_data[i:i+4])
             i += 4
 
-    def _load_tele_tiles(self, f, data, item_data, version):
+    def _load_tele_tiles(self, f, item_data, version):
         if self.is_telelayer:
             if version >= 3:
                 # num of tele data is right after the default type length
                 if len(item_data) > TileLayer.type_size: # some security
                     tele_data = item_data[TileLayer.type_size]
                     if tele_data > -1 and tele_data < self.teemap.header.num_raw_data:
-                        tele_data = decompress(self.teemap.get_compressed_data(f, data))
+                        tele_data = decompress(self.teemap.get_compressed_data(f, tele_data))
                         i = 0
                         while(i < len(tele_data)):
                             self.tele_tiles.append(tele_data[i:i+2])
-                            i += 3
+                            i += 2
             else:
                 # num of tele data is right after num of data for old maps
                 if len(item_data) > TileLayer.type_size-3: # some security
                     tele_data = item_data[TileLayer.type_size-3]
                     if tele_data > -1 and tele_data < self.teemap.header.num_raw_data:
-                        tele_data = decompress(self.teemap.get_compressed_data(f, data))
+                        tele_data = decompress(self.teemap.get_compressed_data(f, tele_data))
                         i = 0
                         while(i < len(tele_data)):
                             self.tele_tiles.append(tele_data[i:i+2])
-                            i += 3
+                            i += 2
 
-    def _load_speedup_tiles(self, f, data, item_data, version):
+    def _load_speedup_tiles(self, f, item_data, version):
         if self.is_speeduplayer:
             if version >= 3:
                 # num of speedup data is right after tele data
                 if len(item_data) > TileLayer.type_size+1: # some security
                     speedup_data = item_data[TileLayer.type_size+1]
                     if speedup_data > -1 and speedup_data < self.teemap.header.num_raw_data:
-                        speedup_data = decompress(self.teemap.get_compressed_data(f, data))
+                        speedup_data = decompress(self.teemap.get_compressed_data(f, speedup_data))
                         i = 0
                         while(i < len(speedup_data)):
-                            self.speedup_tiles.append(speedup_data[i:i+3])
-                            i += 2
+                            self.speedup_tiles.append(speedup_data[i:i+4])
+                            i += 4
             else:
                 # num of speedup data is right after tele data
                 if len(item_data) > TileLayer.type_size-2: # some security
                     speedup_data = item_data[TileLayer.type_size-2]
                     if speedup_data > -1 and speedup_data < self.teemap.header.num_raw_data:
-                        speedup_data = decompress(self.teemap.get_compressed_data(f, data))
+                        speedup_data = decompress(self.teemap.get_compressed_data(f, speedup_data))
                         i = 0
                         while(i < len(speedup_data)):
-                            self.speedup_tiles.append(speedup_data[i:i+3])
-                            i += 2
+                            self.speedup_tiles.append(speedup_data[i:i+4])
+                            i += 4
 
     def get_tile(self, x, y):
         x = max(0, min(x, self.width))
@@ -476,9 +477,18 @@ class TileLayer(Layer):
         h = max(1, min(h, self.height-y))
         layer = TileLayer(self.teemap, width=w, height=h)
         layer.color = self.color
+        layer.game = self.game
         for _y in range(h):
             for _x in range(w):
                 layer.tiles.append(self.tiles.tiles[(y+_y)*self.width+(x+_x)])
+        if len(self.tele_tiles.tiles) == len(self.tiles.tiles):
+            for _y in range(h):
+                for _x in range(w):
+                    layer.tele_tiles.append(self.tele_tiles.tiles[(y+_y)*self.width+(x+_x)])
+        if len(self.speedup_tiles.tiles) == len(self.tiles.tiles):
+            for _y in range(h):
+                for _x in range(w):
+                    layer.speedup_tiles.append(self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)])
         return layer
         
 
