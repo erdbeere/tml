@@ -79,6 +79,18 @@ class Image(object):
         self.image_data = decompress(self.teemap.get_compressed_data(f,
                             image_data))
 
+    def save(self):
+        if self.external_:
+            return
+        png_path = os.sep.join(['mapres', self.name])
+        png_path = os.extsep.join([png_path, 'png'])
+        image = open(png_path, 'wb')
+        png_writer = png.Writer(width=self.width, height=self.height, alpha=True)
+        fmt = '{0}B'.format(len(self.image_data))
+        image_data = unpack(fmt, self.image_data)
+        png_writer.write_array(image, image_data)
+        image.close()
+
     def __repr__(self):
         return '<Image {0}>'.format(self.name)
 
