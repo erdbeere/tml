@@ -170,14 +170,12 @@ class Layer(object):
 
     type_size = 3
 
-    def __init__(self, teemap=None, f=None, item=None, data=None):
-        if teemap and f and item:
+    def __init__(self, f=None, item=None, data=None):
+        if f and item:
             item_size, item_data = item
             fmt = '{0}i'.format(item_size/4)
-            item_data = unpack(fmt, item_data)
-            self.version, self.type, self.flags = item_data[:Layer.type_size]
-        else:
-            self.version, self.type, self.flags = data
+            data = unpack(fmt, item_data)[:Layer.type_size]
+        self.version, self.type, self.flags = data
 
     @property
     def is_gamelayer(self):
@@ -338,11 +336,11 @@ class QuadLayer(Layer):
 
     type_size = 10
 
-    def __init__(self, teemap, f, item):
+    def __init__(self, teemap=None, f=None, item=None):
         item_size, item_data = item
         fmt = '{0}i'.format(item_size/4)
         item_data = unpack(fmt, item_data)
-        super(QuadLayer, self).__init__(teemap, f, item)
+        super(QuadLayer, self).__init__(f, item)
         version, self.num_quads, data, self.image_id = item_data[3:QuadLayer.type_size-3] # layer name
         self.name = None
         if version >= 2:
@@ -352,6 +350,9 @@ class QuadLayer(Layer):
 
         # load quads
         self._load_quads(teemap, f, data)
+
+    def _load_from_file(self, teemap, f, item):
+        pass
 
     def _load_quads(self, teemap, f, data):
         quad_data = decompress(teemap.get_compressed_data(f, data))
@@ -382,13 +383,13 @@ class TileLayer(Layer):
         if teemap and f and item:
             self._load_from_file(teemap, f, item)
         else:
-            super(TileLayer, self).__init__(teemap, data=(0, 2, 0))
+            super(TileLayer, self).__init__(data=(0, 2, 0))
 
     def _load_from_file(self, teemap, f, item):
         item_size, item_data = item
         fmt = '{0}i'.format(item_size/4)
         item_data = unpack(fmt, item_data)
-        super(TileLayer, self).__init__(teemap=teemap, f=f, item=item)
+        super(TileLayer, self).__init__(f=f, item=item)
         version, self.width, self.height, self.game, self.color['r'], \
         self.color['g'], self.color['b'], self.color['a'], self.color_env, \
         self.color_env_offset, self.image_id, data = item_data[3:TileLayer.type_size-3] # layer name
