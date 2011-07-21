@@ -21,13 +21,8 @@ class TestHeader(unittest.TestCase):
             warnings.simplefilter('always')
             Teemap('tml/test_maps/vanilla')
             self.assertEqual(len(w), 1)
-            print '-'
-            print '-'
-            print '-'
             self.assertTrue(issubclass(w[0].category, UserWarning))
             self.assertIn(str(w[0].message), 'External image „test2“ does not exist')
-            print w[0].file
-            print dir(w[0])
         assert Teemap('tml/maps/dm1.map')
         assert Teemap('tml/maps/dm1')
         t = Teemap()
