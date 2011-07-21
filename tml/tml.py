@@ -216,7 +216,7 @@ class Teemap(object):
                 for j in range(num_layers):
                     # create general layer
                     layer_item = self.get_item(f, layer_item_start+start_layer+j)
-                    layer = items.Layer(self, f, layer_item)
+                    layer = items.Layer(f, layer_item)
 
                     #find out which layer we have
                     if LAYER_TYPES[layer.type] == 'tile':
