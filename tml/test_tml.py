@@ -55,8 +55,8 @@ class TestTeemap(unittest.TestCase):
         for layer in self.teemap.layers:
             if isinstance(layer, TileLayer):
                 if layer.name == 'TestTiles':
-                    self.assertEqual(layer.width, 42)
-                    self.assertEqual(layer.height, 84)
+                    self.assertEqual(layer.width, 5)
+                    self.assertEqual(layer.height, 3)
                 else:
                     self.assertEqual(layer.width, 50)
                     self.assertEqual(layer.height, 50)
@@ -94,7 +94,26 @@ class TestTeemap(unittest.TestCase):
         self.assertTrue(self.teemap.images[2].external)
 
     def test_tiles(self):
-        pass
+        tiles = self.teemap.layers[2].tiles
+        self.assertEqual(len(tiles), 15)
+
+        for i, tile in enumerate(tiles[:5]):
+            self.assertEqual(tile.index, i)
+        for tile in tiles[5:10]:
+            self.assertEqual(tile.index, 0)
+        for i, tile in enumerate(tiles[10:]):
+            self.assertEqual(tile.index, i + 251)
+
+        flags = [
+            {'rotation': False, 'hflip': False, 'vflip': True},
+            {'rotation': False, 'hflip': True, 'vflip': False},
+            {'rotation': False, 'hflip': True, 'vflip': True},
+            {'rotation': True, 'hflip': True, 'vflip': True},
+            {'rotation': True, 'hflip': False, 'vflip': False},
+            {'rotation': False, 'hflip': False, 'vflip': False},
+        ]
+        for i, tile in enumerate(tiles[:6]):
+            self.assertEqual(tile.flags, flags[i])
 
 if __name__ == '__main__':
     unittest.main()
