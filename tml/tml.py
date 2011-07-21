@@ -37,7 +37,7 @@ class Header(object):
 
             # calculate the size of the whole header
             self.size = sum([
-                36, # header data before the offsets 
+                36, # header data before the offsets
                 self.num_item_types * 12,
                 (self.num_items + (2 * self.num_raw_data)) * 4 # item offsets, data offsets, uncompressed data sizes
             ])

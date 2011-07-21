@@ -6,14 +6,15 @@
     :license: GNU GPL, see LICENSE for more details.
 """
 
-import png
 import os
+import png
 from StringIO import StringIO
 from struct import unpack, pack
 from utils import ints_to_string
+import warnings
 from zlib import decompress
 
-from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR, TILEFLAG_VFLIP,
+from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR, TILEFLAG_VFLIP, \
      TILEFLAG_HFLIP, TILEFLAG_OPAQUE, TILEFLAG_ROTATE
 
 #GAMELAYER_IMAGE = PIL.Image.open(os.path.join(TML_DIR,
@@ -31,7 +32,7 @@ class Info(object):
         item_data = unpack(fmt, item_data)
         version, self.author, self.map_version, self.credits, self.license, \
         self.settings = item_data[:Info.type_size]
-        for type_ in ('author', 'map_version', 'credits', 'license'):    
+        for type_ in ('author', 'map_version', 'credits', 'license'):
             if getattr(self, type_) > -1:
                 setattr(self, type_, decompress(self.teemap.get_compressed_data(f, getattr(self, type_)))[:-1])
             else:
@@ -66,16 +67,16 @@ class Image(object):
                 png_path = os.extsep.join([png_path, 'png'])
                 png.Reader(png_path).asRGBA()
             except png.Error:
-                print 'Warning: Image is not in RGBA format'
+                warnings.warn('Image is not in RGBA format')
             except:
-                print 'Warning: External image does not exist'
+                warnings.warn('External image does not exist')
 
     def _get_image_name(self, f, image_name):
         self.name = decompress(self.teemap.get_compressed_data(f, image_name))
         self.name = self.name[:-1] # remove 0 termination
 
     def _get_image_data(self, f, image_data):
-        self.image_data = decompress(self.teemap.get_compressed_data(f, 
+        self.image_data = decompress(self.teemap.get_compressed_data(f,
                             image_data))
 
     def __repr__(self):
@@ -111,7 +112,7 @@ class Envelope(object):
     def _assign_envpoints(self, start, num):
         self.envpoints = []
         self.envpoints.extend(self.teemap.envpoints[start:start+num])
-    
+
     def __repr__(self):
         return '<Envelope ({0})>'.format(len(self.envpoints))
 
