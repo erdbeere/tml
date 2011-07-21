@@ -136,5 +136,24 @@ class TestTeemap(unittest.TestCase):
         for i, tile in enumerate(tiles[:6]):
             self.assertEqual(tile.flags, flags[i])
 
+    def test_envpoints(self):
+        times = [0, 722, 835, 2062, 0, 99, 643, 861, 1000]
+        curvetypes = [4, 0, 4, 1, 1, 1, 1, 1, 1]
+        values = [
+            [0, 0, 0, 0],
+            [0, 0, 207678, 9600],
+            [0, 0, 213958, 9600],
+            [0, 0, -3105, 0],
+            [1, 1, 1, 767],
+            [1, 355, 514, 843],
+            [1,  289, 995, 959],
+            [824, 143, 86, 597],
+            [1, 1, 1, 1]
+        ]
+        for i, envpoint in enumerate(self.teemap.envpoints):
+            self.assertEqual(envpoint.time, times[i])
+            self.assertEqual(envpoint.curvetype, curvetypes[i])
+            self.assertEqual(envpoint.values, values[i])
+
 if __name__ == '__main__':
     unittest.main()
