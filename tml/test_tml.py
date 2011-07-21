@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import warnings
+
 from tml import Header, Teemap
 from items import Layer, QuadLayer, TileLayer
 
@@ -108,8 +110,8 @@ class TestTeemap(unittest.TestCase):
             self.assertEqual(tile.coords, (2, i))
 
         flags = [
-            {'rotation': False, 'hflip': False, 'vflip': True},
             {'rotation': False, 'hflip': True, 'vflip': False},
+            {'rotation': False, 'hflip': False, 'vflip': True},
             {'rotation': False, 'hflip': True, 'vflip': True},
             {'rotation': True, 'hflip': True, 'vflip': True},
             {'rotation': True, 'hflip': False, 'vflip': False},
