@@ -189,6 +189,9 @@ class QuadManager(object):
     def __getitem__(self, value):
         return Quad(self.quads[value])
 
+    def __len__(self):
+        return len(self.quads)
+
     def append(self, value):
         self.quads.append(value)
 
@@ -236,6 +239,9 @@ class TileManager(object):
         elif len(self.tiles[value]) == 3:
             return SpeedupTile(self.tiles[value])
         return Tile(self.tiles[value])
+
+    def __len__(self):
+        return len(self.tiles)
 
     def append(self, value):
         self.tiles.append(value)
