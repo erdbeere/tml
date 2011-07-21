@@ -99,10 +99,13 @@ class TestTeemap(unittest.TestCase):
 
         for i, tile in enumerate(tiles[:5]):
             self.assertEqual(tile.index, i)
+            self.assertEqual(tile.coords, (0, i))
         for tile in tiles[5:10]:
             self.assertEqual(tile.index, 0)
+            self.assertEqual(tile.coords, (1, i))
         for i, tile in enumerate(tiles[10:]):
             self.assertEqual(tile.index, i + 251)
+            self.assertEqual(tile.coords, (2, i))
 
         flags = [
             {'rotation': False, 'hflip': False, 'vflip': True},
