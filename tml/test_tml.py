@@ -90,13 +90,13 @@ class TestTeemap(unittest.TestCase):
         images = [None, None, 'grass_main', None, 'grass_main', 'test']
         for i, layer in enumerate(self.teemap.layers):
             if images[i] is None:
-                self.assertIs(layer.image, None)
+                self.assertIs(layer.image_id, -1)
             else:
-                self.assertEqual(layer.image.name, images[i])
+                self.assertEqual(self.teemap.images[layer.image_id].name, images[i])
 
-        self.assertIs(self.teemap.layers[2].image, self.teemap.images[0])
-        self.assertIs(self.teemap.layers[4].image, self.teemap.images[0])
-        self.assertIs(self.teemap.layers[5].image, self.teemap.images[1])
+        self.assertIs(self.teemap.layers[2].image_id, 0)
+        self.assertIs(self.teemap.layers[4].image_id, 0)
+        self.assertIs(self.teemap.layers[5].image_id, 1)
         self.assertTrue(self.teemap.images[0].external)
         self.assertFalse(self.teemap.images[1].external)
         self.assertTrue(self.teemap.images[2].external)
