@@ -32,7 +32,7 @@ class Info(object):
         item_data = unpack(fmt, item_data)
         version, self.author, self.map_version, self.credits, self.license, \
         self.settings = item_data[:Info.type_size]
-        for type_ in ('author', 'map_version', 'credits', 'license'):    
+        for type_ in ('author', 'map_version', 'credits', 'license'):
             if getattr(self, type_) > -1:
                 setattr(self, type_, decompress(self.teemap.get_compressed_data(f, getattr(self, type_)))[:-1])
             else:
@@ -76,7 +76,7 @@ class Image(object):
         self.name = self.name[:-1] # remove 0 termination
 
     def _get_image_data(self, f, image_data):
-        self.image_data = decompress(self.teemap.get_compressed_data(f, 
+        self.image_data = decompress(self.teemap.get_compressed_data(f,
                             image_data))
 
     def __repr__(self):
@@ -112,7 +112,7 @@ class Envelope(object):
     def _assign_envpoints(self, start, num):
         self.envpoints = []
         self.envpoints.extend(self.teemap.envpoints[start:start+num])
-    
+
     def __repr__(self):
         return '<Envelope ({0})>'.format(len(self.envpoints))
 
