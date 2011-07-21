@@ -311,6 +311,12 @@ class Tile(object):
     def __repr__(self):
         return '<Tile {0}>'.format(self.index)
 
+    def __eq__(self, other):
+        if not isinstance(other, Tile):
+            return False
+        return self.index == other.index and self.flags == other.flags and \
+           self.skip == other.skip and self.reserved == other.reserved
+
 class TeleTile(object):
     """Represents a tele tile of a tilelayer."""
 
@@ -385,7 +391,7 @@ class TileLayer(Layer):
             self._load_from_file(teemap, f, item)
         else:
             super(TileLayer, self).__init__(teemap, data=(0, 2, 0))
-        
+
     def _load_from_file(self, teemap, f, item):
         item_size, item_data = item
         fmt = '{0}i'.format(item_size/4)
@@ -490,7 +496,6 @@ class TileLayer(Layer):
                 for _x in range(w):
                     layer.speedup_tiles.append(self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)])
         return layer
-        
 
     @property
     def image(self):
