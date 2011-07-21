@@ -134,10 +134,10 @@ class Envpoint(object):
     def __init__(self, teemap, point):
         self.teemap = teemap
         self.time, self.curvetype = point[:Envpoint.type_size-4] # -4 to strip values
-        self.values = point[2:Envpoint.type_size]
+        self.values = list(point[2:Envpoint.type_size])
 
     def __repr__(self):
-        return '<Envpoint>'.format()
+        return '<Envpoint ({0},{1},{2},{3})>'.format(*self.values)
 
 class Group(object):
     """Represents a group."""
@@ -227,14 +227,14 @@ class Quad(object):
         self.color_env_offset = unpack('i', data[148:152])[0]
         self.points = []
         for point in points:
-            self.points.append({'x': points[i][0], 'y': points[i][1]})
+            self.points.append({'x': point[0], 'y': point[1]})
         self.colors = []
         for color in colors:
-            self.colors.append({'r': colors[i][0], 'g': colors[i][1],
-                                'b': colors[i][2], 'a': colors[i][3]})
+            self.colors.append({'r': color[0], 'g': color[1],
+                                'b': color[2], 'a': color[3]})
         self.texcoords = []
         for texcoord in texcoords:
-            self.texcoords.append({'x': texcoords[i][0], 'y': texcoords[i][1]})
+            self.texcoords.append({'x': texcoord[0], 'y': texcoord[1]})
 
     def __repr__(self):
         return '<Quad {0} {1}>'.format(self.pos_env, self.color_env)
