@@ -240,15 +240,16 @@ class Quad(object):
 
 class TileManager(object):
 
-    def __init__(self, _type=0, tiles=None):
+    def __init__(self, size=0, _type=0, tiles=None):
         self.type = _type
-        self.tiles = []
         if tiles:
             self.tiles = tiles
+        else:
+            self.tiles = ['\x00\x00\x00\x00'] * size
 
     def __getitem__(self, value):
         if isinstance(value, slice):
-            return TileManager(self.tiles[value])
+            return TileManager(tiles=self.tiles[value])
         if self.type == 1:
             return TeleTile(self.tiles[value])
         elif self.type == 2:
@@ -256,9 +257,14 @@ class TileManager(object):
         return Tile(self.tiles[value])
 
     def __setitem__(self, k, v):
-        if not isinstance(v, Tile):
-            raise TypeError('You can only assign Tile objects.')
-        self.tiles[k] = pack('4B', v.index, v._flags, v.skip, v.reserved)
+        if isinstance(v, Tile):
+            self.tiles[k] = pack('4B', v.index, v._flags, v.skip, v.reserved)
+        elif isinstance(v, str):
+            if len(v) != 4:
+                raise ValueError('The string must be exactly 4 chars long.')
+            self.tiles[k] = v
+        else:
+            raise TypeError('You can only assign Tile or string objects.')
 
     def __len__(self):
         return len(self.tiles)
@@ -383,14 +389,13 @@ class TileLayer(Layer):
         self.width, self.height, self.game, self.color_env, \
         self.color_env_offset, self.image_id = width, height, 0, -1, 0, -1
         self.tiles = TileManager()
-        self.tele_tiles = TileManager(1)
-        self.speedup_tiles = TileManager(2)
+        self.tele_tiles = TileManager(_type=1)
+        self.speedup_tiles = TileManager(_type=2)
         if teemap and f and item:
             self._load_from_file(teemap, f, item)
         else:
             super(TileLayer, self).__init__(data=(0, 2, 0))
-            for i in range(width * height):
-                self.tiles.append('\x00\x00\x00\x00')
+            self.tiles = TileManager(width * height)
 
     def _load_from_file(self, teemap, f, item):
         item_size, item_data = item
@@ -485,15 +490,15 @@ class TileLayer(Layer):
         layer.game = self.game
         for _y in range(h):
             for _x in range(w):
-                layer.tiles.append(self.tiles.tiles[(y+_y)*self.width+(x+_x)])
+                layer.tiles[_y * w + _x] = self.tiles.tiles[(y+_y)*self.width+(x+_x)]
         if len(self.tele_tiles.tiles) == len(self.tiles.tiles):
             for _y in range(h):
                 for _x in range(w):
-                    layer.tele_tiles.append(self.tele_tiles.tiles[(y+_y)*self.width+(x+_x)])
+                    layer.tele_tiles[_y * w + _x] = self.tele_tiles.tiles[(y+_y)*self.width+(x+_x)]
         if len(self.speedup_tiles.tiles) == len(self.tiles.tiles):
             for _y in range(h):
                 for _x in range(w):
-                    layer.speedup_tiles.append(self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)])
+                    layer.speedup_tiles[_y * w + _x] = self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)]
         return layer
 
     @property

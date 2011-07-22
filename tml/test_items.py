@@ -16,6 +16,9 @@ class TestTileLayer(unittest.TestCase):
             self.layer.tiles[240 + i] = tile
         for i in range(6):
             self.layer.tiles[295 + i * 50] = tile
+        self.layer.tiles[2042] = tile
+        self.layer.tiles[2043] = tile
+        self.layer.tiles[2092] = tile
 
     def test_init(self):
         layer = TileLayer()
@@ -45,6 +48,17 @@ class TestTileLayer(unittest.TestCase):
         layer = self.layer.select(39, 4)
         self.assertEqual(len(layer.tiles), 1)
         self.assertEqual(layer.tiles[0].index, 0)
+
+        layer = self.layer.select(43, 0, 5, 6)
+        print len(layer.tiles)
+        for tile in layer.tiles[:2]:
+            self.assertEqual(tile.index, 1)
+
+        # clamping test to the right
+        layer = self.layer.select(45, 3, 5, 4)
+
+        # clamping test to the bottom
+        layer = self.layer.select(2, 47, 2, 4)
 
 if __name__ == '__main__':
     unittest.main()
