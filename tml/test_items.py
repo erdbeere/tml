@@ -50,15 +50,41 @@ class TestTileLayer(unittest.TestCase):
         self.assertEqual(layer.tiles[0].index, 0)
 
         layer = self.layer.select(43, 0, 5, 6)
-        print len(layer.tiles)
+        self.assertEqual(len(layer.tiles), 30)
         for tile in layer.tiles[:2]:
             self.assertEqual(tile.index, 1)
+        for tile in layer.tiles[2:20]:
+            self.assertEqual(tile.index, 0)
+        for tile in layer.tiles[20:25]:
+            self.assertEqual(tile.index, 1)
+        for tile in layer.tiles[25:27]:
+            self.assertEqual(tile.index, 0)
+        self.assertEqual(layer.tiles[27].index, 1)
+        for tile in layer.tiles[28:30]:
+            self.assertEqual(tile.index, 0)
 
         # clamping test to the right
-        layer = self.layer.select(45, 3, 5, 4)
+        layer = self.layer.select(45, 3, 7, 4)
+        self.assertEqual(len(layer.tiles), 20)
+        for tile in layer.tiles[:5]:
+            self.assertEqual(tile.index, 0)
+        for tile in layer.tiles[5:10]:
+            self.assertEqual(tile.index, 1)
+        self.assertEqual(layer.tiles[10].index, 1)
+        for tile in layer.tiles[11:15]:
+            self.assertEqual(tile.index, 0)
+        self.assertEqual(layer.tiles[15].index, 1)
+        for tile in layer.tiles[16:20]:
+            self.assertEqual(tile.index, 0)
 
         # clamping test to the bottom
         layer = self.layer.select(2, 47, 2, 4)
+        self.assertEqual(len(layer.tiles), 6)
+        for tile in layer.tiles[:2]:
+            self.assertEqual(tile.index, 0)
+        for tile in layer.tiles[2:5]:
+            self.assertEqual(tile.index, 1)
+        self.assertEqual(layer.tiles[5].index, 0)
 
 if __name__ == '__main__':
     unittest.main()
