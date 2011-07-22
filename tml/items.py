@@ -82,7 +82,7 @@ class Image(object):
     def save(self):
         if self.external_:
             return
-        png_path = os.sep.join([TML_DIR, 'mapres', self.name])
+        png_path = os.sep.join([TML_DIR, 'custom_mapres', self.name])
         png_path = os.extsep.join([png_path, 'png'])
         image = open(png_path, 'wb')
         png_writer = png.Writer(width=self.width, height=self.height, alpha=True)
