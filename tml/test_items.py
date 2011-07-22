@@ -36,9 +36,11 @@ class TestTileLayer(unittest.TestCase):
 
     def test_get_tile(self):
         for i in range(5):
-            self.assertEqual(self.layer.get_tile(40 + i, 0).index, 1)
+            self.assertEqual(self.layer.get_tile(40 + i, 0),
+                             self.layer.tiles[40 + i])
         for i in range(10):
-            self.assertEqual(self.layer.get_tile(40 + i, 4).index, 1)
+            self.assertEqual(self.layer.get_tile(40 + i, 4),
+                             self.layer.tiles[240 + i])
 
     def test_select(self):
         layer = self.layer.select(40, 4)

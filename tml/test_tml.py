@@ -108,22 +108,15 @@ class TestTeemap(unittest.TestCase):
         self.assertEqual(len(tiles), 15)
 
         # XXX: wouldn't be coordinates in layer make more sense?
-        # TODO: some tests here should be moved to test_items
         for i, tile in enumerate(tiles[:5]):
             self.assertEqual(tile.index, i)
             self.assertEqual(tile.coords, (i, 0))
-            self.assertEqual(tile, layer.select(i, 0).tiles[0])
-            self.assertEqual(tile, layer.get_tile(i, 0))
         for tile in tiles[5:10]:
             self.assertEqual(tile.index, 0)
             self.assertEqual(tile.coords, (0, 0))
-            self.assertEqual(tile, layer.select(i, 1).tiles[0])
-            self.assertEqual(tile, layer.get_tile(i, 1))
         for i, tile in enumerate(tiles[10:]):
             self.assertEqual(tile.index, i + 251)
             self.assertEqual(tile.coords, (11 + i, 15))
-            self.assertEqual(tile, layer.select(i, 2).tiles[0])
-            self.assertEquals(tile, layer.get_tile(i, 2))
 
         flags = [
             {'rotation': False, 'hflip': True, 'vflip': False},
