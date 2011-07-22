@@ -16,9 +16,9 @@ class TestTileLayer(unittest.TestCase):
             self.layer.tiles[240 + i] = tile
         for i in range(6):
             self.layer.tiles[295 + i * 50] = tile
-        self.layer.tiles[2042] = tile
-        self.layer.tiles[2043] = tile
-        self.layer.tiles[2092] = tile
+        self.layer.tiles[2402] = tile
+        self.layer.tiles[2403] = tile
+        self.layer.tiles[2452] = tile
 
     def test_init(self):
         layer = TileLayer()
