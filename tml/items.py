@@ -63,7 +63,7 @@ class Image(object):
             self._get_image_data(f, image_data)
         else:
             try:
-                png_path = os.sep.join(['tml', 'mapres', self.name])
+                png_path = os.sep.join([TML_DIR, 'mapres', self.name])
                 png_path = os.extsep.join([png_path, 'png'])
                 png.Reader(png_path).asRGBA()
             except png.Error:
@@ -82,7 +82,7 @@ class Image(object):
     def save(self):
         if self.external_:
             return
-        png_path = os.sep.join(['mapres', self.name])
+        png_path = os.sep.join([TML_DIR, 'mapres', self.name])
         png_path = os.extsep.join([png_path, 'png'])
         image = open(png_path, 'wb')
         png_writer = png.Writer(width=self.width, height=self.height, alpha=True)
