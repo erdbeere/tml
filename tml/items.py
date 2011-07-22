@@ -41,7 +41,7 @@ class Info(object):
             self.settings = decompress(teemap.get_compressed_data(f, self.settings)).split('\x00')[:-1]
 
     def __repr__(self):
-        return '<MapInfo {0}>'.format(self.author)
+        return '<MapInfo ({0})>'.format(self.author or 'None')
 
 class Image(object):
     """Represents an image."""
@@ -92,7 +92,7 @@ class Image(object):
         image.close()
 
     def __repr__(self):
-        return '<Image {0}>'.format(self.name)
+        return '<Image ({0})>'.format(self.name)
 
     @property
     def resolution(self):
@@ -125,7 +125,7 @@ class Envelope(object):
         self.envpoints.extend(self.teemap.envpoints[start:start+num])
 
     def __repr__(self):
-        return '<Envelope ({0})>'.format(len(self.envpoints))
+        return '<Envelope ({0})>'.format(self_name or len(self.envpoints))
 
 class Envpoint(object):
     """Represents an envpoint."""
@@ -137,7 +137,7 @@ class Envpoint(object):
         self.values = list(point[2:Envpoint.type_size])
 
     def __repr__(self):
-        return '<Envpoint ({0},{1},{2},{3})>'.format(*self.values)
+        return '<Envpoint ({0})>'.format(self.time)
 
 class Group(object):
     """Represents a group."""
@@ -163,7 +163,7 @@ class Group(object):
         self.layers.append(layer)
 
     def __repr__(self):
-        return '<Group>'
+        return '<Group ({0})>'.format(len(self.self.layers))
 
 class Layer(object):
     """Represents the layer data every layer has."""
@@ -188,7 +188,6 @@ class Layer(object):
     @property
     def is_speeduplayer(self):
         return False
-
 
 class QuadManager(object):
 
@@ -237,7 +236,7 @@ class Quad(object):
             self.texcoords.append({'x': texcoord[0], 'y': texcoord[1]})
 
     def __repr__(self):
-        return '<Quad {0} {1}>'.format(self.pos_env, self.color_env)
+        return '<Quad ({0}:{1})>'.format(*self.points[4])
 
 class TileManager(object):
 
@@ -313,7 +312,7 @@ class Tile(object):
                 'hflip': self._flags & TILEFLAG_HFLIP != 0}
 
     def __repr__(self):
-        return '<Tile {0}>'.format(self.index)
+        return '<Tile ({0})>'.format(self.index)
 
     def __eq__(self, other):
         if not isinstance(other, Tile):
@@ -328,7 +327,7 @@ class TeleTile(object):
         self.number, self.type = unpack('2B', data)
 
     def __repr__(self):
-        return '<TeleTile {0}>'.format(self.number)
+        return '<TeleTile ({0})>'.format(self.number)
 
 class SpeedupTile(object):
     """Represents a speedup tile of a tilelayer."""
@@ -337,7 +336,7 @@ class SpeedupTile(object):
         self.force, self.angle = unpack('Bh', data)
 
     def __repr__(self):
-        return '<SpeedupTile>'.format(self.index)
+        return '<SpeedupTile ({0})>'.format(self.index)
 
 class QuadLayer(Layer):
     """Represents a quad layer."""
@@ -463,8 +462,8 @@ class TileLayer(Layer):
                             i += 4
 
     def _get_tile(self, tiles, x, y):
-        x = max(0, min(x, self.width))
-        y = max(0, min(y, self.height))
+        x = max(0, min(x, self.width-1))
+        y = max(0, min(y, self.height-1))
         return tiles[y*self.width+x]
 
     def get_tile(self, x, y):
@@ -477,8 +476,8 @@ class TileLayer(Layer):
         return self._get_tile(self.speedup_tiles, x, y)
 
     def select(self, x, y, w=1, h=1):
-        x = max(0, min(x, self.width))
-        y = max(0, min(y, self.height))
+        x = max(0, min(x, self.width-1))
+        y = max(0, min(y, self.height-1))
         w = max(1, min(w, self.width-x))
         h = max(1, min(h, self.height-y))
         layer = TileLayer(w, h)

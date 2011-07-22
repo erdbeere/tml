@@ -262,6 +262,9 @@ class Teemap(object):
         game_layer = items.TileLayer(game=1)
         game_group.layers.append(game_layer)
 
+    def __repr__(self):
+        '<Teemap ({0})>'.format(self.name or 'new')
+
 if __name__ == '__main__':
     t = Teemap()
     t.load('tml/maps/dm1')
