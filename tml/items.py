@@ -46,7 +46,8 @@ class Info(object):
 class Image(object):
     """Represents an image."""
 
-    type_size = 6 # size in ints
+    # size in ints
+    type_size = 6
 
     def __init__(self, teemap, f, item):
         self.teemap = teemap
@@ -117,7 +118,6 @@ class Envelope(object):
         num_points = item_data[:Envelope.type_size-8] # -8 to strip envelope name
         self.name = ints_to_string(item_data[4:Envelope.type_size])
 
-        # assign envpoints
         self._assign_envpoints(start_point, num_points)
 
     def _assign_envpoints(self, start, num):
@@ -256,6 +256,11 @@ class TileManager(object):
             return SpeedupTile(self.tiles[value])
         return Tile(self.tiles[value])
 
+    def __setitem__(self, k, v):
+        if not isinstance(v, Tile):
+            raise TypeError('You can only assign Tile objects.')
+        self.tiles[k] = pack('4B', v.index, v._flags, v.skip, v.reserved)
+
     def __len__(self):
         return len(self.tiles)
 
@@ -265,8 +270,11 @@ class TileManager(object):
 class Tile(object):
     """Represents a tile of a tilelayer."""
 
-    def __init__(self, data):
-        self.index, self._flags, self.skip, self.reserved = unpack('4B', data)
+    def __init__(self, data=None):
+        if data is not None:
+            self.index, self._flags, self.skip, self.reserved = unpack('4B', data)
+        else:
+            self.index = self._flags = self.skip = self.reserved = 0
 
     def vflip(self):
         if self.flags['rotation']:
@@ -348,16 +356,14 @@ class QuadLayer(Layer):
             if name:
                 self.name = name
 
-        # load quads
-        self._load_quads(teemap, f, data)
+        if teemap is not None:
+            self._load_quads(teemap, f, data)
 
     def _load_from_file(self, teemap, f, item):
         pass
 
     def _load_quads(self, teemap, f, data):
         quad_data = decompress(teemap.get_compressed_data(f, data))
-        #fmt = '{0}i'.format(len(quad_data)/4)
-        #quad_data = unpack(fmt, quad_data)
         self.quads = QuadManager()
         i = 0
         while(i < len(quad_data)):
@@ -384,6 +390,8 @@ class TileLayer(Layer):
             self._load_from_file(teemap, f, item)
         else:
             super(TileLayer, self).__init__(data=(0, 2, 0))
+            for i in range(width * height):
+                self.tiles.append('\x00\x00\x00\x00')
 
     def _load_from_file(self, teemap, f, item):
         item_size, item_data = item
@@ -460,13 +468,13 @@ class TileLayer(Layer):
         return tiles[y*self.width+x]
 
     def get_tile(self, x, y):
-        return self._get_tile(self.tiles)
+        return self._get_tile(self.tiles, x, y)
 
     def get_tele_tile(self, x, y):
-        return self._get_tile(self.tele_tiles)
+        return self._get_tile(self.tele_tiles, x, y)
 
     def get_speedup_tile(self, x, y):
-        return self._get_tile(self.speedup_tiles)
+        return self._get_tile(self.speedup_tiles, x, y)
 
     def select(self, x, y, w=1, h=1):
         x = max(0, min(x, self.width))
