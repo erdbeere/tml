@@ -17,8 +17,10 @@ import items
 class Header(object):
     """Contains fileheader information.
 
-    Takes a file as argument, please make sure it is at the beginning.
+    Please make sure the passed file is at the beginning.
     Note that the file won't be rewinded!
+
+    :param f: The file with the information.
     """
 
     def __init__(self, f=None):
@@ -43,6 +45,12 @@ class Header(object):
             ])
 
 class Teemap(object):
+    """Representation of a teeworlds map.
+
+    All information about the map can be accessed through this class.
+
+    :param map_path: Path to the teeworlds mapfile.
+    """
 
     @staticmethod
     def check(map_path):
@@ -79,7 +87,7 @@ class Teemap(object):
                 setattr(self, ''.join([type_, 's']), [])
 
         if map_path:
-            self.load(map_path)
+            self._load(map_path)
         else:
             pass#self.create_default()
 
@@ -142,7 +150,12 @@ class Teemap(object):
         return None
 
     def find_item(self, f, item_type, index):
-        """Finds the item and returns it from the file."""
+        """Finds the item and returns it from the file.
+
+        :param f: Filepointer
+        :param item_type: 
+        :param index: 
+        """
         start, num = self.get_item_type(item_type)
         if index < num:
             return self.get_item(f, start+index)
@@ -160,9 +173,11 @@ class Teemap(object):
         f.seek(self.header.size + self.header.item_size + self.data_offsets[index])
         return f.read(size)
 
-    def load(self, map_path):
-        """Load a new teeworlds map from `map_path`."""
+    def _load(self, map_path):
+        """Load a new teeworlds map from `map_path`.
 
+        Should only be called by __init__.
+        """
         path, filename = os.path.split(map_path)
         self.name, extension = os.path.splitext(filename)
         if extension == '':
@@ -224,8 +239,7 @@ class Teemap(object):
                     elif LAYER_TYPES[layer.type] == 'quad':
                         layer = items.QuadLayer(teemap=self, f=f, item=layer_item)
 
-                    # add layer to group
-                    group.add_layer(layer)
+                    group.append(layer)
 
                 # add group
                 self.groups.append(group)
@@ -243,11 +257,12 @@ class Teemap(object):
             for i in range(num):
                 self.envelopes.append(items.Envelope(self, f, self.get_item(f, start+i)))
 
-    def create_default(self):
+    def _create_default(self):
         """Creates the default map.
 
         The default map consists out of two groups containing a quadlayer
-        with the background and the game layer.
+        with the background and the game layer. Should only be called by
+        __init__.
         """
 
         self.groups = []

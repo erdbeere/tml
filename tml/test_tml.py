@@ -25,10 +25,6 @@ class TestHeader(unittest.TestCase):
             self.assertIn(str(w[0].message), 'External image „test2“ does not exist')
         assert Teemap('tml/maps/dm1.map')
         assert Teemap('tml/maps/dm1')
-        t = Teemap()
-        t.load('tml/maps/dm1.map')
-        t = Teemap()
-        t.load('tml/maps/dm1')
 
 class TestTeemap(unittest.TestCase):
 

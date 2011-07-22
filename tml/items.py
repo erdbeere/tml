@@ -80,6 +80,9 @@ class Image(object):
                             image_data))
 
     def save(self):
+        """Saves the image to a file.
+
+        The filename is derived from `self.name`"""
         if self.external_:
             return
         png_path = os.sep.join([TML_DIR, 'custom_mapres', self.name])
@@ -100,9 +103,7 @@ class Image(object):
 
     @property
     def external(self):
-        if self.external_:
-            return True
-        return False
+        return self.external_
 
 class Envelope(object):
     """Represents an envelope."""
@@ -121,8 +122,7 @@ class Envelope(object):
         self._assign_envpoints(start_point, num_points)
 
     def _assign_envpoints(self, start, num):
-        self.envpoints = []
-        self.envpoints.extend(self.teemap.envpoints[start:start+num])
+        self.envpoints = self.teemap.envpoints[start:start+num]
 
     def __repr__(self):
         return '<Envelope ({0})>'.format(self_name or len(self.envpoints))
@@ -159,7 +159,15 @@ class Group(object):
                 self.name = name
         self.layers = []
 
-    def add_layer(self, layer):
+    def append(self, layer):
+        """Adds a layer to the group.
+
+        :param layer: Layer to append.
+        :raises: TypeError
+
+        """
+        if not isinstance(layer, Layer):
+            raise TypeError('You can only append layers.')
         self.layers.append(layer)
 
     def __repr__(self):
@@ -190,6 +198,12 @@ class Layer(object):
         return False
 
 class QuadManager(object):
+    """Handles quads while sparing memory.
+
+    Keeps track of quds as simple strings, but returns a Quad class on demand.
+
+    :param quads: List of quads to put in.
+    """
 
     def __init__(self, quads=None):
         self.quads = []
@@ -239,8 +253,16 @@ class Quad(object):
         return '<Quad ({0}:{1})>'.format(*self.points[4])
 
 class TileManager(object):
+    """Handles tiles while sparing memory.
 
-    def __init__(self, size=0, _type=0, tiles=None):
+    Keeps track of tiles as simple strings, but returns a Tile class on demand.
+
+    :param size: Fill up the manager with n empty tiles.
+    :param tiles: List of tiles to put in.
+    :param _type: Used for a race modification, you probably don't need it
+    """
+
+    def __init__(self, size=0, tiles=None, _type=0):
         self.type = _type
         if tiles:
             self.tiles = tiles
@@ -282,30 +304,39 @@ class Tile(object):
             self.index = self._flags = self.skip = self.reserved = 0
 
     def vflip(self):
+        """Flip the tile in vertical direction"""
         if self.flags['rotation']:
             self._flags ^= TILEFLAG_HFLIP
         else:
             self._flags ^= TILEFLAG_VFLIP
 
     def hflip(self):
+        """Flip the tile in horizontal direction"""
         if self.flags['rotation']:
             self._flags ^= TILEFLAG_VFLIP
         else:
             self._flags ^= TILEFLAG_HFLIP
 
-    def rotation(self, value):
-        if value == 'r':
+    def rotate(self, value):
+        """Rotate the tile.
+
+        :param value: Rotationdirection, can be '(l)eft' or '(r)ight'
+        :type value: str
+        :raises: ValueError
+
+        """
+        if value.lower() in ('r', 'right'):
             if self.flags['rotation']:
                 self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
             self._flags ^= TILEFLAG_ROTATE
-        elif value == 'l':
+        elif value.lower() in ('l', 'left'):
             if self.flags['rotation']:
                 self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
             self._flags ^= TILEFLAG_ROTATE
             self.vflip()
             self.hflip()
         else:
-            raise ValueError('You can only rotate left (\'l\') and right (\'r\')')
+            raise ValueError('You can only rotate (l)eft or (r)ight.')
 
     @property
     def coords(self):
@@ -313,6 +344,13 @@ class Tile(object):
 
     @property
     def flags(self):
+        """Gives the flags of the tile.
+
+        The flags contain the rotation, hflip and vflip information.
+
+        :returns: dict
+
+        """
         return {'rotation': self._flags & TILEFLAG_ROTATE != 0,
                 'vflip': self._flags & TILEFLAG_VFLIP != 0,
                 'hflip': self._flags & TILEFLAG_HFLIP != 0}
@@ -345,7 +383,7 @@ class SpeedupTile(object):
         return '<SpeedupTile ({0})>'.format(self.index)
 
 class QuadLayer(Layer):
-    """Represents a quad layer."""
+    """Represents a quadlayer."""
 
     type_size = 10
 
@@ -379,7 +417,7 @@ class QuadLayer(Layer):
         return '<Quad layer ({0})>'.format(self.num_quads)
 
 class TileLayer(Layer):
-    """Represents a tile layer."""
+    """Represents a tilelayer."""
 
     type_size = 18
 
@@ -481,6 +519,20 @@ class TileLayer(Layer):
         return self._get_tile(self.speedup_tiles, x, y)
 
     def select(self, x, y, w=1, h=1):
+        """Select an area of the tilelayer.
+
+        Creates a new TileLayer of the section you are selecting. If you are
+        selecting over the borders, it will just cut your selection to fit to
+        the layer.
+
+        :param x: x-position
+        :param y: y-position
+        :param w: width, default: 1
+        :param h: height, default: 1
+        :returns: TileLayer
+
+        """
+
         x = max(0, min(x, self.width-1))
         y = max(0, min(y, self.height-1))
         w = max(1, min(w, self.width-x))
@@ -514,10 +566,10 @@ class TileLayer(Layer):
         return self.game == 4
 
     def __repr__(self):
-        if self.game == 1:
+        if self.is_gamelayer():
             return '<Game layer ({0}x{1})>'.format(self.width, self.height)
-        elif self.game == 2 and self.tele_tiles:
+        elif self.is_telelayer() and self.tele_tiles:
             return '<Tele layer ({0}x{1})>'.format(self.width, self.height)
-        elif self.game == 4 and self.speedup_tiles:
+        elif self.is_speeduplayer() and self.speedup_tiles:
             return '<Speedup layer ({0}x{1})>'.format(self.width, self.height)
         return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
