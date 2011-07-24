@@ -279,7 +279,3 @@ class Teemap(object):
 
     def __repr__(self):
         '<Teemap ({0})>'.format(self.name or 'new')
-
-if __name__ == '__main__':
-    t = Teemap()
-    t.load('tml/maps/dm1')
