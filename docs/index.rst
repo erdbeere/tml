@@ -16,6 +16,7 @@ Contents:
 
    tutorial
    mapformat
+   classes
 
 Indices and tables
 ==================
