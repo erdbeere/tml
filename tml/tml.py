@@ -94,10 +94,10 @@ class Teemap(object):
     @property
     def layers(self):
         """Returns a list of all layers, collected from the groups."""
-        layers_ = []
+        layers = []
         for group in self.groups:
-            layers_.extend(group.layers)
-        return layers_
+            layers.extend(group.layers)
+        return layers
 
     @property
     def gamelayer(self):
