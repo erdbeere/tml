@@ -7,15 +7,16 @@
 """
 
 import os
-import png
 from StringIO import StringIO
 from struct import unpack, pack
-from utils import ints_to_string
 import warnings
 from zlib import decompress
 
+import png
+
 from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR, TILEFLAG_VFLIP, \
      TILEFLAG_HFLIP, TILEFLAG_OPAQUE, TILEFLAG_ROTATE
+from utils import ints_to_string
 
 #GAMELAYER_IMAGE = PIL.Image.open(os.path.join(TML_DIR,
 #	os.extsep.join(('entities', 'png'))))
@@ -49,35 +50,26 @@ class Image(object):
     # size in ints
     type_size = 6
 
-    def __init__(self, teemap, f, item):
-        self.teemap = teemap
-        item_size, item_data = item
-        fmt = '{0}i'.format(item_size/4)
-        item_data = unpack(fmt, item_data)
-        version, self.width, self.height, self.external_, image_name, \
-        image_data = item_data[:Image.type_size]
-        self._get_image_name(f, image_name)
-
-        # load image data
-        if self.external_ == 0:
-            self._get_image_data(f, image_data)
+    def __init__(self, name, width=0, height=0, external=False, data=None,
+                 path=''):
+        self.name = name
+        self.data = data
+        self.width = width
+        self.height = height
+        self.external = external
+        if external is True:
+            png_path = os.sep.join([TML_DIR, 'mapres', self.name])
+            png_path = os.extsep.join([png_path, 'png'])
         else:
+            png_path = path
+
+        if data is not None:
             try:
-                png_path = os.sep.join([TML_DIR, 'mapres', self.name])
-                png_path = os.extsep.join([png_path, 'png'])
                 png.Reader(png_path).asRGBA()
             except png.Error:
                 warnings.warn('Image is not in RGBA format')
             except IOError:
                 warnings.warn('External image „%s“ does not exist' % self.name)
-
-    def _get_image_name(self, f, image_name):
-        self.name = decompress(self.teemap.get_compressed_data(f, image_name))
-        self.name = self.name[:-1] # remove 0 termination
-
-    def _get_image_data(self, f, image_data):
-        self.image_data = decompress(self.teemap.get_compressed_data(f,
-                            image_data))
 
     def save(self):
         """Saves the image to a file.
@@ -101,40 +93,28 @@ class Image(object):
     def resolution(self):
         return '{0} x {1}'.format(self.width, self.height)
 
-    @property
-    def external(self):
-        return self.external_
-
 class Envelope(object):
     """Represents an envelope."""
 
     type_size = 12
 
-    def __init__(self, teemap, f, item):
-        self.teemap = teemap
-        item_size, item_data = item
-        fmt = '{0}i'.format(item_size/4)
-        item_data = unpack(fmt, item_data)
-        self.version, self.channels, start_point, \
-        num_points = item_data[:Envelope.type_size-8] # -8 to strip envelope name
-        self.name = ints_to_string(item_data[4:Envelope.type_size])
-
-        self._assign_envpoints(start_point, num_points)
-
-    def _assign_envpoints(self, start, num):
-        self.envpoints = self.teemap.envpoints[start:start+num]
+    def __init__(self, name=None, version=None, channels=None, envpoints=None):
+        self.name = name
+        self.version = version
+        self.channels = channels
+        self.envpoints = envpoints
 
     def __repr__(self):
-        return '<Envelope ({0})>'.format(self_name or len(self.envpoints))
+        return '<Envelope ({0})>'.format(self.name or len(self.envpoints))
 
 class Envpoint(object):
     """Represents an envpoint."""
 
     type_size = 6
-    def __init__(self, teemap, point):
-        self.teemap = teemap
-        self.time, self.curvetype = point[:Envpoint.type_size-4] # -4 to strip values
-        self.values = list(point[2:Envpoint.type_size])
+    def __init__(self, time=None, curvetype=None, values=None):
+        self.time = time
+        self.curvetype = curvetype
+        self.values = values or []
 
     def __repr__(self):
         return '<Envpoint ({0})>'.format(self.time)
@@ -144,20 +124,27 @@ class Group(object):
 
     type_size = 15
 
-    def __init__(self, teemap, f, item):
-        self.teemap = teemap
-        item_size, item_data = item
-        fmt = '{0}i'.format(item_size/4)
-        item_data = unpack(fmt, item_data)
-        version, self.offset_x, self.offset_y, self.parallax_x, \
-        self.parallax_y, start_layer, num_layers, self.use_clipping, \
-        self.clip_x, self.clip_y, self.clip_w, self.clip_h = item_data[:Group.type_size-3] # group name
-        self.name = None
-        if version >= 3:
-            name = ints_to_string(item_data[Group.type_size-3:Group.type_size])
-            if name:
-                self.name = name
-        self.layers = []
+    def __init__(self, name=None, offset_x=None, offset_y=None,
+                 parallax_x=None, parallax_y=None, use_clipping=None,
+                 clip_x=None, clip_y=None, clip_w=None, clip_h=None,
+                 layers=None):
+        self.name = name
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+        self.parallax_x = parallax_x
+        self.parallax_y = parallax_y
+        self.use_clipping = use_clipping
+        self.clip_x = clip_x
+        self.clip_y = clip_y
+        self.clip_w = clip_w
+        self.clip_h = clip_h
+        if layers is not None:
+            if not isinstance(layers, list):
+                raise TypeError('Param "layers" must be a list.')
+            for layer in layers:
+                if not isinstance(layer, Layer):
+                    raise TypeError('The "layers" list can only contain layers.')
+        self.layers = layers or []
 
     def append(self, layer):
         """Adds a layer to the group.
@@ -178,13 +165,6 @@ class Layer(object):
 
     type_size = 3
 
-    def __init__(self, f=None, item=None, data=None):
-        if f and item:
-            item_size, item_data = item
-            fmt = '{0}i'.format(item_size/4)
-            data = unpack(fmt, item_data)[:Layer.type_size]
-        self.version, self.type, self.flags = data
-
     @property
     def is_gamelayer(self):
         return False
@@ -197,243 +177,22 @@ class Layer(object):
     def is_speeduplayer(self):
         return False
 
-class QuadManager(object):
-    """Handles quads while sparing memory.
-
-    Keeps track of quds as simple strings, but returns a Quad class on demand.
-
-    :param quads: List of quads to put in.
-    """
-
-    def __init__(self, quads=None):
-        self.quads = []
-        if quads:
-            self.quads = quads
-
-    def __getitem__(self, value):
-        if isinstance(value, slice):
-            return QuadManager(self.quads[value])
-        return Quad(self.quads[value])
-
-    def __len__(self):
-        return len(self.quads)
-
-    def append(self, value):
-        self.quads.append(value)
-
-class Quad(object):
-    """Represents a quad of a quadlayer."""
-
-    def __init__(self, data):
-        points = []
-        for i in range(5):
-            points.append(unpack('2i', data[i*8:i*8+8]))
-        colors = []
-        for i in range(4):
-            colors.append(unpack('4i', data[40+i*16:40+i*16+16]))
-        texcoords = []
-        for i in range(4):
-            texcoords.append(unpack('2i', data[104+i*8:104+i*8+8]))
-        self.pos_env = unpack('i', data[136:140])[0]
-        self.pos_env_offset = unpack('i', data[140:144])[0]
-        self.color_env = unpack('i', data[144:148])[0]
-        self.color_env_offset = unpack('i', data[148:152])[0]
-        self.points = []
-        for point in points:
-            self.points.append({'x': point[0], 'y': point[1]})
-        self.colors = []
-        for color in colors:
-            self.colors.append({'r': color[0], 'g': color[1],
-                                'b': color[2], 'a': color[3]})
-        self.texcoords = []
-        for texcoord in texcoords:
-            self.texcoords.append({'x': texcoord[0], 'y': texcoord[1]})
-
-    def __repr__(self):
-        return '<Quad ({0}:{1})>'.format(*self.points[4])
-
-class TileManager(object):
-    """Handles tiles while sparing memory.
-
-    Keeps track of tiles as simple strings, but returns a Tile class on demand.
-
-    :param size: Fill up the manager with n empty tiles.
-    :param tiles: List of tiles to put in.
-    :param _type: Used for a race modification, you probably don't need it
-    """
-
-    def __init__(self, size=0, tiles=None, _type=0):
-        self.type = _type
-        if tiles:
-            self.tiles = tiles
-        else:
-            self.tiles = ['\x00\x00\x00\x00'] * size
-
-    def __getitem__(self, value):
-        if isinstance(value, slice):
-            return TileManager(tiles=self.tiles[value])
-        if self.type == 1:
-            return TeleTile(self.tiles[value])
-        elif self.type == 2:
-            return SpeedupTile(self.tiles[value])
-        return Tile(self.tiles[value])
-
-    def __setitem__(self, k, v):
-        if isinstance(v, Tile):
-            self.tiles[k] = pack('4B', v.index, v._flags, v.skip, v.reserved)
-        elif isinstance(v, str):
-            if len(v) != 4:
-                raise ValueError('The string must be exactly 4 chars long.')
-            self.tiles[k] = v
-        else:
-            raise TypeError('You can only assign Tile or string objects.')
-
-    def __len__(self):
-        return len(self.tiles)
-
-    def append(self, value):
-        self.tiles.append(value)
-
-class Tile(object):
-    """Represents a tile of a tilelayer."""
-
-    def __init__(self, data=None):
-        if data is not None:
-            self.index, self._flags, self.skip, self.reserved = unpack('4B', data)
-        else:
-            self.index = self._flags = self.skip = self.reserved = 0
-
-    def vflip(self):
-        """Flip the tile in vertical direction"""
-        if self.flags['rotation']:
-            self._flags ^= TILEFLAG_HFLIP
-        else:
-            self._flags ^= TILEFLAG_VFLIP
-
-    def hflip(self):
-        """Flip the tile in horizontal direction"""
-        if self.flags['rotation']:
-            self._flags ^= TILEFLAG_VFLIP
-        else:
-            self._flags ^= TILEFLAG_HFLIP
-
-    def rotate(self, value):
-        """Rotate the tile.
-
-        :param value: Rotationdirection, can be '(l)eft' or '(r)ight'
-        :type value: str
-        :raises: ValueError
-
-        """
-        if value.lower() in ('r', 'right'):
-            if self.flags['rotation']:
-                self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
-            self._flags ^= TILEFLAG_ROTATE
-        elif value.lower() in ('l', 'left'):
-            if self.flags['rotation']:
-                self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
-            self._flags ^= TILEFLAG_ROTATE
-            self.vflip()
-            self.hflip()
-        else:
-            raise ValueError('You can only rotate (l)eft or (r)ight.')
-
-    @property
-    def coords(self):
-        return self.index % 16, self.index / 16
-
-    @property
-    def flags(self):
-        """Gives the flags of the tile.
-
-        The flags contain the rotation, hflip and vflip information.
-
-        :returns: dict
-
-        """
-        return {'rotation': self._flags & TILEFLAG_ROTATE != 0,
-                'vflip': self._flags & TILEFLAG_VFLIP != 0,
-                'hflip': self._flags & TILEFLAG_HFLIP != 0}
-
-    def __repr__(self):
-        return '<Tile ({0})>'.format(self.index)
-
-    def __eq__(self, other):
-        if not isinstance(other, Tile):
-            return False
-        return self.index == other.index and self.flags == other.flags and \
-           self.skip == other.skip and self.reserved == other.reserved
-
-class TeleTile(object):
-    """Represents a tele tile of a tilelayer."""
-
-    def __init__(self, data):
-        self.number, self.type = unpack('2B', data)
-
-    def __repr__(self):
-        return '<TeleTile ({0})>'.format(self.number)
-
-class SpeedupTile(object):
-    """Represents a speedup tile of a tilelayer."""
-
-    def __init__(self, data):
-        self.force, self.angle = unpack('Bh', data)
-
-    def __repr__(self):
-        return '<SpeedupTile ({0})>'.format(self.index)
-
-class QuadLayer(Layer):
-    """Represents a quadlayer."""
-
-    type_size = 10
-
-    def __init__(self, teemap=None, f=None, item=None):
-        item_size, item_data = item
-        fmt = '{0}i'.format(item_size/4)
-        item_data = unpack(fmt, item_data)
-        super(QuadLayer, self).__init__(f, item)
-        version, self.num_quads, data, self.image_id = item_data[3:QuadLayer.type_size-3] # layer name
-        self.name = None
-        if version >= 2:
-            name = ints_to_string(item_data[QuadLayer.type_size-3:QuadLayer.type_size])
-            if name:
-                self.name = name
-
-        if teemap is not None:
-            self._load_quads(teemap, f, data)
-
-    def _load_from_file(self, teemap, f, item):
-        pass
-
-    def _load_quads(self, teemap, f, data):
-        quad_data = decompress(teemap.get_compressed_data(f, data))
-        self.quads = QuadManager()
-        i = 0
-        while(i < len(quad_data)):
-            self.quads.append((quad_data[i:i+152]))
-            i += 152
-
-    def __repr__(self):
-        return '<Quad layer ({0})>'.format(self.num_quads)
-
 class TileLayer(Layer):
     """Represents a tilelayer."""
 
     type_size = 18
 
-    def __init__(self, width=50, height=50, teemap=None, f=None, item=None):
-        self.name = None
-        self.color = {'r': 255, 'g': 255, 'b': 255, 'a': 255}
+    def __init__(self, width=50, height=50, name=None, game=0, color=None,
+                 color_env=-1, color_env_offset=0, image_id=-1, tiles=None,
+                 tele_tiles=None, speedup_tiles=None):
+        self.name = name
+        self.color = color or {'r': 255, 'g': 255, 'b': 255, 'a': 255}
         self.width, self.height, self.game, self.color_env, \
-        self.color_env_offset, self.image_id = width, height, 0, -1, 0, -1
-        self.tiles = TileManager()
-        self.tele_tiles = TileManager(_type=1)
-        self.speedup_tiles = TileManager(_type=2)
-        if teemap and f and item:
-            self._load_from_file(teemap, f, item)
-        else:
-            super(TileLayer, self).__init__(data=(0, 2, 0))
-            self.tiles = TileManager(width * height)
+        self.color_env_offset, self.image_id = (width, height, game, color_env,
+                                               color_env_offset, image_id)
+        self.tiles = tiles or TileManager(width * height)
+        self.tele_tiles = tele_tiles or TileManager(width * height, _type=1)
+        self.speedup_tiles = speedup_tiles or TileManager(width * height, _type=2)
 
     def _load_from_file(self, teemap, f, item):
         item_size, item_data = item
@@ -573,3 +332,214 @@ class TileLayer(Layer):
         elif self.is_speeduplayer() and self.speedup_tiles:
             return '<Speedup layer ({0}x{1})>'.format(self.width, self.height)
         return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
+
+class QuadLayer(Layer):
+    """Represents a quadlayer."""
+
+    type_size = 10
+
+    def __init__(self, name=None, image_id=-1, num_quads=0, quads=None):
+        self.name = name
+        self.image_id = image_id
+        self.num_quads = num_quads
+        self.quads = quads or QuadManager()
+
+    def __repr__(self):
+        return '<Quad layer ({0})>'.format(self.num_quads)
+
+class QuadManager(object):
+    """Handles quads while sparing memory.
+
+    Keeps track of quds as simple strings, but returns a Quad class on demand.
+
+    :param quads: List of quads to put in.
+    """
+
+    def __init__(self, quads=None, data=None):
+        self.quads = []
+        if quads:
+            #TODO: convert Quad to string
+            self.quads = quads
+        if data:
+            self.quads.extend(data)
+
+    def __getitem__(self, value):
+        if isinstance(value, slice):
+            return QuadManager(self.quads[value])
+        quad_data = self.quads[value]
+        points = []
+        for l in range(5):
+            point = unpack('2i', quad_data[l*8:l*8+8])
+            points.append({'x': point[0], 'y': point[1]})
+        colors = []
+        for l in range(4):
+            color = unpack('4i', quad_data[40+l*16:40+l*16+16])
+            colors.append({'r': color[0], 'g': color[1],
+                           'b': color[2], 'a': color[3]})
+        texcoords = []
+        for l in range(4):
+            coord = unpack('2i', quad_data[104+l*8:104+l*8+8])
+            texcoords.append({'x': coord[0], 'y': coord[1]})
+        pos_env, pos_env_offset, color_env, color_env_offset = unpack('4i',
+                                                            quad_data[136:152])
+        return Quad(pos_env=pos_env, pos_env_offset=pos_env_offset,
+                    color_env=color_env, color_env_offset=color_env_offset,
+                    points=points, colors=colors, texcoords=texcoords)
+
+    def __len__(self):
+        return len(self.quads)
+
+    def append(self, value):
+        #TODO: convert Quad to string
+        self.quads.append(value)
+
+class Quad(object):
+    """Represents a quad of a quadlayer."""
+
+    def __init__(self, pos_env=None, pos_env_offset=None, color_env=None,
+                 color_env_offset=None, points=None, colors=None, texcoords=None):
+        self.pos_env = pos_env
+        self.pos_env_offset = pos_env_offset
+        self.color_env = color_env
+        self.color_env_offset = color_env_offset
+        self.points = points or []
+        self.colors = colors or []
+        self.texcoords = texcoords or []
+
+    def __repr__(self):
+        return '<Quad ({0}:{1})>'.format(*self.points[4])
+
+class TileManager(object):
+    """Handles tiles while sparing memory.
+
+    Keeps track of tiles as simple strings, but returns a Tile class on demand.
+
+    :param size: Fill up the manager with n empty tiles.
+    :param tiles: List of tiles to put in.
+    :param _type: Used for a race modification, you probably don't need it
+    """
+
+    def __init__(self, size=0, tiles=None, data=None, _type=0):
+        self.type = _type
+        if tiles is not None:
+            #TODO: convert Tiles to string
+            self.tiles = tiles
+        elif data is not None:
+            self.tiles = data
+        else:
+            self.tiles = ['\x00\x00\x00\x00'] * size
+
+    def __getitem__(self, value):
+        if isinstance(value, slice):
+            return TileManager(tiles=self.tiles[value])
+        if self.type == 1:
+            return TeleTile(self.tiles[value])
+        elif self.type == 2:
+            return SpeedupTile(self.tiles[value])
+        index, flags, skip, reserved = unpack('4B', self.tiles[value])
+        return Tile(index=index, flags=flags, skip=skip, reserved=reserved)
+
+    def __setitem__(self, k, v):
+        if isinstance(v, Tile):
+            self.tiles[k] = pack('4B', v.index, v._flags, v.skip, v.reserved)
+        elif isinstance(v, str):
+            if len(v) != 4:
+                raise ValueError('The string must be exactly 4 chars long.')
+            self.tiles[k] = v
+        else:
+            raise TypeError('You can only assign Tile or string objects.')
+
+    def __len__(self):
+        return len(self.tiles)
+
+    def append(self, value):
+        #TODO: convert Tile to string
+        self.tiles.append(value)
+
+class Tile(object):
+    """Represents a tile of a tilelayer."""
+
+    def __init__(self, index=0, flags=0, skip=0, reserved=0):
+        self.index = index
+        self._flags = flags
+        self.skip = skip
+        self.reserved = reserved
+
+    def vflip(self):
+        """Flip the tile in vertical direction"""
+        if self.flags['rotation']:
+            self._flags ^= TILEFLAG_HFLIP
+        else:
+            self._flags ^= TILEFLAG_VFLIP
+
+    def hflip(self):
+        """Flip the tile in horizontal direction"""
+        if self.flags['rotation']:
+            self._flags ^= TILEFLAG_VFLIP
+        else:
+            self._flags ^= TILEFLAG_HFLIP
+
+    def rotate(self, value):
+        """Rotate the tile.
+
+        :param value: Rotationdirection, can be '(l)eft' or '(r)ight'
+        :type value: str
+        :raises: ValueError
+
+        """
+        if value.lower() in ('r', 'right'):
+            if self.flags['rotation']:
+                self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
+            self._flags ^= TILEFLAG_ROTATE
+        elif value.lower() in ('l', 'left'):
+            if self.flags['rotation']:
+                self._flags ^= (TILEFLAG_HFLIP|TILEFLAG_VFLIP)
+            self._flags ^= TILEFLAG_ROTATE
+            self.vflip()
+            self.hflip()
+        else:
+            raise ValueError('You can only rotate (l)eft or (r)ight.')
+
+    @property
+    def coords(self):
+        return self.index % 16, self.index / 16
+
+    @property
+    def flags(self):
+        """Gives the flags of the tile.
+
+        The flags contain the rotation, hflip and vflip information.
+
+        :returns: dict
+
+        """
+        return {'rotation': self._flags & TILEFLAG_ROTATE != 0,
+                'vflip': self._flags & TILEFLAG_VFLIP != 0,
+                'hflip': self._flags & TILEFLAG_HFLIP != 0}
+
+    def __repr__(self):
+        return '<Tile ({0})>'.format(self.index)
+
+    def __eq__(self, other):
+        if not isinstance(other, Tile):
+            return False
+        return self.index == other.index and self.flags == other.flags and \
+           self.skip == other.skip and self.reserved == other.reserved
+
+class TeleTile(object):
+    """Represents a tele tile of a tilelayer."""
+
+    def __init__(self, data):
+        self.number, self.type = unpack('2B', data)
+
+    def __repr__(self):
+        return '<TeleTile ({0})>'.format(self.number)
+
+class SpeedupTile(object):
+    """Represents a speedup tile of a tilelayer."""
+
+    def __init__(self, data):
+        self.force, self.angle = unpack('Bh', data)
+
+    def __repr__(self):
+        return '<SpeedupTile ({0})>'.format(self.index)
