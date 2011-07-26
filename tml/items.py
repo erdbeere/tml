@@ -7,6 +7,7 @@
 """
 
 import os
+import shutil
 from StringIO import StringIO
 from struct import unpack, pack
 import warnings
@@ -71,20 +72,23 @@ class Image(object):
             except IOError:
                 warnings.warn('External image „%s“ does not exist' % self.name)
 
-    def save(self):
-        """Saves the image to a file.
+    def save(self, dest):
+        """Saves the image to the given path.
 
-        The filename is derived from `self.name`"""
-        if self.external_:
-            return
-        png_path = os.sep.join([TML_DIR, 'custom_mapres', self.name])
-        png_path = os.extsep.join([png_path, 'png'])
-        image = open(png_path, 'wb')
-        png_writer = png.Writer(width=self.width, height=self.height, alpha=True)
-        fmt = '{0}B'.format(len(self.image_data))
-        image_data = unpack(fmt, self.image_data)
-        png_writer.write_array(image, image_data)
-        image.close()
+        :param dest: Path to the image
+
+        """
+        if self.external:
+            src = os.sep.join([TML_DIR, 'mapres', self.name])
+            src = os.extsep.join([src, 'png'])
+            shutil.copyfile(src, dest)
+        else:
+            image = open(dest, 'wb')
+            png_writer = png.Writer(width=self.width, height=self.height, alpha=True)
+            fmt = '{0}B'.format(len(self.data))
+            image_data = unpack(fmt, self.data)
+            png_writer.write_array(image, image_data)
+            image.close()
 
     def __repr__(self):
         return '<Image ({0})>'.format(self.name)
