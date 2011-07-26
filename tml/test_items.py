@@ -34,7 +34,7 @@ class TestTileLayer(unittest.TestCase):
         self.assertEqual(layer.color_env, -1)
         self.assertEqual(layer.color_env_offset, 0)
         self.assertEqual(layer.image_id, -1)
-        self.assertEqual(layer.color, {'r': 255, 'g': 255, 'b': 255, 'a': 255})
+        self.assertEqual(layer.color, (255, 255, 255, 255))
 
     def test_get_tile(self):
         for i in range(5):

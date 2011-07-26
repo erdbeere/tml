@@ -184,15 +184,30 @@ class Layer(object):
         return False
 
 class TileLayer(Layer):
-    """Represents a tilelayer."""
+    """Represents a tilelayer.
+
+    :param width: Default: 50
+    :param height: Default: 50
+    :param name: Default: 'Tiles'
+    :param game: 1 if it should be the gamelayer. Default: 0
+    :param color: Tupel with four values for r, g, b, a
+                  Default: (255, 255, 255, 255)
+    :param color_env: Default: -1
+    :param color_env_offset: Default: 0
+    :param image_id: Default: -1
+    :param tiles: Initial TileManager, used internally
+    :param tele_tiles: For race modification
+    :param speedup_tiles: For race modification
+
+    """
 
     type_size = 18
 
-    def __init__(self, width=50, height=50, name=None, game=0, color=None,
-                 color_env=-1, color_env_offset=0, image_id=-1, tiles=None,
-                 tele_tiles=None, speedup_tiles=None):
+    def __init__(self, width=50, height=50, name='Tiles', game=0,
+                 color=(255, 255, 255, 255), color_env=-1, color_env_offset=0,
+                 image_id=-1, tiles=None, tele_tiles=None, speedup_tiles=None):
         self.name = name
-        self.color = color or {'r': 255, 'g': 255, 'b': 255, 'a': 255}
+        self.color = color
         self.width = width
         self.height = height
         self.game = game
@@ -356,7 +371,21 @@ class QuadManager(object):
                     color_env=color_env, color_env_offset=color_env_offset,
                     points=points, colors=colors, texcoords=texcoords)
 class Quad(object):
-    """Represents a quad of a quadlayer."""
+    """Represents a quad of a quadlayer.
+
+    :param pos_env: Default: -1
+    :param pos_env_offset: Default: 0
+    :param color_env: Default: -1
+    :param color_env_offset: Default: 0
+    :param points: List of tuples with point coordinates. Default:
+                   [(0, 0), (64, 0), (0, 64), (64, 64), (32, 32)]
+    :param colors: List of tuples with color vallues. Default:
+                   [(255, 255, 255, 255), (255, 255, 255, 255),
+                    (255, 255, 255, 255), (255, 255, 255, 255)]
+    :param texcoords: List of tuples with texcoords. Default:
+                      [(0, 0), (1024, 0), (0, 1024), (1024, 1024)]
+
+    """
 
     def __init__(self, pos_env=-1, pos_env_offset=0, color_env=-1,
                  color_env_offset=0, points=None, colors=None, texcoords=None):
@@ -409,12 +438,11 @@ class TileManager(object):
             return TeleTile(self.tiles[value])
         elif self.type == 2:
             return SpeedupTile(self.tiles[value])
-        index, flags, skip, reserved = unpack('4B', self.tiles[value])
-        return Tile(index=index, flags=flags, skip=skip, reserved=reserved)
+        return self._string_to_tile(self.tiles[value])
 
     def __setitem__(self, k, v):
         if isinstance(v, Tile):
-            self.tiles[k] = pack('4B', v.index, v._flags, v.skip, v.reserved)
+            self.tiles[k] = self._tile_to_string(v)
         elif isinstance(v, str):
             if len(v) != 4:
                 raise ValueError('The string must be exactly 4 chars long.')
@@ -425,12 +453,22 @@ class TileManager(object):
     def __len__(self):
         return len(self.tiles)
 
-    def append(self, value):
-        #TODO: convert Tile to string
-        self.tiles.append(value)
+    def _tile_to_string(self, tile):
+        return pack('4B', tile.index, tile._flags, tile.skip, tile.reserved)
+
+    def _string_to_tile(self, string):
+        index, flags, skip, reserved = unpack('4B', string)
+        return Tile(index=index, flags=flags, skip=skip, reserved=reserved)
 
 class Tile(object):
-    """Represents a tile of a tilelayer."""
+    """Represents a tile of a tilelayer.
+
+    :param index: Default: 0
+    :param flags: Default: 0
+    :param skip: Default: 0
+    :param reserved: Default: 0
+
+    """
 
     def __init__(self, index=0, flags=0, skip=0, reserved=0):
         self.index = index
@@ -475,7 +513,12 @@ class Tile(object):
 
     @property
     def coords(self):
-        return self.index % 16, self.index / 16
+        """Coordinates of the tile in the mapres.
+
+        :returns: (x, y)
+
+        """
+        return (self.index % 16, self.index / 16)
 
     @property
     def flags(self):
@@ -483,7 +526,7 @@ class Tile(object):
 
         The flags contain the rotation, hflip and vflip information.
 
-        :returns: dict
+        :returns: {'rotation': int, 'vflip': int, 'hflip': int}
 
         """
         return {'rotation': self._flags & TILEFLAG_ROTATE != 0,
@@ -500,7 +543,7 @@ class Tile(object):
            self.skip == other.skip and self.reserved == other.reserved
 
 class TeleTile(object):
-    """Represents a tele tile of a tilelayer."""
+    """Represents a tele tile of a tilelayer. Only for race modification."""
 
     def __init__(self, data):
         self.number, self.type = unpack('2B', data)
@@ -509,7 +552,7 @@ class TeleTile(object):
         return '<TeleTile ({0})>'.format(self.number)
 
 class SpeedupTile(object):
-    """Represents a speedup tile of a tilelayer."""
+    """Represents a speedup tile of a tilelayer. Only for race modification."""
 
     def __init__(self, data):
         self.force, self.angle = unpack('Bh', data)
