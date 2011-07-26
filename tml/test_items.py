@@ -113,11 +113,23 @@ class TestQuadManager(unittest.TestCase):
     def test_init(self):
         manager = QuadManager()
         self.assertEqual(len(manager), 0)
+
+    def test_setitem(self):
         quads = [Quad() for i in xrange(10)]
         quads.append(Quad(pos_env=1, pos_env_offset=2, color_env=3,
                           color_env_offset=4))
         manager = QuadManager(quads)
         self.assertEqual(len(manager), 11)
+        self.assertEqual(manager[0].pos_env, -1)
+        self.assertEqual(manager[10].pos_env, 1)
+        self.assertEqual(manager[10].pos_env_offset, 2)
+        self.assertEqual(manager[10].color_env, 3)
+        self.assertEqual(manager[10].color_env_offset, 4)
+
+    def test_append(self):
+        self.manager.append(Quad(pos_env=4, pos_env_offset=2))
+        self.assertEqual(self.manager[0].pos_env, 4)
+        self.assertEqual(self.manager[0].pos_env_offset, 2)
 
 if __name__ == '__main__':
     unittest.main()

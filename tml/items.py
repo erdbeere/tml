@@ -304,9 +304,8 @@ class QuadManager(object):
     def __init__(self, quads=None, data=None):
         self.quads = []
         if quads:
-            #TODO: convert Quad to string
-            self.quads = quads
-        if data:
+            self.quads = [self._quad_to_string(quad) for quad in quads]
+        elif data:
             self.quads.extend(data)
 
     def __getitem__(self, value):
@@ -332,8 +331,19 @@ class QuadManager(object):
         return len(self.quads)
 
     def append(self, value):
-        #TODO: convert Quad to string
-        self.quads.append(value)
+        self.quads.append(self._quad_to_string(value))
+
+    def _quad_to_string(self, quad):
+        data = []
+        for point in quad.points:
+            data.extend(point)
+        for color in quad.colors:
+            data.extend(color)
+        for texcoord in quad.texcoords:
+            data.extend(texcoord)
+        data.extend([quad.pos_env, quad.pos_env_offset, quad.color_env,
+                     quad.color_env_offset])
+        return pack('38i', *data)
 
 class Quad(object):
     """Represents a quad of a quadlayer."""
