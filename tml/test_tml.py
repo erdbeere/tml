@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import filecmp
+import os
+import shutil
 import unittest
 import warnings
 
@@ -11,6 +14,10 @@ class TestTeemap(unittest.TestCase):
 
     def setUp(self):
         self.teemap = Teemap('tml/test_maps/vanilla')
+
+    def tearDown(self):
+        if os.path.isdir('test_tmp'):
+            shutil.rmtree('test_tmp')
 
     def test_load(self):
         pass
@@ -89,6 +96,15 @@ class TestTeemap(unittest.TestCase):
         self.assertTrue(self.teemap.images[0].external)
         self.assertFalse(self.teemap.images[1].external)
         self.assertTrue(self.teemap.images[2].external)
+        os.mkdir('test_tmp')
+        self.teemap.images[0].save('test_tmp/grass_main.png')
+        self.teemap.images[1].save('test_tmp/test.png')
+        self.assertRaises(ValueError, self.teemap.images[2].save,
+                          'test_tmp/test2.png')
+        self.assertTrue(filecmp.cmp('test_tmp/grass_main.png',
+                                    'tml/mapres/grass_main.png'))
+        self.assertTrue(filecmp.cmp('test_tmp/test.png',
+                                    'tml/test_mapres/test.png'))
 
     def test_tiles(self):
         layer = self.teemap.layers[2]

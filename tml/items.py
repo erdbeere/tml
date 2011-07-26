@@ -70,7 +70,7 @@ class Image(object):
             except png.Error:
                 warnings.warn('Image is not in RGBA format')
             except IOError:
-                warnings.warn('External image „%s“ does not exist' % self.name)
+                warnings.warn('External image "%s" does not exist' % self.name)
 
     def save(self, dest):
         """Saves the image to the given path.
@@ -81,6 +81,8 @@ class Image(object):
         if self.external:
             src = os.sep.join([TML_DIR, 'mapres', self.name])
             src = os.extsep.join([src, 'png'])
+            if not os.path.exists(src):
+                raise ValueError('External image "%s" does not exist' % self.name)
             shutil.copyfile(src, dest)
         else:
             image = open(dest, 'wb')
