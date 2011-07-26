@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from items import Layer, TileLayer, Tile, QuadLayer
+from items import Layer, TileLayer, TileManager, Tile, QuadLayer, QuadManager, \
+     Quad
 
 class TestTileLayer(unittest.TestCase):
 
@@ -89,13 +90,34 @@ class TestTileLayer(unittest.TestCase):
             self.assertEqual(tile.index, 1)
         self.assertEqual(layer.tiles[5].index, 0)
 
-class TestQuadLayer(unittest.TestCase):
-
-    def setUp(self):
-        self.layer = QuadLayer()
+class TestTileManager(unittest.TestCase):
 
     def test_init(self):
         pass
+
+class TestQuadLayer(unittest.TestCase):
+
+    def test_init(self):
+        layer = QuadLayer()
+        self.assertEqual(layer.name, 'Quads')
+        self.assertEqual(layer.image_id, -1)
+        self.assertEqual(len(layer.quads), 0)
+        self.assertTrue(isinstance(layer.quads, QuadManager))
+        self.assertEqual(QuadLayer('TeeWar').name, 'TeeWar')
+
+class TestQuadManager(unittest.TestCase):
+
+    def setUp(self):
+        self.manager = QuadManager()
+
+    def test_init(self):
+        manager = QuadManager()
+        self.assertEqual(len(manager), 0)
+        quads = [Quad() for i in xrange(10)]
+        quads.append(Quad(pos_env=1, pos_env_offset=2, color_env=3,
+                          color_env_offset=4))
+        manager = QuadManager(quads)
+        self.assertEqual(len(manager), 11)
 
 if __name__ == '__main__':
     unittest.main()

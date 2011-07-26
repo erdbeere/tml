@@ -274,11 +274,17 @@ class TileLayer(Layer):
         return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
 
 class QuadLayer(Layer):
-    """Represents a quadlayer."""
+    """Represents a quadlayer.
+
+    :param name: Name of the layer, default 'Quads'
+    :param image_id: ID of the related image, default -1
+    :param quads: Initial QuadManager, used internally
+
+    """
 
     type_size = 10
 
-    def __init__(self, name=None, image_id=-1, quads=None):
+    def __init__(self, name='Quads', image_id=-1, quads=None):
         self.name = name
         self.image_id = image_id
         self.quads = quads or QuadManager()
@@ -292,6 +298,7 @@ class QuadManager(object):
     Keeps track of quds as simple strings, but returns a Quad class on demand.
 
     :param quads: List of quads to put in.
+    :param data: Raw quad data, used internally.
     """
 
     def __init__(self, quads=None, data=None):
@@ -308,17 +315,13 @@ class QuadManager(object):
         quad_data = self.quads[value]
         points = []
         for l in range(5):
-            point = unpack('2i', quad_data[l*8:l*8+8])
-            points.append({'x': point[0], 'y': point[1]})
+            points.append(unpack('2i', quad_data[l*8:l*8+8]))
         colors = []
         for l in range(4):
-            color = unpack('4i', quad_data[40+l*16:40+l*16+16])
-            colors.append({'r': color[0], 'g': color[1],
-                           'b': color[2], 'a': color[3]})
+            colors.append(unpack('4i', quad_data[40+l*16:40+l*16+16]))
         texcoords = []
         for l in range(4):
-            coord = unpack('2i', quad_data[104+l*8:104+l*8+8])
-            texcoords.append({'x': coord[0], 'y': coord[1]})
+            texcoords.append(unpack('2i', quad_data[104+l*8:104+l*8+8]))
         pos_env, pos_env_offset, color_env, color_env_offset = unpack('4i',
                                                             quad_data[136:152])
         return Quad(pos_env=pos_env, pos_env_offset=pos_env_offset,
@@ -335,15 +338,15 @@ class QuadManager(object):
 class Quad(object):
     """Represents a quad of a quadlayer."""
 
-    def __init__(self, pos_env=None, pos_env_offset=None, color_env=None,
-                 color_env_offset=None, points=None, colors=None, texcoords=None):
+    def __init__(self, pos_env=-1, pos_env_offset=0, color_env=-1,
+                 color_env_offset=0, points=None, colors=None, texcoords=None):
         self.pos_env = pos_env
         self.pos_env_offset = pos_env_offset
         self.color_env = color_env
         self.color_env_offset = color_env_offset
-        self.points = points or []
-        self.colors = colors or []
-        self.texcoords = texcoords or []
+        self.points = points or [(0, 0), (64, 0), (0, 64), (64, 64), (32, 32)]
+        self.colors = colors or [(255, 255, 255, 255)] * 4
+        self.texcoords = texcoords or [(0, 0), (1024, 0), (0, 1024), (1024, 1024)]
 
     def __repr__(self):
         return '<Quad ({0}:{1})>'.format(*self.points[4])
