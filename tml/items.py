@@ -193,9 +193,12 @@ class TileLayer(Layer):
                  tele_tiles=None, speedup_tiles=None):
         self.name = name
         self.color = color or {'r': 255, 'g': 255, 'b': 255, 'a': 255}
-        self.width, self.height, self.game, self.color_env, \
-        self.color_env_offset, self.image_id = (width, height, game, color_env,
-                                               color_env_offset, image_id)
+        self.width = width
+        self.height = height
+        self.game = game
+        self.color_env = color_env
+        self.color_env_offset = color_env_offset
+        self.image_id = image_id
         self.tiles = tiles or TileManager(width * height)
         self.tele_tiles = tele_tiles or TileManager(width * height, _type=1)
         self.speedup_tiles = speedup_tiles or TileManager(width * height, _type=2)
@@ -275,14 +278,13 @@ class QuadLayer(Layer):
 
     type_size = 10
 
-    def __init__(self, name=None, image_id=-1, num_quads=0, quads=None):
+    def __init__(self, name=None, image_id=-1, quads=None):
         self.name = name
         self.image_id = image_id
-        self.num_quads = num_quads
         self.quads = quads or QuadManager()
 
     def __repr__(self):
-        return '<Quad layer ({0})>'.format(self.num_quads)
+        return '<Quad layer ({0})>'.format(len(self.quads))
 
 class QuadManager(object):
     """Handles quads while sparing memory.

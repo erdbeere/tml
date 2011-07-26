@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from items import Layer, TileLayer, Tile
+from items import Layer, TileLayer, Tile, QuadLayer
 
 class TestTileLayer(unittest.TestCase):
 
@@ -24,9 +24,10 @@ class TestTileLayer(unittest.TestCase):
         layer = TileLayer()
         self.assertEqual(layer.width, 50)
         self.assertEqual(layer.height, 50)
-        layer = TileLayer(100, 200)
+        layer = TileLayer(100, 200, 'Tee')
         self.assertEqual(layer.width, 100)
         self.assertEqual(layer.height, 200)
+        self.assertEqual(layer.name, 'Tee')
         self.assertEqual(len(layer.tiles), 20000)
         self.assertEqual(layer.game, 0)
         self.assertEqual(layer.color_env, -1)
@@ -87,6 +88,14 @@ class TestTileLayer(unittest.TestCase):
         for tile in layer.tiles[2:5]:
             self.assertEqual(tile.index, 1)
         self.assertEqual(layer.tiles[5].index, 0)
+
+class TestQuadLayer(unittest.TestCase):
+
+    def setUp(self):
+        self.layer = QuadLayer()
+
+    def test_init(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()
