@@ -286,7 +286,7 @@ class TileLayer(Layer):
             return '<Tele layer ({0}x{1})>'.format(self.width, self.height)
         elif self.is_speeduplayer() and self.speedup_tiles:
             return '<Speedup layer ({0}x{1})>'.format(self.width, self.height)
-        return '<Tile layer ({0}x{1})>'.format(self.width, self.height)
+        return '<Tilelayer ({0}x{1})>'.format(self.width, self.height)
 
 class QuadLayer(Layer):
     """Represents a quadlayer.
@@ -305,7 +305,7 @@ class QuadLayer(Layer):
         self.quads = quads or QuadManager()
 
     def __repr__(self):
-        return '<Quad layer ({0})>'.format(len(self.quads))
+        return '<Quadlayer ({0})>'.format(len(self.quads))
 
 class QuadManager(object):
     """Handles quads while sparing memory.
