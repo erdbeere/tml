@@ -63,7 +63,7 @@ class Image(object):
         else:
             png_path = path
 
-        if data is not None:
+        if data is None:
             try:
                 png.Reader(png_path).asRGBA()
             except png.Error:
