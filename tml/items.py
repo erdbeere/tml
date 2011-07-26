@@ -311,24 +311,18 @@ class QuadManager(object):
     def __getitem__(self, value):
         if isinstance(value, slice):
             return QuadManager(self.quads[value])
-        quad_data = self.quads[value]
-        points = []
-        for l in range(5):
-            points.append(unpack('2i', quad_data[l*8:l*8+8]))
-        colors = []
-        for l in range(4):
-            colors.append(unpack('4i', quad_data[40+l*16:40+l*16+16]))
-        texcoords = []
-        for l in range(4):
-            texcoords.append(unpack('2i', quad_data[104+l*8:104+l*8+8]))
-        pos_env, pos_env_offset, color_env, color_env_offset = unpack('4i',
-                                                            quad_data[136:152])
-        return Quad(pos_env=pos_env, pos_env_offset=pos_env_offset,
-                    color_env=color_env, color_env_offset=color_env_offset,
-                    points=points, colors=colors, texcoords=texcoords)
+        return self._string_to_quad(self.quads[value])
+
+    def __setitem__(self, k, v):
+        if not isinstance(v, Quad):
+            raise TypeError('You can only assign Quad objects.')
+        self.quads[k] = self._quad_to_string(v)
 
     def __len__(self):
         return len(self.quads)
+
+    def pop(self, value):
+        return self._string_to_quad(self.quads.pop(value))
 
     def append(self, value):
         self.quads.append(self._quad_to_string(value))
@@ -345,6 +339,22 @@ class QuadManager(object):
                      quad.color_env_offset])
         return pack('38i', *data)
 
+    def _string_to_quad(self, string):
+        quad_data = string
+        points = []
+        for l in range(5):
+            points.append(unpack('2i', quad_data[l*8:l*8+8]))
+        colors = []
+        for l in range(4):
+            colors.append(unpack('4i', quad_data[40+l*16:40+l*16+16]))
+        texcoords = []
+        for l in range(4):
+            texcoords.append(unpack('2i', quad_data[104+l*8:104+l*8+8]))
+        pos_env, pos_env_offset, color_env, color_env_offset = unpack('4i',
+                                                            quad_data[136:152])
+        return Quad(pos_env=pos_env, pos_env_offset=pos_env_offset,
+                    color_env=color_env, color_env_offset=color_env_offset,
+                    points=points, colors=colors, texcoords=texcoords)
 class Quad(object):
     """Represents a quad of a quadlayer."""
 
@@ -360,6 +370,17 @@ class Quad(object):
 
     def __repr__(self):
         return '<Quad ({0}:{1})>'.format(*self.points[4])
+
+    def __eq__(self, other):
+        if not isinstance(other, Quad):
+            return False
+        return self.pos_env == other.pos_env and \
+               self.pos_env_offset == other.pos_env_offset and \
+               self.color_env == other.color_env and \
+               self.color_env_offset == other.color_env_offset and \
+               self.points == other.points and \
+               self.colors == other.colors and \
+               self.texcoords == other.texcoords
 
 class TileManager(object):
     """Handles tiles while sparing memory.

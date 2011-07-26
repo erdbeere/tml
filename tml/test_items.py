@@ -108,28 +108,46 @@ class TestQuadLayer(unittest.TestCase):
 class TestQuadManager(unittest.TestCase):
 
     def setUp(self):
-        self.manager = QuadManager()
+        self.manager = QuadManager([Quad() for i in xrange(10)])
 
     def test_init(self):
         manager = QuadManager()
         self.assertEqual(len(manager), 0)
 
-    def test_setitem(self):
         quads = [Quad() for i in xrange(10)]
-        quads.append(Quad(pos_env=1, pos_env_offset=2, color_env=3,
-                          color_env_offset=4))
+        quad = Quad(pos_env=1, pos_env_offset=2, color_env=3,
+                          color_env_offset=4)
+        quads.append(quad)
         manager = QuadManager(quads)
         self.assertEqual(len(manager), 11)
-        self.assertEqual(manager[0].pos_env, -1)
-        self.assertEqual(manager[10].pos_env, 1)
-        self.assertEqual(manager[10].pos_env_offset, 2)
-        self.assertEqual(manager[10].color_env, 3)
-        self.assertEqual(manager[10].color_env_offset, 4)
+        self.assertEqual(manager[0], Quad())
+        self.assertEqual(manager[10], quad)
+
+    def test_setitem(self):
+        orig_quad = Quad(pos_env=8, color_env=4, pos_env_offset=2)
+        self.manager[4] = orig_quad
+        quad = self.manager[4]
+        self.assertEqual(quad, orig_quad)
 
     def test_append(self):
-        self.manager.append(Quad(pos_env=4, pos_env_offset=2))
-        self.assertEqual(self.manager[0].pos_env, 4)
-        self.assertEqual(self.manager[0].pos_env_offset, 2)
+        quad = Quad(pos_env=4, pos_env_offset=2)
+        self.manager.append(quad)
+        self.assertEqual(len(self.manager), 11)
+        self.assertEqual(self.manager[10], quad)
+
+    def test_pop(self):
+        orig_quad = Quad(pos_env=4, pos_env_offset=2)
+        self.manager.append(orig_quad)
+        self.assertEqual(len(self.manager), 11)
+        quad = self.manager.pop(0)
+        self.assertEqual(len(self.manager), 10)
+        self.assertEqual(quad, Quad())
+        quad = self.manager.pop(9)
+        self.assertEqual(len(self.manager), 9)
+        self.assertEqual(quad, orig_quad)
+        self.manager.append(orig_quad)
+        quad = self.manager.pop(-1)
+        self.assertEqual(quad, orig_quad)
 
 if __name__ == '__main__':
     unittest.main()
