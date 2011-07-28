@@ -131,17 +131,60 @@ class DataFile(object):
                         name = None
                         if version >= 3:
                             name = ints_to_string(item_data[type_size-3:type_size]) or None
-                        #TODO: insert tele- and speedup-tiles here
                         tile_list = []
                         tile_data = decompress(self.get_compressed_data(f, data))
                         for i in xrange(0, len(tile_data), 4):
                             tile_list.append(tile_data[i:i+4])
                         tiles = items.TileManager(data=tile_list)
+                        tele_tiles = None
+                        speedup_tiles = None
+                        if game == 2:
+                            tele_list = []
+                            if version >= 3:
+                                # num of tele data is right after the default type length
+                                if len(item_data) > items.TileLayer.type_size: # some security
+                                    tele_data = item_data[items.TileLayer.type_size]
+                                    if tele_data > -1 and tele_data < self.header.num_raw_data:
+                                        tele_data = decompress(self.get_compressed_data(f, tele_data))
+                                        for i in xrange(0, len(tele_data), 2):
+                                            tele_list.append(tele_data[i:i+2])
+                                        tele_tiles = items.TileManager(data=tele_list, _type=1)
+                            else:
+                                # num of tele data is right after num of data for old maps
+                                if len(item_data) > items.TileLayer.type_size-3: # some security
+                                    tele_data = item_data[items.TileLayer.type_size-3]
+                                    if tele_data > -1 and tele_data < self.header.num_raw_data:
+                                        tele_data = decompress(self.get_compressed_data(f, tele_data))
+                                        for i in xrange(0, len(tele_data), 2):
+                                            tele_list.append(tele_data[i:i+2])
+                                        tele_tiles = items.TileManager(data=tele_list, _type=1)
+                        elif game == 4:
+                            speedup_list = []
+                            if version >= 3:
+                                # num of speedup data is right after tele data
+                                if len(item_data) > items.TileLayer.type_size+1: # some security
+                                    speedup_data = item_data[items.TileLayer.type_size+1]
+                                    if speedup_data > -1 and speedup_data < self.header.num_raw_data:
+                                        speedup_data = decompress(self.get_compressed_data(f, speedup_data))
+                                        for i in xrange(0, len(speedup_data), 4):
+                                            speedup_list.append(speedup_data[i:i+4])
+                                        speedup_tiles = items.TileManager(data=speedup_list, _type=2)
+                            else:
+                                # num of speedup data is right after tele data
+                                if len(item_data) > items.TileLayer.type_size-2: # some security
+                                    speedup_data = item_data[items.TileLayer.type_size-2]
+                                    if speedup_data > -1 and speedup_data < self.header.num_raw_data:
+                                        speedup_data = decompress(self.get_compressed_data(f, speedup_data))
+                                        for i in xrange(0, len(speedup_data), 4):
+                                            speedup_list.append(speedup_data[i:i+4])
+                                        speedup_tiles = items.TileManager(data=speedup_list, _type=2)
                         layer = items.TileLayer(width=width, height=height,
                                                 name=name, game=game,
                                                 color=color, color_env=color_env,
                                                 color_env_offset=color_env_offset,
-                                                image_id=image_id, tiles=tiles)
+                                                image_id=image_id, tiles=tiles,
+                                                tele_tiles=tele_tiles,
+                                                speedup_tiles=speedup_tiles)
                     elif LAYER_TYPES[type_] == 'quad':
                         type_size = items.QuadLayer.type_size
                         version, num_quads, data, image_id = item_data[3:type_size-3]
