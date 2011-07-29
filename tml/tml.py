@@ -7,7 +7,7 @@
     :license: GNU GPL, see LICENSE for more details.
 """
 from constants import *
-from datafile import DataFile
+from datafile import DataFileReader
 
 class MapError(BaseException):
     """Raised when your map is not a valid teeworlds map.
@@ -84,7 +84,7 @@ class Teemap(object):
 
         Should only be called by __init__.
         """
-        datafile = DataFile(map_path)
+        datafile = DataFileReader(map_path)
         self.envelopes = datafile.envelopes
         self.envpoints = datafile.envpoints
         self.groups = datafile.groups

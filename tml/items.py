@@ -15,7 +15,7 @@ from zlib import decompress
 
 import png
 
-from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR, TILEFLAG_VFLIP, \
+from constants import ITEM_TYPES, TML_DIR, TILEFLAG_VFLIP, \
      TILEFLAG_HFLIP, TILEFLAG_OPAQUE, TILEFLAG_ROTATE
 from utils import ints_to_string
 
@@ -162,6 +162,9 @@ class Layer(object):
 
     type_size = 3
 
+    def __init__(self, detail):
+        self.detail = detail
+
     @property
     def is_gamelayer(self):
         return False
@@ -194,9 +197,10 @@ class TileLayer(Layer):
 
     type_size = 18
 
-    def __init__(self, width=50, height=50, name='Tiles', game=0,
+    def __init__(self, width=50, height=50, name='Tiles', detail=False, game=0,
                  color=(255, 255, 255, 255), color_env=-1, color_env_offset=0,
                  image_id=-1, tiles=None, tele_tiles=None, speedup_tiles=None):
+        super(TileLayer, self).__init__(detail)
         self.name = name
         self.color = color
         self.width = width
@@ -206,8 +210,12 @@ class TileLayer(Layer):
         self.color_env_offset = color_env_offset
         self.image_id = image_id
         self.tiles = tiles or TileManager(width * height)
-        self.tele_tiles = tele_tiles or TileManager(width * height, _type=1)
-        self.speedup_tiles = speedup_tiles or TileManager(width * height, _type=2)
+        self.tele_tiles = None
+        self.speedup_tiles = None
+        if game == 2:
+            self.tele_tiles = tele_tiles or TileManager(width * height, _type=1)
+        if game == 4:
+            self.speedup_tiles = speedup_tiles or TileManager(width * height, _type=2)
 
     def _get_tile(self, tiles, x, y):
         x = max(0, min(x, self.width-1))
@@ -248,11 +256,11 @@ class TileLayer(Layer):
         for _y in range(h):
             for _x in range(w):
                 layer.tiles[_y * w + _x] = self.tiles.tiles[(y+_y)*self.width+(x+_x)]
-        if len(self.tele_tiles.tiles) == len(self.tiles.tiles):
+        if self.tele_tiles and len(self.tele_tiles.tiles) == len(self.tiles.tiles):
             for _y in range(h):
                 for _x in range(w):
                     layer.tele_tiles[_y * w + _x] = self.tele_tiles.tiles[(y+_y)*self.width+(x+_x)]
-        if len(self.speedup_tiles.tiles) == len(self.tiles.tiles):
+        if self.speedup_tiles and len(self.speedup_tiles.tiles) == len(self.tiles.tiles):
             for _y in range(h):
                 for _x in range(w):
                     layer.speedup_tiles[_y * w + _x] = self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)]
@@ -271,11 +279,11 @@ class TileLayer(Layer):
         return self.game == 4
 
     def __repr__(self):
-        if self.is_gamelayer():
+        if self.is_gamelayer:
             return '<Game layer ({0}x{1})>'.format(self.width, self.height)
-        elif self.is_telelayer() and self.tele_tiles:
+        elif self.is_telelayer and self.tele_tiles:
             return '<Tele layer ({0}x{1})>'.format(self.width, self.height)
-        elif self.is_speeduplayer() and self.speedup_tiles:
+        elif self.is_speeduplayer and self.speedup_tiles:
             return '<Speedup layer ({0}x{1})>'.format(self.width, self.height)
         return '<Tilelayer ({0}x{1})>'.format(self.width, self.height)
 
@@ -290,7 +298,8 @@ class QuadLayer(Layer):
 
     type_size = 10
 
-    def __init__(self, name='Quads', image_id=-1, quads=None):
+    def __init__(self, name='Quads', detail=False, image_id=-1, quads=None):
+        super(QuadLayer, self).__init__(detail)
         self.name = name
         self.image_id = image_id
         self.quads = quads or QuadManager()

@@ -1,42 +1,43 @@
 # -*- coding: utf-8 -*-
-from struct import unpack
-from zlib import decompress
+from bisect import insort
+from struct import pack, unpack
+from zlib import compress, decompress
 
 from constants import *
 import items
-from utils import ints_to_string
+from utils import ints_to_string, string_to_ints
 
-class DataFile(object):
+class Header(object):
+    """Contains fileheader information.
 
-    class Header(object):
-        """Contains fileheader information.
+    Please make sure the passed file is at the beginning.
+    Note that the file won't be rewinded!
 
-        Please make sure the passed file is at the beginning.
-        Note that the file won't be rewinded!
+    :param f: The file with the information.
+    """
 
-        :param f: The file with the information.
-        """
+    def __init__(self, f=None):
+        self.version = 4
+        self.size = 0
+        if f != None:
+            sig = ''.join(unpack('4c', f.read(4)))
+            if sig not in ('DATA', 'ATAD'):
+                raise TypeError('Invalid signature')
+            self.version, self.size_, self.swaplen, self.num_item_types, \
+            self.num_items, self.num_raw_data, self.item_size, \
+            self.data_size = unpack('8i', f.read(32))
 
-        def __init__(self, f=None):
-            self.version = 4
-            self.size = 0
-            if f != None:
-                sig = ''.join(unpack('4c', f.read(4)))
-                if sig not in ('DATA', 'ATAD'):
-                    raise TypeError('Invalid signature')
-                self.version, self.size_, self.swaplen, self.num_item_types, \
-                self.num_items, self.num_raw_data, self.item_size, \
-                self.data_size = unpack('8i', f.read(32))
+            if self.version != 4:
+                raise TypeError('Wrong version')
 
-                if self.version != 4:
-                    raise TypeError('Wrong version')
+            # calculate the size of the whole header
+            self.size = sum([
+                36, # header data before the offsets
+                self.num_item_types * 12,
+                (self.num_items + (2 * self.num_raw_data)) * 4 # item offsets, data offsets, uncompressed data sizes
+            ])
 
-                # calculate the size of the whole header
-                self.size = sum([
-                    36, # header data before the offsets
-                    self.num_item_types * 12,
-                    (self.num_items + (2 * self.num_raw_data)) * 4 # item offsets, data offsets, uncompressed data sizes
-                ])
+class DataFileReader(object):
 
     def __init__(self, map_path):
         # default list of item types
@@ -55,7 +56,7 @@ class DataFile(object):
 
         with open(self.map_path, 'rb') as f:
             self.f = f
-            self.header = DataFile.Header(f)
+            self.header = Header(f)
             self.item_types = []
             for i in range(self.header.num_item_types):
                 val = unpack('3i', f.read(12))
@@ -139,8 +140,9 @@ class DataFile(object):
                     fmt = '{0}i'.format(item_size/4)
                     item_data = unpack(fmt, item_data)
                     layer_version, type_, flags = item_data[:items.Layer.type_size]
+                    detail = True if flags else False
 
-                    if LAYER_TYPES[type_] == 'tile':
+                    if type_ == LAYERTYPE_TILES:
                         type_size = items.TileLayer.type_size
                         color = {}
                         version, width, height, game, color['r'], color['g'], \
@@ -149,18 +151,62 @@ class DataFile(object):
                         name = None
                         if version >= 3:
                             name = ints_to_string(item_data[type_size-3:type_size]) or None
-                        #TODO: insert tele- and speedup-tiles here
                         tile_list = []
                         tile_data = decompress(self.get_compressed_data(f, data))
                         for i in xrange(0, len(tile_data), 4):
                             tile_list.append(tile_data[i:i+4])
                         tiles = items.TileManager(data=tile_list)
+                        tele_tiles = None
+                        speedup_tiles = None
+                        if game == 2:
+                            tele_list = []
+                            if version >= 3:
+                                # num of tele data is right after the default type length
+                                if len(item_data) > items.TileLayer.type_size: # some security
+                                    tele_data = item_data[items.TileLayer.type_size]
+                                    if tele_data > -1 and tele_data < self.header.num_raw_data:
+                                        tele_data = decompress(self.get_compressed_data(f, tele_data))
+                                        for i in xrange(0, len(tele_data), 2):
+                                            tele_list.append(tele_data[i:i+2])
+                                        tele_tiles = items.TileManager(data=tele_list, _type=1)
+                            else:
+                                # num of tele data is right after num of data for old maps
+                                if len(item_data) > items.TileLayer.type_size-3: # some security
+                                    tele_data = item_data[items.TileLayer.type_size-3]
+                                    if tele_data > -1 and tele_data < self.header.num_raw_data:
+                                        tele_data = decompress(self.get_compressed_data(f, tele_data))
+                                        for i in xrange(0, len(tele_data), 2):
+                                            tele_list.append(tele_data[i:i+2])
+                                        tele_tiles = items.TileManager(data=tele_list, _type=1)
+                        elif game == 4:
+                            speedup_list = []
+                            if version >= 3:
+                                # num of speedup data is right after tele data
+                                if len(item_data) > items.TileLayer.type_size+1: # some security
+                                    speedup_data = item_data[items.TileLayer.type_size+1]
+                                    if speedup_data > -1 and speedup_data < self.header.num_raw_data:
+                                        speedup_data = decompress(self.get_compressed_data(f, speedup_data))
+                                        for i in xrange(0, len(speedup_data), 4):
+                                            speedup_list.append(speedup_data[i:i+4])
+                                        speedup_tiles = items.TileManager(data=speedup_list, _type=2)
+                            else:
+                                # num of speedup data is right after tele data
+                                if len(item_data) > items.TileLayer.type_size-2: # some security
+                                    speedup_data = item_data[items.TileLayer.type_size-2]
+                                    if speedup_data > -1 and speedup_data < self.header.num_raw_data:
+                                        speedup_data = decompress(self.get_compressed_data(f, speedup_data))
+                                        for i in xrange(0, len(speedup_data), 4):
+                                            speedup_list.append(speedup_data[i:i+4])
+                                        speedup_tiles = items.TileManager(data=speedup_list, _type=2)
                         layer = items.TileLayer(width=width, height=height,
-                                                name=name, game=game,
+                                                name=name, detail=detail, game=game,
                                                 color=color, color_env=color_env,
                                                 color_env_offset=color_env_offset,
-                                                image_id=image_id, tiles=tiles)
-                    elif LAYER_TYPES[type_] == 'quad':
+                                                image_id=image_id, tiles=tiles,
+                                                tele_tiles=tele_tiles,
+                                                speedup_tiles=speedup_tiles)
+                        layers.append(layer)
+                    elif type_ == LAYERTYPE_QUADS:
                         type_size = items.QuadLayer.type_size
                         version, num_quads, data, image_id = item_data[3:type_size-3]
                         name = None
@@ -171,10 +217,9 @@ class DataFile(object):
                         for k in xrange(0, len(quad_data), 152):
                             quad_list.append(quad_data[k:k+152])
                         quads = items.QuadManager(data=quad_list)
-                        layer = items.QuadLayer(name=name, image_id=image_id,
-                                                quads=quads)
-
-                    layers.append(layer)
+                        layer = items.QuadLayer(name=name, detail=detail,
+                                                image_id=image_id, quads=quads)
+                        layers.append(layer)
 
                 group = items.Group(name=group_name, offset_x=offset_x,
                                     offset_y=offset_y, parallax_x=parallax_x,
@@ -190,9 +235,9 @@ class DataFile(object):
             item = unpack(fmt, item)
             type_size = items.Envpoint.type_size
             for i in range(len(item)/6):
-                point = item[(i*6):(i*6+6)]
+                point = list(item[(i*6):(i*6+6)])
                 time, curvetype = point[:type_size-4]
-                values = list(point[type_size-4:type_size])
+                values = point[type_size-4:type_size]
                 envpoint = items.Envpoint(time=time, curvetype=curvetype,
                                           values=values)
                 self.envpoints.append(envpoint)
@@ -258,3 +303,139 @@ class DataFile(object):
         f.seek(self.header.size + self.header.item_size + self.data_offsets[index])
         return f.read(size)
 
+class DataFileWriter(object):
+
+    class DataFileItem(object):
+
+        def __init__(self, type_, id_, data):
+            self.type = type_
+            self.id = id_
+            self.size = len(data)/4
+            self.data = '{0}{1}{2}'.format((self.type<<16)|self.id, self.size, data)
+
+        def __lt__(self, other):
+            return self.type < other.type or self.id < other.id
+
+        def __repr__(self):
+            return '<DataFileItem ({0})>'.format((self.type<<16)|self.id)
+
+    class DataFileData(object):
+
+        def __init__(self, data):
+            self.uncompressed_size = len(data)
+            self.data = compress(data)
+            self.compressed_size = len(self.data)
+
+    def __init__(self, teemap, map_path):
+        self.items = []
+        self.datas = []
+        # add version item
+        self.items.append(DataFileWriter.DataFileItem(ITEM_VERSION, 0, pack('i', 4)))
+        # save map info
+        if teemap.info:
+            num = 5*[-1]
+            for i, type_ in enumerate('author', 'map_version', 'credits', 'license'):
+                item_data = getattr(teemap.info, type_)
+                if item_data:
+                    num[i] = len(self.datas)
+                    self.datas.append(DataFileData(item_data))
+            if teemap.info.settings:
+                num[4] = len(self.datas)
+                settings_str = ''
+                for setting in teemap.info.settings:
+                    settings_str += '\x00{0}'.format(setting)
+                self.datas.append(DataFileData(settings_str))
+            self.items.append(DataFileWriter.DataFileItem(ITEM_INFO, 0,
+                              pack('6i', 1, *num)))
+        # save images
+        for image in teemap.images:
+            image_name = len(self.datas)
+            self.datas.append(DataFileData(len(image.name), image))
+            image_data = -1
+            if image.external is False and image.data:
+                image_data = len(self.datas)
+                self.datas.append(DataFileData(image.data))
+            self.items.append(DataFileWriter.DataFileItem(ITEM_INFO, 0,
+                              pack('6i', 1, image.width, image.height,
+                              image.external, image_name, image_data)))
+        # save layers and groups
+        layer_count = 0
+        for i, group in enumerate(teemap.groups):
+            start_layer = layer_count
+            for layer in group.layers:
+                if isinstance(layer, TileLayer):
+                    tile_data = -1
+                    tele_tile_data = -1
+                    speedup_tile_data = -1
+                    tiles_str = ''
+                    if layer.is_telelayer:
+                        tile_data = len(self.datas)
+                        self.datas.append(DataFileData(len(layer.tele_tiles.tiles)*'\x00\x00\x00\x00'))
+                        for tile in layer.tele_tiles.tiles:
+                            tiles_str += tile
+                        tele_tile_data = len(self.datas)
+                        self.datas.append(DataFileData(tiles_str))
+                    elif layer.is_speeduplayer:
+                        tile_data = len(self.datas)
+                        self.datas.append(DataFileData(len(layer.speedup_tiles.tiles)*'\x00\x00\x00\x00'))
+                        for tile in layer.speedup_tiles.tiles:
+                            tiles_str += tile
+                        speedup_tile_data = len(self.datas)
+                        self.datas.append(DataFileData(tiles_str))
+                    else:
+                        for tile in layer.tiles.tiles:
+                            tiles_str += tile
+                        tile_data = len(self.datas)
+                        self.datas.append(DataFileData(tiles_str))
+                    name = string_to_ints(layer.name, 3)
+                    if teemap.telelayer or teemap.speeduplayer:
+                        insort(self.items, DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
+                               pack('20i', 1, LAYERTYPE_TILES, layer.detail, 3, layer.width,
+                               layer.height, layer.game, layer.color[0], layer.color[1],
+                               layer.color[2], layer.color[3], layer.color_env,
+                               layer.color_env_offset, layer.image_id, tile_data, name[0],
+                               name[1], name[2], tele_tile_data, speedup_tile_data)))
+                    else:
+                        insort(self.items, DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
+                               pack('18i', 1, LAYERTYPE_TILES, layer.detail, 3, layer.width,
+                               layer.height, layer.game, layer.color[0], layer.color[1],
+                               layer.color[2], layer.color[3], layer.color_env,
+                               layer.color_env_offset, layer.image_id, tile_data, *name)))
+                    layer_count += 1
+                elif isinstance(layer, QuadLayer):
+                    if len(layer.quads.quads):
+                        quads_str = ''
+                        for quad in layer.quads.quads:
+                            quads_str += quad
+                        quad_data = len(self.datas)
+                        self.datas.append(DataFileData(quads_str))
+                        name = string_to_ints(layer.name, 3)
+                        insort(self.items, DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
+                               pack('10i', 1, LAYERTYPE_QUADS, layer.detail, 2, self.image_id,
+                               len(self.quads.quads), quad_data, *name)))
+                        layer_count += 1
+            name = string_to_ints(group.name, 3)
+            insort(self.items, DataFileWriter.DataFileItem(ITEM_GROUP, i,
+                   pack('15i', 3, group.offset_x, group.offset_y, group.parallax_x,
+                   group.parallax_y, start_layer, len(group.layers),
+                   group.use_clipping, group.clip_x, group.clip_y, group.clip_w,
+                   group.clip_h, *name)))
+        # save envelopes
+        start_point = 0
+        for i, envelope in enumerate(teemap.envelopes):
+            num_points = len(envelope.points)
+            name = string_to_ints(envelope.name)
+            insort(self.items, DataFileWriter.DataFileItem(ITEM_ENVELOPE, i,
+                   pack('12i', 1, envelope.channels, start_point, num_points, *name)))
+            start_layer += num_points
+        # save points
+        envpoints = []
+        for envpoint in teemap.envpoints:
+            values = 4*[0]
+            for i, value in enumerate(envpoint.values):
+                values[i] = value
+            envpoints.extend([envpoint.time, envpoint.curvetype, values[0],
+                              values[1], values[2], values[3]])
+        fmt = '{0}i'.format(len(envpoints))
+        insort(self.items, ataFileWriter.DataFileItem(ITEM_ENVPOINT, 0,
+               pack(fmt, *envpoints)))
