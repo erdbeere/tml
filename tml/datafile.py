@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from bisect import insort
 from struct import unpack
 from zlib import decompress
 
@@ -6,37 +7,37 @@ from constants import *
 import items
 from utils import ints_to_string
 
-class DataFile(object):
+class Header(object):
+    """Contains fileheader information.
 
-    class Header(object):
-        """Contains fileheader information.
+    Please make sure the passed file is at the beginning.
+    Note that the file won't be rewinded!
 
-        Please make sure the passed file is at the beginning.
-        Note that the file won't be rewinded!
+    :param f: The file with the information.
+    """
 
-        :param f: The file with the information.
-        """
+    def __init__(self, f=None):
+        self.version = 4
+        self.size = 0
+        if f != None:
+            sig = ''.join(unpack('4c', f.read(4)))
+            if sig not in ('DATA', 'ATAD'):
+                raise TypeError('Invalid signature')
+            self.version, self.size_, self.swaplen, self.num_item_types, \
+            self.num_items, self.num_raw_data, self.item_size, \
+            self.data_size = unpack('8i', f.read(32))
 
-        def __init__(self, f=None):
-            self.version = 4
-            self.size = 0
-            if f != None:
-                sig = ''.join(unpack('4c', f.read(4)))
-                if sig not in ('DATA', 'ATAD'):
-                    raise TypeError('Invalid signature')
-                self.version, self.size_, self.swaplen, self.num_item_types, \
-                self.num_items, self.num_raw_data, self.item_size, \
-                self.data_size = unpack('8i', f.read(32))
+            if self.version != 4:
+                raise TypeError('Wrong version')
 
-                if self.version != 4:
-                    raise TypeError('Wrong version')
+            # calculate the size of the whole header
+            self.size = sum([
+                36, # header data before the offsets
+                self.num_item_types * 12,
+                (self.num_items + (2 * self.num_raw_data)) * 4 # item offsets, data offsets, uncompressed data sizes
+            ])
 
-                # calculate the size of the whole header
-                self.size = sum([
-                    36, # header data before the offsets
-                    self.num_item_types * 12,
-                    (self.num_items + (2 * self.num_raw_data)) * 4 # item offsets, data offsets, uncompressed data sizes
-                ])
+class DataFileReader(object):
 
     def __init__(self, map_path):
         # default list of item types
@@ -55,7 +56,7 @@ class DataFile(object):
 
         with open(self.map_path, 'rb') as f:
             self.f = f
-            self.header = DataFile.Header(f)
+            self.header = Header(f)
             self.item_types = []
             for i in range(self.header.num_item_types):
                 val = unpack('3i', f.read(12))

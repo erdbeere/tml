@@ -7,7 +7,7 @@
     :license: GNU GPL, see LICENSE for more details.
 """
 from constants import *
-from datafile import DataFile
+from datafile import DataFileReader
 
 class Teemap(object):
     """Representation of a teeworlds map.
@@ -95,7 +95,7 @@ class Teemap(object):
 
         Should only be called by __init__.
         """
-        datafile = DataFile(map_path)
+        datafile = DataFileReader(map_path)
         self.envelopes = datafile.envelopes
         self.envpoints = datafile.envpoints
         self.groups = datafile.groups
