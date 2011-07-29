@@ -2,10 +2,10 @@
 
 import unittest
 
-from utils import ints_to_string, string_to_ints
+from .utils import ints_to_string, string_to_ints
 
-TEST_INT = [4108710900L, 2155905152L, 2155905152L, 2155905152L, 2155905152L,
-            2155905152L, 2155905152L, 2155905024L]
+TEST_INT = [4108710900, 2155905152, 2155905152, 2155905152, 2155905152,
+            2155905152, 2155905152, 2155905024]
 class TestUtils(unittest.TestCase):
 
     def test_ints_to_string(self):

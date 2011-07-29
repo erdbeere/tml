@@ -8,16 +8,15 @@
 
 import os
 import shutil
-from StringIO import StringIO
 from struct import unpack, pack
 import warnings
 from zlib import decompress
 
 import png
 
-from constants import ITEM_TYPES, TML_DIR, TILEFLAG_VFLIP, \
+from .constants import ITEM_TYPES, TML_DIR, TILEFLAG_VFLIP, \
      TILEFLAG_HFLIP, TILEFLAG_OPAQUE, TILEFLAG_ROTATE
-from utils import ints_to_string
+from .utils import ints_to_string
 
 #GAMELAYER_IMAGE = PIL.Image.open(os.path.join(TML_DIR,
 #	os.extsep.join(('entities', 'png'))))

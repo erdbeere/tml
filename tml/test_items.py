@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from items import Layer, TileLayer, TileManager, Tile, QuadLayer, QuadManager, \
+from .items import Layer, TileLayer, TileManager, Tile, QuadLayer, QuadManager, \
      Quad
 
 class TestTileLayer(unittest.TestCase):
