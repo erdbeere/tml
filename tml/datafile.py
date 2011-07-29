@@ -78,8 +78,26 @@ class DataFile(object):
 
             # load items
             # begin with map info
-            info_item = self.find_item(f, ITEM_INFO, 0)
-            self.info = items.Info(self, f, info_item) if info_item else None
+            item = self.find_item(f, ITEM_INFO, 0)
+            if item is not None:
+                item_size, item_data = item
+                fmt = '{0}i'.format(item_size/4)
+                version, author, map_version, credits, license, \
+                settings = item_data[:items.Info.type_size]
+                if author > -1:
+                    author = decompress(self.get_compressed_data(f, author))[:-1]
+                if map_version > -1:
+                    map_version = decompress(self.get_compressed_data(f, map_version))[:-1]
+                if credits > -1:
+                    credits = decompress(self.get_compressed_data(f, credits))[:-1]
+                if license > -1:
+                    license = decompress(self.get_compressed_data(f, licsense))[:-1]
+                if settings > -1:
+                    settings = decompress(self.get_compressed_data(f, settings)).split('\x00')[:-1]
+                self.info = items.Info(author=author, map_version=map_version,
+                                       credits=credits, license=license)
+            else:
+                self.info = items.Info()
 
             # load images
             start, num = self.get_item_type(ITEM_IMAGE)

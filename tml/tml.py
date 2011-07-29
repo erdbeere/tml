@@ -9,6 +9,13 @@
 from constants import *
 from datafile import DataFile
 
+class MapError(BaseException):
+    """Raised when your map is not a valid teeworlds map.
+
+    For example, it will be raised when there is no gamelayer or more than one.
+
+    """
+
 class Teemap(object):
     """Representation of a teeworlds map.
 
@@ -17,38 +24,13 @@ class Teemap(object):
     :param map_path: Path to the teeworlds mapfile.
     """
 
-    @staticmethod
-    def check(map_path):
-        try:
-            path, filename = os.path.split(map_path)
-            name, extension = os.path.splitext(filename)
-            if extension == '':
-                map_path = os.extsep.join([map_path, 'map'])
-            elif extension != ''.join([os.extsep, 'map']):
-                raise TypeError('Invalid file')
-            with open(map_path, 'rb') as f:
-                sig = ''.join(unpack('4c', f.read(4)))
-                if sig not in ('DATA', 'ATAD'):
-                    raise TypeError('Invalid signature')
-                version = unpack('i', f.read(4))[0]
-
-                if version != 4:
-                    raise TypeError('Wrong version')
-            return True
-        except TypeError as error:
-            print 'No valid mapfile ({0})'.format(error.message)
-            return False
-        except IOError as (errno, strerror):
-            print "I/O error({0}): {1}".format(errno, strerror)
-            return False
-
     def __init__(self, map_path=None):
         self.name = ''
 
         if map_path:
             self._load(map_path)
         else:
-            # default list of item types
+            # default item types
             for type_ in ITEM_TYPES:
                 if type_ != 'version' and type_ != 'layer':
                     setattr(self, ''.join([type_, 's']), [])
@@ -63,21 +45,28 @@ class Teemap(object):
 
     @property
     def gamelayer(self):
-        """Just returns the gamelayer."""
+        """Returns the gamelayer."""
+        i = 0
         for layer in self.layers:
             if layer.is_gamelayer:
-                return layer
+                gamelayer = layer
+                i += 1
+        if i < 1:
+            raise MapError('There is no gamelayer')
+        elif i > 1:
+            raise MapError('There is more than one gamelayer')
+        return gamelayer
 
     @property
     def telelayer(self):
-        """Just returns the telelayer."""
+        """Returns the telelayer. Only for race modification."""
         for layer in self.layers:
             if layer.is_telelayer:
                 return layer
 
     @property
     def speeduplayer(self):
-        """Just returns the speeduplayer."""
+        """Returns the speeduplayer. Only for race modification."""
         for layer in self.layers:
             if layer.is_speeduplayer:
                 return layer
@@ -108,8 +97,8 @@ class Teemap(object):
         The default map consists out of two groups containing a quadlayer
         with the background and the game layer. Should only be called by
         __init__.
-        """
 
+        """
         self.info = items.Info()
         self.groups = []
         background_group = items.Group()
