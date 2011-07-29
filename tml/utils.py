@@ -28,9 +28,9 @@ def ints_to_string(num):
             string += chr(max(0, min((num[i]&0xff)-128, 255)))
     return string.partition('\x00')[0]
 
-def string_to_ints(in_string):
+def string_to_ints(in_string, length=8):
     ints = []
-    for i in range(8):
+    for i in range(length):
         string = ''
         for j in range(i*4, i*4+4):
             if j < len(in_string):

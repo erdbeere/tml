@@ -15,7 +15,7 @@ from zlib import decompress
 
 import png
 
-from constants import ITEM_TYPES, LAYER_TYPES, TML_DIR, TILEFLAG_VFLIP, \
+from constants import ITEM_TYPES, TML_DIR, TILEFLAG_VFLIP, \
      TILEFLAG_HFLIP, TILEFLAG_OPAQUE, TILEFLAG_ROTATE
 from utils import ints_to_string
 
@@ -171,6 +171,9 @@ class Layer(object):
 
     type_size = 3
 
+    def __init__(self, detail):
+        self.detail = detail
+
     @property
     def is_gamelayer(self):
         return False
@@ -203,9 +206,10 @@ class TileLayer(Layer):
 
     type_size = 18
 
-    def __init__(self, width=50, height=50, name='Tiles', game=0,
+    def __init__(self, width=50, height=50, name='Tiles', detail=False, game=0,
                  color=(255, 255, 255, 255), color_env=-1, color_env_offset=0,
                  image_id=-1, tiles=None, tele_tiles=None, speedup_tiles=None):
+        super(TileLayer, self).__init__(detail)
         self.name = name
         self.color = color
         self.width = width
@@ -303,7 +307,8 @@ class QuadLayer(Layer):
 
     type_size = 10
 
-    def __init__(self, name='Quads', image_id=-1, quads=None):
+    def __init__(self, name='Quads', detail=False, image_id=-1, quads=None):
+        super(QuadLayer, self).__init__(detail)
         self.name = name
         self.image_id = image_id
         self.quads = quads or QuadManager()
