@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="tml v0.1.0 documentation" href="index.html" />
-    <link rel="next" title="The Teeworlds map format" href="mapformat.html" />
+    <link rel="next" title="&lt;no title&gt;" href="items.html" />
     <link rel="prev" title="Welcome to TeeworldsMapLib’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="mapformat.html" title="The Teeworlds map format"
+          <a href="items.html" title="&lt;no title&gt;"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to TeeworldsMapLib’s documentation!"
@@ -53,20 +53,24 @@
             
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<p>This tutorial will help you using and understanding this library.</p>
-<div class="section" id="create-load-and-save-a-map">
-<h2>Create, load and save a map<a class="headerlink" href="#create-load-and-save-a-map" title="Permalink to this headline">¶</a></h2>
-<p>Creating a new teeworlds map is pretty simple. You just need to create an
-instance of the <cite>Teemap</cite> class in our <cite>tml</cite> module. A gamelayer and a
-background quad will be automatically created for you.
-If you want you can load an existing teeworlds map with the load method
-and of course save them, you can give the path as the first parameter.
-The &#8220;map&#8221; fileextension is optional.</p>
+<p>Welcome! This tutorial will help you using this library to read and create
+teeworlds maps.</p>
+<div class="section" id="load-and-reading-a-map">
+<h2>Load and reading a map<a class="headerlink" href="#load-and-reading-a-map" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="loading">
+<h3>Loading<a class="headerlink" href="#loading" title="Permalink to this headline">¶</a></h3>
+<p>To load a teeworlds map, simply pass the path (with or without the <tt class="docutils literal"><span class="pre">.map</span></tt>
+extension) to the Teemap class. Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tml.tml</span> <span class="kn">import</span> <span class="n">Teemap</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">twmap</span> <span class="o">=</span> <span class="n">Teemap</span><span class="p">(</span><span class="s">&#39;dm1_test&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">twmap</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;unnamed&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Teemap</span><span class="p">(</span><span class="s">&#39;dm1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Teemap</span><span class="p">(</span><span class="s">&#39;dm1.map&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="reading">
+<h3>Reading<a class="headerlink" href="#reading" title="Permalink to this headline">¶</a></h3>
+<p>The structure of the teemap is similiar to the structure you know from the
+teeworlds editor, it should be familiar to you.</p>
 <dl class="class">
 <dt id="tml.tml.Teemap">
 <em class="property">class </em><tt class="descclassname">tml.tml.</tt><tt class="descname">Teemap</tt><big>(</big><em>map_path=None</em><big>)</big><a class="headerlink" href="#tml.tml.Teemap" title="Permalink to this definition">¶</a></dt>
@@ -80,102 +84,69 @@ The &#8220;map&#8221; fileextension is optional.</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="Teemap.images">
+<tt class="descname">images</tt><a class="headerlink" href="#Teemap.images" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all images included in the map, external and embedded.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="accessing-the-data">
-<h2>Accessing the data<a class="headerlink" href="#accessing-the-data" title="Permalink to this headline">¶</a></h2>
-<p>You may wonder where you can find the different things of a teeworlds map.
-The order is similar to the order in the original teeworlds client. You have
-a list of groups, and in those groups a list of the Tile and Quadlayers and the
-Gamelayer (which is a Tilelayer with a special flag). Also there are three more
-lists with the images (image name and if it is embedded additional the image
-itself), envelopes and envpoints.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tml.tml</span> <span class="kn">import</span> <span class="n">Teemap</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Teemap</span><span class="p">(</span><span class="s">&#39;dm1_test&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">envelopes</span>
-<span class="go">[&lt;Envelope&gt;, &lt;Envelope&gt;, &lt;Envelope&gt;, &lt;Envelope&gt;, &lt;Envelope&gt;, &lt;Envelope&gt;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">envpoints</span>
-<span class="go">[&lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;, &lt;Envpoint&gt;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">images</span>
-<span class="go">[&lt;Image&gt;, &lt;Image&gt;, &lt;Image&gt;, &lt;Image&gt;, &lt;Image&gt;, &lt;Image&gt;, &lt;Image&gt;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
-<span class="go">&#39;bg_cloud1&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
-<span class="go">&#39;mountains&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span>
-<span class="go">[&lt;Group&gt;, &lt;Group&gt;, &lt;Group&gt;, &lt;Group&gt;, &lt;Group&gt;, &lt;Group&gt;, &lt;Group&gt;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">layers</span>
-<span class="go">[&lt;Quad layer&gt;, &lt;Quad layer&gt;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">layers</span>
-<span class="go">[&lt;Tile layer (60x50)&gt;, &lt;Tile layer (60x50)&gt;, &lt;Tile layer (60x50)&gt;, &lt;Tile layer (60x50)&gt;, &lt;Tile layer (60x50)&gt;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">gamelayer</span>
-<span class="go">&lt;Tile layer (60x50)&gt;</span>
+<dl class="attribute">
+<dt id="Teemap.groups">
+<tt class="descname">groups</tt><a class="headerlink" href="#Teemap.groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of the groups, ordered like they are placed in teeworlds.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Teemap.mapinfo">
+<tt class="descname">mapinfo</tt><a class="headerlink" href="#Teemap.mapinfo" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">MapInfo</span></tt> object, contains information like
+author and maplicense. Can be <tt class="xref docutils literal"><span class="pre">None</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.gamelayer">
+<tt class="descname">gamelayer</tt><a class="headerlink" href="#tml.tml.Teemap.gamelayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the gamelayer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.layers">
+<tt class="descname">layers</tt><a class="headerlink" href="#tml.tml.Teemap.layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all layers, collected from the groups.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.speeduplayer">
+<tt class="descname">speeduplayer</tt><a class="headerlink" href="#tml.tml.Teemap.speeduplayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the speeduplayer. Only for race modification.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.telelayer">
+<tt class="descname">telelayer</tt><a class="headerlink" href="#tml.tml.Teemap.telelayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the telelayer. Only for race modification.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Example: Getting a list of tiles and their index.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Teemap</span><span class="p">(</span><span class="s">&#39;dm1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tiles</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">group</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tiles</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tiles</span>
+<span class="go">&lt;TileManager (3000)&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tiles</span><span class="p">[</span><span class="mi">90</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+<span class="go">24</span>
 </pre></div>
 </div>
-<p>Here are a view examples to fetch some information.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">solid_tiles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">tile</span> <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">gamelayer</span><span class="o">.</span><span class="n">tiles</span> <span class="k">if</span> <span class="n">tile</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&#39;The map contains {0} solid tiles&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">solid_tiles</span><span class="p">)</span>
-<span class="go">The map contains 1535 solid tiles</span>
-</pre></div>
 </div>
 </div>
-<div class="section" id="modifying">
-<h2>Modifying<a class="headerlink" href="#modifying" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="tml.items.TileLayer">
-<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">TileLayer</tt><big>(</big><em>width=50</em>, <em>height=50</em>, <em>name='Tiles'</em>, <em>detail=False</em>, <em>game=0</em>, <em>color=(255</em>, <em>255</em>, <em>255</em>, <em>255)</em>, <em>color_env=-1</em>, <em>color_env_offset=0</em>, <em>image_id=-1</em>, <em>tiles=None</em>, <em>tele_tiles=None</em>, <em>speedup_tiles=None</em><big>)</big><a class="headerlink" href="#tml.items.TileLayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represents a tilelayer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>width</strong> &#8211; Default: 50</li>
-<li><strong>height</strong> &#8211; Default: 50</li>
-<li><strong>name</strong> &#8211; Default: &#8216;Tiles&#8217;</li>
-<li><strong>game</strong> &#8211; 1 if it should be the gamelayer. Default: 0</li>
-<li><strong>color</strong> &#8211; Tupel with four values for r, g, b, a
-Default: (255, 255, 255, 255)</li>
-<li><strong>color_env</strong> &#8211; Default: -1</li>
-<li><strong>color_env_offset</strong> &#8211; Default: 0</li>
-<li><strong>image_id</strong> &#8211; Default: -1</li>
-<li><strong>tiles</strong> &#8211; Initial TileManager, used internally</li>
-<li><strong>tele_tiles</strong> &#8211; For race modification</li>
-<li><strong>speedup_tiles</strong> &#8211; For race modification</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="tml.items.TileLayer.select">
-<tt class="descname">select</tt><big>(</big><em>x</em>, <em>y</em>, <em>w=1</em>, <em>h=1</em><big>)</big><a class="headerlink" href="#tml.items.TileLayer.select" title="Permalink to this definition">¶</a></dt>
-<dd><p>Select an area of the tilelayer.</p>
-<p>Creates a new TileLayer of the section you are selecting. If you are
-selecting over the borders, it will just cut your selection to fit to
-the layer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> &#8211; x-position</li>
-<li><strong>y</strong> &#8211; y-position</li>
-<li><strong>w</strong> &#8211; width, default: 1</li>
-<li><strong>h</strong> &#8211; height, default: 1</li>
-</ul>
-</td>
-</tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">TileLayer</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="creating-a-map-from-scratch">
+<h2>Creating a map from scratch<a class="headerlink" href="#creating-a-map-from-scratch" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="saving-a-map">
+<h2>Saving a map<a class="headerlink" href="#saving-a-map" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -188,9 +159,13 @@ the layer.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Tutorial</a><ul>
-<li><a class="reference internal" href="#create-load-and-save-a-map">Create, load and save a map</a></li>
-<li><a class="reference internal" href="#accessing-the-data">Accessing the data</a></li>
-<li><a class="reference internal" href="#modifying">Modifying</a></li>
+<li><a class="reference internal" href="#load-and-reading-a-map">Load and reading a map</a><ul>
+<li><a class="reference internal" href="#loading">Loading</a></li>
+<li><a class="reference internal" href="#reading">Reading</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#creating-a-map-from-scratch">Creating a map from scratch</a></li>
+<li><a class="reference internal" href="#saving-a-map">Saving a map</a></li>
 </ul>
 </li>
 </ul>
@@ -199,8 +174,8 @@ the layer.</p>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Welcome to TeeworldsMapLib&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="mapformat.html"
-                        title="next chapter">The Teeworlds map format</a></p>
+  <p class="topless"><a href="items.html"
+                        title="next chapter">&lt;no title&gt;</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/tutorial.txt"
@@ -233,7 +208,7 @@ the layer.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="mapformat.html" title="The Teeworlds map format"
+          <a href="items.html" title="&lt;no title&gt;"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to TeeworldsMapLib’s documentation!"
