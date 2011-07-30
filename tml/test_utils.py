@@ -4,8 +4,8 @@ import unittest
 
 from .utils import ints_to_string, string_to_ints
 
-TEST_INT = [4108710900, 2155905152, 2155905152, 2155905152, 2155905152,
-            2155905152, 2155905152, 2155905024]
+TEST_INT = [-186256396, -2139062144, -2139062144, -2139062144, -2139062144,
+            -2139062144, -2139062144, -2139062272]
 class TestUtils(unittest.TestCase):
 
     def test_ints_to_string(self):
