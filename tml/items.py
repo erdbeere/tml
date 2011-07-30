@@ -154,7 +154,7 @@ class Group(object):
         self.layers.append(layer)
 
     def __repr__(self):
-        return '<Group ({0})>'.format(len(self.self.layers))
+        return '<Group ({0})>'.format(len(self.layers))
 
 class Layer(object):
     """Represents the layer data every layer has."""
