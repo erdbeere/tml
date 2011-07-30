@@ -7,8 +7,8 @@ import shutil
 import unittest
 import warnings
 
-from tml import Teemap
-from items import Layer, QuadLayer, TileLayer
+from tml import Teemap, MapError
+import items
 
 class TestTeemap(unittest.TestCase):
 
@@ -50,14 +50,14 @@ class TestTeemap(unittest.TestCase):
         self.assertIs(self.teemap.groups[4].layers[1], self.teemap.layers[5])
 
         names = ['TestQuads', 'Quads', 'TestTiles', 'Game', None, 'LastTiles']
-        classes = [QuadLayer, QuadLayer, TileLayer, TileLayer, TileLayer,
-                   TileLayer]
+        classes = [items.QuadLayer, items.QuadLayer, items.TileLayer, items.TileLayer, items.TileLayer,
+                   items.TileLayer]
         for i, layer in enumerate(self.teemap.layers):
             self.assertIsInstance(layer, classes[i])
             self.assertEqual(layer.name, names[i])
 
         for layer in self.teemap.layers:
-            if isinstance(layer, TileLayer):
+            if isinstance(layer, items.TileLayer):
                 if layer.name == 'TestTiles':
                     self.assertEqual(layer.width, 5)
                     self.assertEqual(layer.height, 3)
@@ -182,7 +182,7 @@ class TestTeemap(unittest.TestCase):
 
         quads = []
         for layer in self.teemap.layers:
-            if isinstance(layer, QuadLayer):
+            if isinstance(layer, items.QuadLayer):
                 quads.extend(layer.quads)
         for i, quad in enumerate(quads):
             self.assertEqual(quad.pos_env, pos_envs[i])
@@ -213,8 +213,21 @@ class TestTeemap(unittest.TestCase):
 
     def test_save(self):
         self.teemap.save('test_tmp/copy.map')
+        self.teemap.save('test_tmp/copy2')
         self.assertTrue(filecmp.cmp('tml/test_maps/vanilla.map',
                                     'test_tmp/copy.map'))
+        self.assertTrue(filecmp.cmp('tml/test_maps/vanilla.map',
+                                    'test_tmp/copy2.map'))
+    def test_validate(self):
+        teemap = Teemap()
+        self.assertRaises(MapError, teemap.validate)
+        group = items.Group()
+        group.layers.append(items.TileLayer(game=True))
+        teemap.groups.append(group)
+        self.assertTrue(teemap.validate())
+        group.layers.append(items.TileLayer(game=True))
+        self.assertRaises(MapError, teemap.validate)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,6 @@
-========
+********
 Tutorial
-========
+********
 
 Welcome! This tutorial will help you using this library to read and create
 teeworlds maps.
@@ -61,5 +61,16 @@ gamelayer.
 
 Note that a gamelayer is just a tilelayer with a special ``game flag``
 
+You can at any time call the :meth:`validate <tml.tml.Teemap.validate>`
+method, which will return ``True`` if your map is ready to be saved, or raise
+an error with information what is wrong with your map.
+
 Saving a map
 ============
+
+Saving a map to a file is just as easy as reading it. Just call the
+:meth:`save <tml.tml.Teemap.save>` method and give it the path where it
+should save the file. You can, but do not need to leave ot the ``.map``
+fileextension, it will be added automatically.
+
+>>> teemap.save('/home/tee/my_great_map')

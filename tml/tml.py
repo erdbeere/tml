@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    A library which makes it possible to read teeworlds map files.
+    The TeeworldsMapLib is a python tool which makes it possible to read,
+    modify and write teeworlds map files easily without using the original
+    teeworlds client, allowing to built teewor on top of it
 
     :copyright: 2010-2011 by the TML Team, see AUTHORS for more details.
     :license: GNU GPL, see LICENSE for more details.
@@ -15,6 +17,9 @@ class MapError(BaseException):
     For example, it will be raised when there is no gamelayer or more than one.
 
     """
+
+class LayerError(MapError):
+    pass
 
 class Teemap(object):
     """Representation of a teeworlds map.
