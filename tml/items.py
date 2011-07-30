@@ -371,6 +371,7 @@ class QuadManager(object):
         return Quad(pos_env=pos_env, pos_env_offset=pos_env_offset,
                     color_env=color_env, color_env_offset=color_env_offset,
                     points=points, colors=colors, texcoords=texcoords)
+
 class Quad(object):
     """Represents a quad of a quadlayer.
 

@@ -414,7 +414,7 @@ class DataFileWriter(object):
                         name = string_to_ints(layer.name, 3)
                         insort(items_, DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
                                pack('10i', 1, LAYERTYPE_QUADS, layer.detail, 2,
-                               len(layer.quads.quads), layer.image_id, quad_data, *name)))
+                               len(layer.quads.quads), quad_data, layer.image_id, *name)))
                         layer_count += 1
             name = string_to_ints(group.name, 3)
             insort(items_, DataFileWriter.DataFileItem(ITEM_GROUP, i,
