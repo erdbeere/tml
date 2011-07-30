@@ -251,7 +251,7 @@ class DataFileReader(object):
                 version, channels, start_point, \
                 num_point = item_data[:type_size-8]
                 name = ints_to_string(item_data[type_size-8:type_size])
-                envpoints = self.envpoints[start_point:num_point]
+                envpoints = self.envpoints[start_point:start_point+num_point]
                 envelope = items.Envelope(name=name, version=version,
                                           channels=channels,
                                           envpoints=envpoints)
@@ -395,14 +395,14 @@ class DataFileWriter(object):
                     name = string_to_ints(layer.name, 3)
                     if teemap.telelayer or teemap.speeduplayer:
                         items_.append(DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
-                               pack('20i', 1, LAYERTYPE_TILES, layer.detail, 3, layer.width,
+                               pack('20i', 0, LAYERTYPE_TILES, layer.detail, 3, layer.width,
                                layer.height, layer.game, layer.color[0], layer.color[1],
                                layer.color[2], layer.color[3], layer.color_env,
                                layer.color_env_offset, layer.image_id, tile_data, name[0],
                                name[1], name[2], tele_tile_data, speedup_tile_data)))
                     else:
                         items_.append(DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
-                               pack('18i', 1, LAYERTYPE_TILES, layer.detail, 3, layer.width,
+                               pack('18i', 0, LAYERTYPE_TILES, layer.detail, 3, layer.width,
                                layer.height, layer.game, layer.color[0], layer.color[1],
                                layer.color[2], layer.color[3], layer.color_env,
                                layer.color_env_offset, layer.image_id, tile_data, *name)))
@@ -416,7 +416,7 @@ class DataFileWriter(object):
                         datas.append(DataFileWriter.DataFileData(quads_str))
                         name = string_to_ints(layer.name, 3)
                         items_.append(DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
-                               pack('10i', 1, LAYERTYPE_QUADS, layer.detail, 2,
+                               pack('10i', 7, LAYERTYPE_QUADS, layer.detail, 2,
                                len(layer.quads.quads), quad_data, layer.image_id, *name)))
                         layer_count += 1
             name = string_to_ints(group.name, 3)
