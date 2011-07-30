@@ -13,6 +13,7 @@ from items import Layer, QuadLayer, TileLayer
 class TestTeemap(unittest.TestCase):
 
     def setUp(self):
+        os.mkdir('test_tmp')
         self.teemap = Teemap('tml/test_maps/vanilla')
 
     def tearDown(self):
@@ -96,7 +97,6 @@ class TestTeemap(unittest.TestCase):
         self.assertTrue(self.teemap.images[0].external)
         self.assertFalse(self.teemap.images[1].external)
         self.assertTrue(self.teemap.images[2].external)
-        os.mkdir('test_tmp')
         self.teemap.images[0].save('test_tmp/grass_main.png')
         self.teemap.images[1].save('test_tmp/test.png')
         self.assertRaises(ValueError, self.teemap.images[2].save,
@@ -210,6 +210,11 @@ class TestTeemap(unittest.TestCase):
             self.assertEqual(envpoint.time, times[i])
             self.assertEqual(envpoint.curvetype, curvetypes[i])
             self.assertEqual(envpoint.values, values[i])
+
+    def test_save(self):
+        self.teemap.save('test_tmp/copy.map')
+        self.assertTrue(filecmp.cmp('tml/test_maps/vanilla.map',
+                                    'test_tmp/copy.map'))
 
 if __name__ == '__main__':
     unittest.main()

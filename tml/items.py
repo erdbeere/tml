@@ -149,10 +149,9 @@ class Group(object):
 
     type_size = 15
 
-    def __init__(self, name=None, offset_x=None, offset_y=None,
-                 parallax_x=None, parallax_y=None, use_clipping=None,
-                 clip_x=None, clip_y=None, clip_w=None, clip_h=None,
-                 layers=None):
+    def __init__(self, name=None, offset_x=0, offset_y=0, parallax_x=0,
+                 parallax_y=0, use_clipping=0, clip_x=0, clip_y=0, clip_w=0,
+                 clip_h=0, layers=None):
         self.name = name
         self.offset_x = offset_x
         self.offset_y = offset_y

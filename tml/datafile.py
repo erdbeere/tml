@@ -330,6 +330,12 @@ class DataFileWriter(object):
             self.compressed_size = len(self.data)
 
     def __init__(self, teemap, map_path):
+        path, filename = os.path.split(map_path)
+        name, extension = os.path.splitext(filename)
+        if extension == '':
+            map_path = os.extsep.join([map_path, 'map'])
+        elif extension != ''.join([os.extsep, 'map']):
+            raise ValueError('Invalid fileextension')
         items_ = []
         datas = []
         # add version item
