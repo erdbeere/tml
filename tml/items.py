@@ -369,6 +369,10 @@ class QuadManager(object):
         return Quad(pos_env=pos_env, pos_env_offset=pos_env_offset,
                     color_env=color_env, color_env_offset=color_env_offset,
                     points=points, colors=colors, texcoords=texcoords)
+
+    def __repr__(self):
+        return '<QuadManager ({0})>'.format(len(self))
+
 class Quad(object):
     """Represents a quad of a quadlayer.
 
@@ -458,6 +462,9 @@ class TileManager(object):
     def _string_to_tile(self, string):
         index, flags, skip, reserved = unpack('4B', string)
         return Tile(index=index, flags=flags, skip=skip, reserved=reserved)
+
+    def __repr__(self):
+        return '<TileManager ({0})>'.format(len(self))
 
 class Tile(object):
     """Represents a tile of a tilelayer.
