@@ -429,7 +429,7 @@ class DataFileWriter(object):
             name = string_to_ints(envelope.name)
             insort(items_, DataFileWriter.DataFileItem(ITEM_ENVELOPE, i,
                    pack('12i', 1, envelope.channels, start_point, num_points, *name)))
-            start_layer += num_points
+            start_point += num_points
         # save points
         envpoints = []
         for envpoint in teemap.envpoints:
