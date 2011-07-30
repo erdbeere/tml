@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    Collection of different items.
+    Collection of different items. The items can for example be assigned to a
+    :class:`Teemap <tml.tml.Teemap>` or a :class:`Layer <tml.items.Layer>`.
+    You can generate new items and just put them in the appropriate place in
+    a map, they will be recognized automatically when you save your map.
 
     :copyright: 2010-2011 by the TML Team, see AUTHORS for more details.
     :license: GNU GPL, see LICENSE for more details.
@@ -22,7 +25,11 @@ from .utils import ints_to_string
 #	os.extsep.join(('entities', 'png'))))
 
 class Info(object):
-    """Represents a map info object."""
+    """Represents a map info object.
+
+    Should be assigned to :class:`Teemap.mapinfo <tml.tml.Teemap>`.
+
+    """
 
     type_size = 6
 
@@ -38,7 +45,12 @@ class Info(object):
         return '<MapInfo ({0})>'.format(self.author or 'None')
 
 class Image(object):
-    """Represents an image."""
+    """Represents an image.
+
+    The images for a map should be in the list :class:`Teemap.images
+    <tml.tml.Teemap>`.
+
+    """
 
     # size in ints
     type_size = 6
@@ -92,7 +104,12 @@ class Image(object):
         return '{0} x {1}'.format(self.width, self.height)
 
 class Envelope(object):
-    """Represents an envelope."""
+    """Represents an envelope.
+
+    The envelopes for a map should be in the list :class:`Teemap.envelopes
+    <tml.tml.Teemap>`.
+
+    """
 
     type_size = 12
 
@@ -106,7 +123,12 @@ class Envelope(object):
         return '<Envelope ({0})>'.format(self.name or len(self.envpoints))
 
 class Envpoint(object):
-    """Represents an envpoint."""
+    """Represents an envpoint.
+
+    Envpoints are part of :class:`envelopes <Envelope>` and should
+    be in the ``envpoints`` list of an envelope.
+
+    """
 
     type_size = 6
     def __init__(self, time=None, curvetype=None, values=None):
@@ -118,7 +140,12 @@ class Envpoint(object):
         return '<Envpoint ({0})>'.format(self.time)
 
 class Group(object):
-    """Represents a group."""
+    """Represents a group.
+
+    The groups of a map should be assigned to :class:`Teemap.groups
+    <tml.tml.Teemap.groups>`
+
+    """
 
     type_size = 15
 
@@ -159,7 +186,17 @@ class Group(object):
         return '<Group ({0})>'.format(len(self.layers))
 
 class Layer(object):
-    """Represents the layer data every layer has."""
+    """Represents the layer data every layer has.
+
+    A layer must always be part of a :class:`Group`, assign it to the
+    ``Group.layers`` list.
+
+    .. warning::
+
+        This is just the parent class for :class:`QuadLayer` and
+        :class:`TileLayer`, do not assign it to a teemap!
+
+    """
 
     type_size = 3
 
@@ -181,18 +218,15 @@ class Layer(object):
 class TileLayer(Layer):
     """Represents a tilelayer.
 
-    :param width: Default: 50
-    :param height: Default: 50
-    :param name: Default: 'Tiles'
+    A layer must always be part of a :class:`Group`, assign it to the
+    ``Group.layers`` list.
+
     :param game: 1 if it should be the gamelayer. Default: 0
     :param color: Tupel with four values for r, g, b, a
                   Default: (255, 255, 255, 255)
-    :param color_env: Default: -1
-    :param color_env_offset: Default: 0
-    :param image_id: Default: -1
     :param tiles: Initial TileManager, used internally
-    :param tele_tiles: For race modification
-    :param speedup_tiles: For race modification
+    :param tele_tiles: Only for race modification
+    :param speedup_tiles: Only for race modification
 
     """
 
@@ -239,10 +273,6 @@ class TileLayer(Layer):
         selecting over the borders, it will just cut your selection to fit to
         the layer.
 
-        :param x: x-position
-        :param y: y-position
-        :param w: width, default: 1
-        :param h: height, default: 1
         :returns: TileLayer
 
         """
@@ -291,8 +321,11 @@ class TileLayer(Layer):
 class QuadLayer(Layer):
     """Represents a quadlayer.
 
-    :param name: Name of the layer, default 'Quads'
-    :param image_id: ID of the related image, default -1
+    A layer must always be part of a :class:`Group`, assign it to the
+    ``Group.layers`` list.
+
+    :param name: Name of the layer
+    :param image_id: ID of the related image
     :param quads: Initial QuadManager, used internally
 
     """
@@ -311,7 +344,24 @@ class QuadLayer(Layer):
 class QuadManager(object):
     """Handles quads while sparing memory.
 
-    Keeps track of quds as simple strings, but returns a Quad class on demand.
+    Keeps track of quads as simple strings, but returns a Quad class on demand.
+
+    .. note::
+
+        Because QuadManager generates :class:`Quad` classes on-the-fly, you
+        need to assign new quad explicity. This will not work like you would
+        expect:
+
+        >>> layer.quads[10].rotate('l')
+
+        Instead, you need to re-assign the quad:
+
+        >>> quad = layer.quads[10]
+        >>> quad.rotate('l')
+        >>> layer.quads[10] = quad
+
+        We are searching for a better solution, in the meanwhile, use this
+        workaround
 
     :param quads: List of quads to put in.
     :param data: Raw quad data, used internally.
@@ -378,18 +428,6 @@ class QuadManager(object):
 class Quad(object):
     """Represents a quad of a quadlayer.
 
-    :param pos_env: Default: -1
-    :param pos_env_offset: Default: 0
-    :param color_env: Default: -1
-    :param color_env_offset: Default: 0
-    :param points: List of tuples with point coordinates. Default:
-                   [(0, 0), (64, 0), (0, 64), (64, 64), (32, 32)]
-    :param colors: List of tuples with color vallues. Default:
-                   [(255, 255, 255, 255), (255, 255, 255, 255),
-                    (255, 255, 255, 255), (255, 255, 255, 255)]
-    :param texcoords: List of tuples with texcoords. Default:
-                      [(0, 0), (1024, 0), (0, 1024), (1024, 1024)]
-
     """
 
     def __init__(self, pos_env=-1, pos_env_offset=0, color_env=-1,
@@ -421,8 +459,26 @@ class TileManager(object):
 
     Keeps track of tiles as simple strings, but returns a Tile class on demand.
 
+    .. note::
+
+        Because TileManager generates :class:`Tile` classes on-the-fly, you
+        need to assign new tiles explicity. This will not work like you would
+        expect:
+
+        >>> layer.tiles[10].rotate('l')
+
+        Instead, you need to re-assign the tile:
+
+        >>> tile = layer.tiles[10]
+        >>> tile.rotate('l')
+        >>> layer.tiles[10] = tile
+
+        We are searching for a better solution, in the meanwhile, use this
+        workaround
+
     :param size: Fill up the manager with n empty tiles.
     :param tiles: List of tiles to put in.
+    :param data: Raw tile data, used internally.
     :param _type: Used for a race modification, you probably don't need it
     """
 
@@ -469,14 +525,7 @@ class TileManager(object):
         return '<TileManager ({0})>'.format(len(self))
 
 class Tile(object):
-    """Represents a tile of a tilelayer.
-
-    :param index: Default: 0
-    :param flags: Default: 0
-    :param skip: Default: 0
-    :param reserved: Default: 0
-
-    """
+    """Represents a tile of a tilelayer."""
 
     def __init__(self, index=0, flags=0, skip=0, reserved=0):
         self.index = index
@@ -501,7 +550,7 @@ class Tile(object):
     def rotate(self, value):
         """Rotate the tile.
 
-        :param value: Rotationdirection, can be '(l)eft' or '(r)ight'
+        :param value: Rotationdirection, can be ``(l)eft`` or ``(r)ight``
         :type value: str
         :raises: ValueError
 

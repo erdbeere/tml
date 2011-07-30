@@ -45,7 +45,12 @@ class Teemap(object):
 
     @property
     def gamelayer(self):
-        """Returns the gamelayer."""
+        """Returns the gamelayer.
+
+        If you have multiple gamelayers (**don't** do that!), it will return
+        the first one
+
+        """
         i = 0
         for layer in self.layers:
             if layer.is_gamelayer:

@@ -24,23 +24,6 @@ Reading
 
 The structure of the teemap is similiar to the structure you know from the
 teeworlds editor, it should be familiar to you.
-
-.. autoclass:: tml.tml.Teemap
-   :members:
-
-   .. attribute:: images
-
-      List of all images included in the map, external and embedded.
-
-   .. attribute:: groups
-
-      List of the groups, ordered like they are placed in teeworlds.
-
-   .. attribute:: mapinfo
-
-      :py:class:`MapInfo <tml.tml.items.MapInfo>` object, contains information like
-      author and maplicense. Can be ``None``.
-
 Example: Getting a list of tiles and their index.
 
 >>> t = Teemap('dm1')
@@ -51,6 +34,8 @@ Example: Getting a list of tiles and their index.
 0
 >>> tiles[90].index
 24
+
+For a full list of all methods and attributes, check :class:`tml.tml.Teemap`
 
 Creating a map from scratch
 ===========================
