@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from bisect import insort
 from struct import pack, unpack
 from zlib import compress, decompress
 
@@ -314,7 +313,11 @@ class DataFileWriter(object):
             self.size = len(self.data)
 
         def __lt__(self, other):
-            return self.type < other.type or self.id < other.id
+            if self.type < other.type:
+                return True
+            elif self.type == other.type and self.id < other.id:
+                return True
+            return False
 
         def __repr__(self):
             return '<DataFileItem ({0})>'.format((self.type<<16)|self.id)
@@ -349,7 +352,7 @@ class DataFileWriter(object):
             items_.append(DataFileWriter.DataFileItem(ITEM_INFO, 0,
                               pack('6i', 1, *num)))
         # save images
-        for image in teemap.images:
+        for i, image in enumerate(teemap.images):
             image_name = len(datas)
             name_str = '{0}\x00'.format(image.name)
             datas.append(DataFileWriter.DataFileData(name_str))
@@ -357,7 +360,7 @@ class DataFileWriter(object):
             if image.external is False and image.data:
                 image_data = len(datas)
                 datas.append(DataFileWriter.DataFileData(image.data))
-            items_.append(DataFileWriter.DataFileItem(ITEM_IMAGE, 0,
+            items_.append(DataFileWriter.DataFileItem(ITEM_IMAGE, i,
                               pack('6i', 1, image.width, image.height,
                               image.external, image_name, image_data)))
         # save layers and groups
@@ -391,14 +394,14 @@ class DataFileWriter(object):
                         datas.append(DataFileWriter.DataFileData(tiles_str))
                     name = string_to_ints(layer.name, 3)
                     if teemap.telelayer or teemap.speeduplayer:
-                        insort(items_, DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
+                        items_.append(DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
                                pack('20i', 1, LAYERTYPE_TILES, layer.detail, 3, layer.width,
                                layer.height, layer.game, layer.color[0], layer.color[1],
                                layer.color[2], layer.color[3], layer.color_env,
                                layer.color_env_offset, layer.image_id, tile_data, name[0],
                                name[1], name[2], tele_tile_data, speedup_tile_data)))
                     else:
-                        insort(items_, DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
+                        items_.append(DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
                                pack('18i', 1, LAYERTYPE_TILES, layer.detail, 3, layer.width,
                                layer.height, layer.game, layer.color[0], layer.color[1],
                                layer.color[2], layer.color[3], layer.color_env,
@@ -412,12 +415,12 @@ class DataFileWriter(object):
                         quad_data = len(datas)
                         datas.append(DataFileWriter.DataFileData(quads_str))
                         name = string_to_ints(layer.name, 3)
-                        insort(items_, DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
+                        items_.append(DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
                                pack('10i', 1, LAYERTYPE_QUADS, layer.detail, 2,
                                len(layer.quads.quads), quad_data, layer.image_id, *name)))
                         layer_count += 1
             name = string_to_ints(group.name, 3)
-            insort(items_, DataFileWriter.DataFileItem(ITEM_GROUP, i,
+            items_.append(DataFileWriter.DataFileItem(ITEM_GROUP, i,
                    pack('15i', 3, group.offset_x, group.offset_y, group.parallax_x,
                    group.parallax_y, start_layer, len(group.layers),
                    group.use_clipping, group.clip_x, group.clip_y, group.clip_w,
@@ -427,7 +430,7 @@ class DataFileWriter(object):
         for i, envelope in enumerate(teemap.envelopes):
             num_points = len(envelope.envpoints)
             name = string_to_ints(envelope.name)
-            insort(items_, DataFileWriter.DataFileItem(ITEM_ENVELOPE, i,
+            items_.append(DataFileWriter.DataFileItem(ITEM_ENVELOPE, i,
                    pack('12i', 1, envelope.channels, start_point, num_points, *name)))
             start_point += num_points
         # save points
@@ -441,6 +444,7 @@ class DataFileWriter(object):
         fmt = '{0}i'.format(len(envpoints))
         items_.append(DataFileWriter.DataFileItem(ITEM_ENVPOINT, 0,
                pack(fmt, *envpoints)))
+        items_.sort()
 
         # calculate header
         item_size = 0
@@ -467,12 +471,12 @@ class DataFileWriter(object):
         header_size = 36
         offset_size = (len(items_) + 2*len(datas)) * 4
         file_size = header_size + item_types_size + offset_size + item_size + data_size - 16
-        swap_size = file_size - data_size - 16
+        swaplen = file_size - data_size
 
         # write file
         with open(map_path, 'wb') as f:
             f.write('DATA') # file signature
-            header_str = pack('8i', 4, file_size, swap_size, num_item_types,
+            header_str = pack('8i', 4, file_size, swaplen, num_item_types,
                           len(items_), len(datas), item_size, data_size)
             f.write(header_str)
             fmt = '{0}i'.format(len(item_types))
