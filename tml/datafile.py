@@ -26,7 +26,6 @@ class Header(object):
             self.version, self.size_, self.swaplen, self.num_item_types, \
             self.num_items, self.num_raw_data, self.item_size, \
             self.data_size = unpack('8i', f.read(32))
-
             if self.version != 4:
                 raise TypeError('Wrong version')
 
@@ -99,7 +98,7 @@ class DataFileReader(object):
                                        credits=credits, license=license,
                                        settings=settings)
             else:
-                self.info = items.Info()
+                self.info = None
 
             # load images
             start, num = self.get_item_type(ITEM_IMAGE)
@@ -288,7 +287,7 @@ class DataFileReader(object):
         :param index:
         """
         start, num = self.get_item_type(item_type)
-        if index < num:
+        if num and index < num:
             return self.get_item(f, start+index)
         return None
 
@@ -331,7 +330,7 @@ class DataFileWriter(object):
         items_ = []
         datas = []
         # add version item
-        items_.append(DataFileWriter.DataFileItem(ITEM_VERSION, 0, pack('i', 4)))
+        items_.append(DataFileWriter.DataFileItem(ITEM_VERSION, 0, pack('i', 1)))
         # save map info
         if teemap.info:
             num = 5*[-1]
@@ -339,24 +338,26 @@ class DataFileWriter(object):
                 item_data = getattr(teemap.info, type_)
                 if item_data:
                     num[i] = len(datas)
+                    item_data += '\x00' # 0 termination
                     datas.append(DataFileWriter.DataFileData(item_data))
             if teemap.info.settings:
                 num[4] = len(datas)
                 settings_str = ''
                 for setting in teemap.info.settings:
-                    settings_str += '\x00{0}'.format(setting)
+                    settings_str += '{0}\x00'.format(setting)
                 datas.append(DataFileWriter.DataFileData(settings_str))
             items_.append(DataFileWriter.DataFileItem(ITEM_INFO, 0,
                               pack('6i', 1, *num)))
         # save images
         for image in teemap.images:
             image_name = len(datas)
-            datas.append(DataFileWriter.DataFileData(image.name))
+            name_str = '{0}\x00'.format(image.name)
+            datas.append(DataFileWriter.DataFileData(name_str))
             image_data = -1
             if image.external is False and image.data:
                 image_data = len(datas)
                 datas.append(DataFileWriter.DataFileData(image.data))
-            items_.append(DataFileWriter.DataFileItem(ITEM_INFO, 0,
+            items_.append(DataFileWriter.DataFileItem(ITEM_IMAGE, 0,
                               pack('6i', 1, image.width, image.height,
                               image.external, image_name, image_data)))
         # save layers and groups
@@ -412,8 +413,8 @@ class DataFileWriter(object):
                         datas.append(DataFileWriter.DataFileData(quads_str))
                         name = string_to_ints(layer.name, 3)
                         insort(items_, DataFileWriter.DataFileItem(ITEM_LAYER, layer_count,
-                               pack('10i', 1, LAYERTYPE_QUADS, layer.detail, 2, layer.image_id,
-                               len(layer.quads.quads), quad_data, *name)))
+                               pack('10i', 1, LAYERTYPE_QUADS, layer.detail, 2,
+                               len(layer.quads.quads), quad_data, layer.image_id, *name)))
                         layer_count += 1
             name = string_to_ints(group.name, 3)
             insort(items_, DataFileWriter.DataFileItem(ITEM_GROUP, i,
@@ -428,7 +429,7 @@ class DataFileWriter(object):
             name = string_to_ints(envelope.name)
             insort(items_, DataFileWriter.DataFileItem(ITEM_ENVELOPE, i,
                    pack('12i', 1, envelope.channels, start_point, num_points, *name)))
-            start_layer += num_points
+            start_point += num_points
         # save points
         envpoints = []
         for envpoint in teemap.envpoints:
@@ -438,7 +439,7 @@ class DataFileWriter(object):
             envpoints.extend([envpoint.time, envpoint.curvetype, values[0],
                               values[1], values[2], values[3]])
         fmt = '{0}i'.format(len(envpoints))
-        insort(items_, DataFileWriter.DataFileItem(ITEM_ENVPOINT, 0,
+        items_.append(DataFileWriter.DataFileItem(ITEM_ENVPOINT, 0,
                pack(fmt, *envpoints)))
 
         # calculate header
@@ -447,7 +448,7 @@ class DataFileWriter(object):
         item_types = []
         for i in range(len(items_)):
             item_size += items_[i].size
-            if i < len(items_) and items_[i].type != items_[i-1].type:
+            if i > 0 and items_[i].type != items_[i-1].type:
                 num_item_types += 1
         for i in range(7):
             num = 0
@@ -495,4 +496,3 @@ class DataFileWriter(object):
                 f.write(item.data)
             for data in datas:
                 f.write(data.data)
-            f.close()
