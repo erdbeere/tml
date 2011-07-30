@@ -336,6 +336,7 @@ class DataFileWriter(object):
             map_path = os.extsep.join([map_path, 'map'])
         elif extension != ''.join([os.extsep, 'map']):
             raise ValueError('Invalid fileextension')
+        teemap.validate()
         items_ = []
         datas = []
         # add version item

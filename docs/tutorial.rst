@@ -40,6 +40,26 @@ For a full list of all methods and attributes, check :class:`tml.tml.Teemap`
 Creating a map from scratch
 ===========================
 
+A new Teemap objekt does not contain any layers or groups. To create a
+minimalistic, but valid teeworlds map, you need to add one group and a
+gamelayer.
+
+>>> from tml.tml import Teemap
+>>> from tml import items
+>>> t = Teemap()
+>>> t.groups
+[]
+>>> t.groups.append(items.Group())
+>>> t.groups[0].layers
+[]
+>>> t.groups[0].layers.append(items.TileLayer(game=True))
+>>> t.layers
+[<Game layer (50x50)>]
+>>> t.groups
+[<Group (1)>]
+>>> t.save('hello map')
+
+Note that a gamelayer is just a tilelayer with a special ``game flag``
 
 Saving a map
 ============

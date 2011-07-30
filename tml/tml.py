@@ -85,22 +85,21 @@ class Teemap(object):
     def height(self):
         return self.gamelayer.height
 
-    @property
-    def valid(self):
+    def validate(self):
         """Check if the map is a valid teeworlds map.
 
         Returns ``True`` or raises an exception.
 
         """
-        gamelayer = 0
+        gamelayers = 0
         for layer in self.layers:
             if layer.is_gamelayer:
-                gamelayer += 1
-        if gamelayer < 1:
+                gamelayers += 1
+        if gamelayers < 1:
             raise MapError('This map contains no gamelayer.')
-        if gamelayer > 1:
-            raise MapError('This map contains {0} gamelayers.'.format(gamelayer))
-        if len(gamelayer.tiles) == 0:
+        if gamelayers > 1:
+            raise MapError('This map contains {0} gamelayers.'.format(gamelayers))
+        if len(self.gamelayer.tiles) == 0:
             raise MapError('The gamelayer does not contain any tiles')
 
         return True
