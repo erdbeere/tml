@@ -34,6 +34,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="exceptions.html" title="Exceptions"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -48,8 +51,318 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="items">
-<h1>Items<a class="headerlink" href="#items" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-tml.items">
+<span id="items"></span><h1>Items<a class="headerlink" href="#module-tml.items" title="Permalink to this headline">¶</a></h1>
+<p>Collection of different items. The items can for example be assigned to a
+<a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap</span></tt></a> or a <a class="reference internal" href="#tml.items.Layer" title="tml.items.Layer"><tt class="xref py py-class docutils literal"><span class="pre">Layer</span></tt></a>.
+You can generate new items and just put them in the appropriate place in
+a map, they will be recognized automatically when you save your map.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">copyright:</th><td class="field-body">2010-2011 by the TML Team, see AUTHORS for more details.</td>
+</tr>
+<tr class="field"><th class="field-name">license:</th><td class="field-body">GNU GPL, see LICENSE for more details.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="tml.items.Envelope">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Envelope</tt><big>(</big><em>name=None</em>, <em>version=None</em>, <em>channels=None</em>, <em>envpoints=None</em><big>)</big><a class="headerlink" href="#tml.items.Envelope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an envelope.</p>
+<p>The envelopes for a map should be in the list <a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap.envelopes</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.Envpoint">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Envpoint</tt><big>(</big><em>time=None</em>, <em>curvetype=None</em>, <em>values=None</em><big>)</big><a class="headerlink" href="#tml.items.Envpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an envpoint.</p>
+<p>Envpoints are part of <a class="reference internal" href="#tml.items.Envelope" title="tml.items.Envelope"><tt class="xref py py-class docutils literal"><span class="pre">envelopes</span></tt></a> and should
+be in the <tt class="docutils literal"><span class="pre">envpoints</span></tt> list of an envelope.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.Group">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Group</tt><big>(</big><em>name=None</em>, <em>offset_x=None</em>, <em>offset_y=None</em>, <em>parallax_x=None</em>, <em>parallax_y=None</em>, <em>use_clipping=None</em>, <em>clip_x=None</em>, <em>clip_y=None</em>, <em>clip_w=None</em>, <em>clip_h=None</em>, <em>layers=None</em><big>)</big><a class="headerlink" href="#tml.items.Group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a group.</p>
+<p>The groups of a map should be assigned to <tt class="xref py py-class docutils literal"><span class="pre">Teemap.groups</span></tt></p>
+<dl class="method">
+<dt id="tml.items.Group.append">
+<tt class="descname">append</tt><big>(</big><em>layer</em><big>)</big><a class="headerlink" href="#tml.items.Group.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a layer to the group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layer</strong> &#8211; Layer to append.</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body">TypeError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.Image">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Image</tt><big>(</big><em>name</em>, <em>width=0</em>, <em>height=0</em>, <em>external=False</em>, <em>data=None</em>, <em>path=''</em><big>)</big><a class="headerlink" href="#tml.items.Image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an image.</p>
+<p>The images for a map should be in the list <a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap.images</span></tt></a>.</p>
+<dl class="method">
+<dt id="tml.items.Image.save">
+<tt class="descname">save</tt><big>(</big><em>dest</em><big>)</big><a class="headerlink" href="#tml.items.Image.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the image to the given path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dest</strong> &#8211; Path to the image</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.Info">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Info</tt><big>(</big><em>author=None</em>, <em>map_version=None</em>, <em>credits=None</em>, <em>license=None</em>, <em>settings=None</em><big>)</big><a class="headerlink" href="#tml.items.Info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a map info object.</p>
+<p>Should be assigned to <a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap.mapinfo</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.Layer">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Layer</tt><big>(</big><em>detail</em><big>)</big><a class="headerlink" href="#tml.items.Layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the layer data every layer has.</p>
+<p>A layer must always be part of a <a class="reference internal" href="#tml.items.Group" title="tml.items.Group"><tt class="xref py py-class docutils literal"><span class="pre">Group</span></tt></a>, assign it to the
+<tt class="docutils literal"><span class="pre">Group.layers</span></tt> list.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This is just the parent class for <a class="reference internal" href="#tml.items.QuadLayer" title="tml.items.QuadLayer"><tt class="xref py py-class docutils literal"><span class="pre">QuadLayer</span></tt></a> and
+<a class="reference internal" href="#tml.items.TileLayer" title="tml.items.TileLayer"><tt class="xref py py-class docutils literal"><span class="pre">TileLayer</span></tt></a>, do not assign it to a teemap!</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.Quad">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Quad</tt><big>(</big><em>pos_env=-1</em>, <em>pos_env_offset=0</em>, <em>color_env=-1</em>, <em>color_env_offset=0</em>, <em>points=None</em>, <em>colors=None</em>, <em>texcoords=None</em><big>)</big><a class="headerlink" href="#tml.items.Quad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a quad of a quadlayer.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.QuadLayer">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">QuadLayer</tt><big>(</big><em>name='Quads'</em>, <em>detail=False</em>, <em>image_id=-1</em>, <em>quads=None</em><big>)</big><a class="headerlink" href="#tml.items.QuadLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a quadlayer.</p>
+<p>A layer must always be part of a <a class="reference internal" href="#tml.items.Group" title="tml.items.Group"><tt class="xref py py-class docutils literal"><span class="pre">Group</span></tt></a>, assign it to the
+<tt class="docutils literal"><span class="pre">Group.layers</span></tt> list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the layer</li>
+<li><strong>image_id</strong> &#8211; ID of the related image</li>
+<li><strong>quads</strong> &#8211; Initial QuadManager, used internally</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.QuadManager">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">QuadManager</tt><big>(</big><em>quads=None</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#tml.items.QuadManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles quads while sparing memory.</p>
+<p>Keeps track of quads as simple strings, but returns a Quad class on demand.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Because QuadManager generates <a class="reference internal" href="#tml.items.Quad" title="tml.items.Quad"><tt class="xref py py-class docutils literal"><span class="pre">Quad</span></tt></a> classes on-the-fly, you
+need to assign new quad explicity. This will not work like you would
+expect:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">layer</span><span class="o">.</span><span class="n">quads</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="s">&#39;l&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Instead, you need to re-assign the quad:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">quad</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">quads</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quad</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="s">&#39;l&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">layer</span><span class="o">.</span><span class="n">quads</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">quad</span>
+</pre></div>
+</div>
+<p class="last">We are searching for a better solution, in the meanwhile, use this
+workaround</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>quads</strong> &#8211; List of quads to put in.</li>
+<li><strong>data</strong> &#8211; Raw quad data, used internally.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.SpeedupTile">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">SpeedupTile</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#tml.items.SpeedupTile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a speedup tile of a tilelayer. Only for race modification.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.TeleTile">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">TeleTile</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#tml.items.TeleTile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a tele tile of a tilelayer. Only for race modification.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.Tile">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Tile</tt><big>(</big><em>index=0</em>, <em>flags=0</em>, <em>skip=0</em>, <em>reserved=0</em><big>)</big><a class="headerlink" href="#tml.items.Tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a tile of a tilelayer.</p>
+<dl class="attribute">
+<dt id="tml.items.Tile.coords">
+<tt class="descname">coords</tt><a class="headerlink" href="#tml.items.Tile.coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coordinates of the tile in the mapres.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">(x, y)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.items.Tile.flags">
+<tt class="descname">flags</tt><a class="headerlink" href="#tml.items.Tile.flags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the flags of the tile.</p>
+<p>The flags contain the rotation, hflip and vflip information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">{&#8216;rotation&#8217;: int, &#8216;vflip&#8217;: int, &#8216;hflip&#8217;: int}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tml.items.Tile.hflip">
+<tt class="descname">hflip</tt><big>(</big><big>)</big><a class="headerlink" href="#tml.items.Tile.hflip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flip the tile in horizontal direction</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tml.items.Tile.rotate">
+<tt class="descname">rotate</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#tml.items.Tile.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate the tile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>str</em>) &#8211; Rotationdirection, can be <tt class="docutils literal"><span class="pre">(l)eft</span></tt> or <tt class="docutils literal"><span class="pre">(r)ight</span></tt></td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body">ValueError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tml.items.Tile.vflip">
+<tt class="descname">vflip</tt><big>(</big><big>)</big><a class="headerlink" href="#tml.items.Tile.vflip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flip the tile in vertical direction</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.TileLayer">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">TileLayer</tt><big>(</big><em>width=50</em>, <em>height=50</em>, <em>name='Tiles'</em>, <em>detail=False</em>, <em>game=0</em>, <em>color=(255</em>, <em>255</em>, <em>255</em>, <em>255)</em>, <em>color_env=-1</em>, <em>color_env_offset=0</em>, <em>image_id=-1</em>, <em>tiles=None</em>, <em>tele_tiles=None</em>, <em>speedup_tiles=None</em><big>)</big><a class="headerlink" href="#tml.items.TileLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a tilelayer.</p>
+<p>A layer must always be part of a <a class="reference internal" href="#tml.items.Group" title="tml.items.Group"><tt class="xref py py-class docutils literal"><span class="pre">Group</span></tt></a>, assign it to the
+<tt class="docutils literal"><span class="pre">Group.layers</span></tt> list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>game</strong> &#8211; 1 if it should be the gamelayer. Default: 0</li>
+<li><strong>color</strong> &#8211; Tupel with four values for r, g, b, a
+Default: (255, 255, 255, 255)</li>
+<li><strong>tiles</strong> &#8211; Initial TileManager, used internally</li>
+<li><strong>tele_tiles</strong> &#8211; Only for race modification</li>
+<li><strong>speedup_tiles</strong> &#8211; Only for race modification</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="tml.items.TileLayer.select">
+<tt class="descname">select</tt><big>(</big><em>x</em>, <em>y</em>, <em>w=1</em>, <em>h=1</em><big>)</big><a class="headerlink" href="#tml.items.TileLayer.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select an area of the tilelayer.</p>
+<p>Creates a new TileLayer of the section you are selecting. If you are
+selecting over the borders, it will just cut your selection to fit to
+the layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">TileLayer</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tml.items.TileManager">
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">TileManager</tt><big>(</big><em>size=0</em>, <em>tiles=None</em>, <em>data=None</em>, <em>_type=0</em><big>)</big><a class="headerlink" href="#tml.items.TileManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles tiles while sparing memory.</p>
+<p>Keeps track of tiles as simple strings, but returns a Tile class on demand.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Because TileManager generates <a class="reference internal" href="#tml.items.Tile" title="tml.items.Tile"><tt class="xref py py-class docutils literal"><span class="pre">Tile</span></tt></a> classes on-the-fly, you
+need to assign new tiles explicity. This will not work like you would
+expect:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">layer</span><span class="o">.</span><span class="n">tiles</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="s">&#39;l&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Instead, you need to re-assign the tile:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tile</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">tiles</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tile</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="s">&#39;l&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">layer</span><span class="o">.</span><span class="n">tiles</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">tile</span>
+</pre></div>
+</div>
+<p class="last">We are searching for a better solution, in the meanwhile, use this
+workaround</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>size</strong> &#8211; Fill up the manager with n empty tiles.</li>
+<li><strong>tiles</strong> &#8211; List of tiles to put in.</li>
+<li><strong>data</strong> &#8211; Raw tile data, used internally.</li>
+<li><strong>_type</strong> &#8211; Used for a race modification, you probably don&#8217;t need it</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -92,6 +405,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="exceptions.html" title="Exceptions"
              >next</a> |</li>

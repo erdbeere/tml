@@ -34,6 +34,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="mapformat.html" title="The Teeworlds map format"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -53,9 +56,94 @@
 <p>In this section you will learn about every class and its functions.</p>
 <div class="section" id="teemap">
 <h2>Teemap<a class="headerlink" href="#teemap" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="tml.tml.Teemap">
+<em class="property">class </em><tt class="descclassname">tml.tml.</tt><tt class="descname">Teemap</tt><big>(</big><em>map_path=None</em><big>)</big><a class="headerlink" href="#tml.tml.Teemap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of a teeworlds map.</p>
+<p>All information about the map can be accessed through this class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>map_path</strong> &#8211; Path to the teeworlds mapfile.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="Teemap.images">
+<tt class="descname">images</tt><a class="headerlink" href="#Teemap.images" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all <a class="reference internal" href="items.html#tml.items.Image" title="tml.items.Image"><tt class="xref py py-class docutils literal"><span class="pre">images</span></tt></a> included in the map,
+external and embedded.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Teemap.groups">
+<tt class="descname">groups</tt><a class="headerlink" href="#Teemap.groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of the <a class="reference internal" href="items.html#tml.items.Group" title="tml.items.Group"><tt class="xref py py-class docutils literal"><span class="pre">groups</span></tt></a>, ordered like they are
+placed in teeworlds.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Teemap.mapinfo">
+<tt class="descname">mapinfo</tt><a class="headerlink" href="#Teemap.mapinfo" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">MapInfo</span></tt> object, contains information like
+author and maplicense. Can be <tt class="xref docutils literal"><span class="pre">None</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Teemap.envelopes">
+<tt class="descname">envelopes</tt><a class="headerlink" href="#Teemap.envelopes" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all <a class="reference internal" href="items.html#tml.items.Envelope" title="tml.items.Envelope"><tt class="xref py py-class docutils literal"><span class="pre">envelopes</span></tt></a> of the map.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.gamelayer">
+<tt class="descname">gamelayer</tt><a class="headerlink" href="#tml.tml.Teemap.gamelayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the gamelayer.</p>
+<p>If you have multiple gamelayers (<strong>don&#8217;t</strong> do that!), it will return
+the first one</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.layers">
+<tt class="descname">layers</tt><a class="headerlink" href="#tml.tml.Teemap.layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all layers, collected from the groups.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tml.tml.Teemap.save">
+<tt class="descname">save</tt><big>(</big><em>map_path</em><big>)</big><a class="headerlink" href="#tml.tml.Teemap.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current map to <cite>map_path</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.speeduplayer">
+<tt class="descname">speeduplayer</tt><a class="headerlink" href="#tml.tml.Teemap.speeduplayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the speeduplayer. Only for race modification.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.telelayer">
+<tt class="descname">telelayer</tt><a class="headerlink" href="#tml.tml.Teemap.telelayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the telelayer. Only for race modification.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="header">
 <h2>Header<a class="headerlink" href="#header" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-tml.tml"></span><p>A library which makes it possible to read teeworlds map files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">copyright:</th><td class="field-body">2010-2011 by the TML Team, see AUTHORS for more details.</td>
+</tr>
+<tr class="field"><th class="field-name">license:</th><td class="field-body">GNU GPL, see LICENSE for more details.</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
@@ -108,6 +196,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="mapformat.html" title="The Teeworlds map format"
              >next</a> |</li>
