@@ -26,11 +26,13 @@ class Info(object):
 
     type_size = 6
 
-    def __init__(self, author=None, map_version=None, credits=None, license=None):
+    def __init__(self, author=None, map_version=None, credits=None, license=None,
+                 settings=None):
         self.author = author
         self.map_version = map_version
         self.credits = credits
         self.license = license
+        self.settings = settings
 
     def __repr__(self):
         return '<MapInfo ({0})>'.format(self.author or 'None')
@@ -60,7 +62,7 @@ class Image(object):
             except png.Error:
                 warnings.warn('Image is not in RGBA format')
             except IOError:
-                warnings.warn('External image "%s" does not exist' % self.name)
+                warnings.warn('External image "{0}" does not exist'.format(self.name))
 
     def save(self, dest):
         """Saves the image to the given path.
@@ -72,7 +74,7 @@ class Image(object):
             src = os.sep.join([TML_DIR, 'mapres', self.name])
             src = os.extsep.join([src, 'png'])
             if not os.path.exists(src):
-                raise ValueError('External image "%s" does not exist' % self.name)
+                raise ValueError('External image "{0}" does not exist'.format(self.name))
             shutil.copyfile(src, dest)
         else:
             image = open(dest, 'wb')
@@ -254,15 +256,15 @@ class TileLayer(Layer):
         layer.game = self.game
         for _y in range(h):
             for _x in range(w):
-                layer.tiles[_y * w + _x] = self.tiles.tiles[(y+_y)*self.width+(x+_x)]
+                layer.tiles[_y*w+_x] = self.tiles.tiles[(y+_y)*self.width+(x+_x)]
         if self.tele_tiles and len(self.tele_tiles.tiles) == len(self.tiles.tiles):
             for _y in range(h):
                 for _x in range(w):
-                    layer.tele_tiles[_y * w + _x] = self.tele_tiles.tiles[(y+_y)*self.width+(x+_x)]
+                    layer.tele_tiles[_y*w+_x] = self.tele_tiles.tiles[(y+_y)*self.width+(x+_x)]
         if self.speedup_tiles and len(self.speedup_tiles.tiles) == len(self.tiles.tiles):
             for _y in range(h):
                 for _x in range(w):
-                    layer.speedup_tiles[_y * w + _x] = self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)]
+                    layer.speedup_tiles[_y*w+_x] = self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)]
         return layer
 
     @property

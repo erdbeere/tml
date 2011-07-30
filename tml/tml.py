@@ -7,7 +7,7 @@
     :license: GNU GPL, see LICENSE for more details.
 """
 from constants import *
-from datafile import DataFileReader
+from datafile import DataFileReader, DataFileWriter
 
 class MapError(BaseException):
     """Raised when your map is not a valid teeworlds map.
@@ -90,6 +90,10 @@ class Teemap(object):
         self.groups = datafile.groups
         self.images = datafile.images
         self.info = datafile.info
+
+    def save(self, map_path):
+        """Saves the current map to `map_path`."""
+        DataFileWriter(self, map_path)
 
     def _create_default(self):
         """Creates the default map.

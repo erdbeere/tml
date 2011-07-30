@@ -33,10 +33,10 @@ def string_to_ints(in_string, length=8):
     for i in range(length):
         string = ''
         for j in range(i*4, i*4+4):
-            if j < len(in_string):
+            if in_string and j < len(in_string):
                 string += in_string[j]
             else:
                 string += chr(0)
-        ints.append(((ord(string[0])+128)<<24)|((ord(string[1])+128)<<16)|((ord(string[2])+128)<<8)|(ord(string[3])+128))
-    ints[-1] &= 0xffffff00
+        ints.append(int32(((ord(string[0])+128)<<24)|((ord(string[1])+128)<<16)|((ord(string[2])+128)<<8)|(ord(string[3])+128)))
+    ints[-1] &= int32(0xffffff00)
     return ints
