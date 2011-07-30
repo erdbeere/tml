@@ -15,8 +15,10 @@ Contents:
    :maxdepth: 2
 
    tutorial
-   mapformat
+   items
+   exceptions
    classes
+   mapformat
 
 Indices and tables
 ==================
