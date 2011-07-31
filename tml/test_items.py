@@ -11,6 +11,8 @@ class TestTileLayer(unittest.TestCase):
         self.layer = TileLayer()
         tile = Tile()
         tile.index = 1
+        self.layer.tiles[20] = tile
+        self.layer.tiles[70] = tile
         for i in range(5):
             self.layer.tiles[40 + i] = tile
         for i in range(10):
@@ -89,6 +91,37 @@ class TestTileLayer(unittest.TestCase):
         for tile in layer.tiles[2:5]:
             self.assertEqual(tile.index, 1)
         self.assertEqual(layer.tiles[5].index, 0)
+
+    def test_resizing(self):
+        self.assertEqual(self.layer.width, 50)
+        self.assertEqual(self.layer.height, 50)
+
+        self.layer.width = 25
+        self.assertEqual(self.layer.width, 25)
+        self.assertEqual(len(self.layer.tiles), 25 * 50)
+        self.layer.height = 25
+        self.assertEqual(self.layer.height, 25)
+        self.assertEqual(len(self.layer.tiles), 25 * 25)
+        self.assertEqual(self.layer.tiles[20].index, 1)
+        self.assertEqual(self.layer.tiles[45].index, 1)
+
+        self.layer.width = 100
+        self.assertEqual(self.layer.width, 100)
+        self.assertEqual(len(self.layer.tiles), 100 * 25)
+        self.layer.height = 100
+        self.assertEqual(self.layer.height, 100)
+        self.assertEqual(len(self.layer.tiles), 100 * 100)
+        self.assertEqual(self.layer.tiles[20].index, 1)
+        self.assertEqual(self.layer.tiles[45].index, 1)
+
+        with self.assertRaises(ValueError):
+            self.layer.width = -1
+        with self.assertRaises(ValueError):
+            self.layer.height = -1
+
+    def test_draw(self):
+        # TODO
+        pass
 
 class TestTileManager(unittest.TestCase):
 

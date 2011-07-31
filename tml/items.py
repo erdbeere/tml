@@ -229,8 +229,8 @@ class TileLayer(Layer):
         super(TileLayer, self).__init__(detail)
         self.name = name
         self.color = color
-        self.width = width
-        self.height = height
+        self._width = width
+        self._height = height
         self.game = game
         self.color_env = color_env
         self.color_env_offset = color_env_offset
@@ -250,6 +250,7 @@ class TileLayer(Layer):
         return tiles[y*self.width+x]
 
     def get_tile(self, x, y):
+        """Get a tile by its coordinates."""
         return self._get_tile(self.tiles, x, y)
 
     def get_tele_tile(self, x, y):
@@ -288,6 +289,56 @@ class TileLayer(Layer):
                 for _x in range(w):
                     layer.speedup_tiles[_y*w+_x] = self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)]
         return layer
+
+    def draw(self, x, y, tilelayer):
+        """Draws the the passed tilelayer onto itself.
+
+        If the given tilelayer is too big, it will be cut and the rest
+        discarded
+
+        """
+
+        x = max(0, min(x, self.width-1))
+        y = max(0, min(y, self.height-1))
+        # TODO
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        if value < 0:
+            raise ValueError('Value must be positive')
+        if value < self._width:
+            tiles = self.select(0, 0, value, self.height).tiles
+        elif value > self._width:
+            tiles = TileManager(value * self.height)
+            #TODO: copy old tiledata to new manager
+        else:
+            return
+
+        self._width = value
+        self.tiles = tiles
+
+    @property
+    def height(self):
+        return self._height
+
+    @height.setter
+    def height(self, value):
+        if value < 0:
+            raise ValueError('Value must be positive')
+        if value < self._height:
+            tiles = self.select(0, 0, self.width, value).tiles
+        elif value > self._height:
+            tiles = TileManager(self.width * value)
+            #TODO: copy old tiledata to new manager
+        else:
+            return
+
+        self._height = value
+        self.tiles = tiles
 
     @property
     def is_gamelayer(self):

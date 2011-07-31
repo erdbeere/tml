@@ -98,6 +98,10 @@ class Teemap(object):
         """
         gamelayers = 0
         for layer in self.layers:
+            if layer.type == 'tilelayer':
+                if len(layer.tiles) != layer.width * layer.height:
+                    raise LayerError('Layer width and height does not fit to '
+                                     'the number of tiles')
             if layer.is_gamelayer:
                 gamelayers += 1
         if gamelayers < 1:
