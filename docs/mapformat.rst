@@ -57,6 +57,7 @@ Finally the items are stored. Every item will be stored with all its data in
 this order:
 
 #. version
+#. info
 #. images
 #. envelops
 #. groups
