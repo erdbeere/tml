@@ -50,14 +50,14 @@ class TestTeemap(unittest.TestCase):
         self.assertIs(self.teemap.groups[4].layers[1], self.teemap.layers[5])
 
         names = ['TestQuads', 'Quads', 'TestTiles', 'Game', None, 'LastTiles']
-        classes = [items.QuadLayer, items.QuadLayer, items.TileLayer, items.TileLayer, items.TileLayer,
-                   items.TileLayer]
+        types = ['quadlayer', 'quadlayer', 'tilelayer', 'tilelayer',
+                   'tilelayer', 'tilelayer']
         for i, layer in enumerate(self.teemap.layers):
-            self.assertIsInstance(layer, classes[i])
+            self.assertEqual(layer.type, types[i])
             self.assertEqual(layer.name, names[i])
 
         for layer in self.teemap.layers:
-            if isinstance(layer, items.TileLayer):
+            if layer.type == 'tilelayer':
                 if layer.name == 'TestTiles':
                     self.assertEqual(layer.width, 5)
                     self.assertEqual(layer.height, 3)
@@ -182,7 +182,7 @@ class TestTeemap(unittest.TestCase):
 
         quads = []
         for layer in self.teemap.layers:
-            if isinstance(layer, items.QuadLayer):
+            if layer.type == 'quadlayer':
                 quads.extend(layer.quads)
         for i, quad in enumerate(quads):
             self.assertEqual(quad.pos_env, pos_envs[i])

@@ -375,7 +375,7 @@ class DataFileWriter(object):
         for i, group in enumerate(teemap.groups):
             start_layer = layer_count
             for layer in group.layers:
-                if isinstance(layer, items.TileLayer):
+                if layer.type == 'tilelayer':
                     tile_data = -1
                     tele_tile_data = -1
                     speedup_tile_data = -1
@@ -414,7 +414,7 @@ class DataFileWriter(object):
                                layer.color[2], layer.color[3], layer.color_env,
                                layer.color_env_offset, layer.image_id, tile_data, *name)))
                     layer_count += 1
-                elif isinstance(layer, items.QuadLayer):
+                elif layer.type == 'quadlayer':
                     if len(layer.quads.quads):
                         quads_str = ''
                         for quad in layer.quads.quads:

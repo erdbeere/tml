@@ -162,12 +162,6 @@ class Group(object):
         self.clip_y = clip_y
         self.clip_w = clip_w
         self.clip_h = clip_h
-        if layers is not None:
-            if not isinstance(layers, list):
-                raise TypeError('Param "layers" must be a list.')
-            for layer in layers:
-                if not isinstance(layer, Layer):
-                    raise TypeError('The "layers" list can only contain layers.')
         self.layers = layers or []
 
     def append(self, layer):
@@ -177,8 +171,6 @@ class Group(object):
         :raises: TypeError
 
         """
-        if not isinstance(layer, Layer):
-            raise TypeError('You can only append layers.')
         self.layers.append(layer)
 
     def __repr__(self):
@@ -250,6 +242,7 @@ class TileLayer(Layer):
             self.tele_tiles = tele_tiles or TileManager(width * height, _type=1)
         if game == 4:
             self.speedup_tiles = speedup_tiles or TileManager(width * height, _type=2)
+        self.type = 'tilelayer'
 
     def _get_tile(self, tiles, x, y):
         x = max(0, min(x, self.width-1))
@@ -336,6 +329,7 @@ class QuadLayer(Layer):
         self.name = name
         self.image_id = image_id
         self.quads = quads or QuadManager()
+        self.type = 'quadlayer'
 
     def __repr__(self):
         return '<Quadlayer ({0})>'.format(len(self.quads))
@@ -379,8 +373,6 @@ class QuadManager(object):
         return self._string_to_quad(self.quads[value])
 
     def __setitem__(self, k, v):
-        if not isinstance(v, Quad):
-            raise TypeError('You can only assign Quad objects.')
         self.quads[k] = self._quad_to_string(v)
 
     def __len__(self):
@@ -443,8 +435,6 @@ class Quad(object):
         return '<Quad ({0}:{1})>'.format(*self.points[4])
 
     def __eq__(self, other):
-        if not isinstance(other, Quad):
-            return False
         return self.pos_env == other.pos_env and \
                self.pos_env_offset == other.pos_env_offset and \
                self.color_env == other.color_env and \
@@ -496,19 +486,17 @@ class TileManager(object):
             return TileManager(tiles=self.tiles[value])
         if self.type == 1:
             return TeleTile(self.tiles[value])
-        elif self.type == 2:
+        if self.type == 2:
             return SpeedupTile(self.tiles[value])
         return self._string_to_tile(self.tiles[value])
 
     def __setitem__(self, k, v):
-        if isinstance(v, Tile):
-            self.tiles[k] = self._tile_to_string(v)
-        elif isinstance(v, str):
+        if isinstance(v, str):
             if len(v) != 4:
                 raise ValueError('The string must be exactly 4 chars long.')
             self.tiles[k] = v
         else:
-            raise TypeError('You can only assign Tile or string objects.')
+            self.tiles[k] = self._tile_to_string(v)
 
     def __len__(self):
         return len(self.tiles)
@@ -593,8 +581,6 @@ class Tile(object):
         return '<Tile ({0})>'.format(self.index)
 
     def __eq__(self, other):
-        if not isinstance(other, Tile):
-            return False
         return self.index == other.index and self.flags == other.flags and \
            self.skip == other.skip and self.reserved == other.reserved
 
