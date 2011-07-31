@@ -54,7 +54,7 @@
   <div class="section" id="module-tml.items">
 <span id="items"></span><h1>Items<a class="headerlink" href="#module-tml.items" title="Permalink to this headline">¶</a></h1>
 <p>Collection of different items. The items can for example be assigned to a
-<a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap</span></tt></a> or a <a class="reference internal" href="#tml.items.Layer" title="tml.items.Layer"><tt class="xref py py-class docutils literal"><span class="pre">Layer</span></tt></a>.
+<a class="reference internal" href="teemap.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap</span></tt></a> or a <a class="reference internal" href="#tml.items.Layer" title="tml.items.Layer"><tt class="xref py py-class docutils literal"><span class="pre">Layer</span></tt></a>.
 You can generate new items and just put them in the appropriate place in
 a map, they will be recognized automatically when you save your map.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -71,7 +71,7 @@ a map, they will be recognized automatically when you save your map.</p>
 <dt id="tml.items.Envelope">
 <em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Envelope</tt><big>(</big><em>name=None</em>, <em>version=None</em>, <em>channels=None</em>, <em>envpoints=None</em><big>)</big><a class="headerlink" href="#tml.items.Envelope" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents an envelope.</p>
-<p>The envelopes for a map should be in the list <a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap.envelopes</span></tt></a>.</p>
+<p>The envelopes for a map should be in the list <a class="reference internal" href="teemap.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap.envelopes</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="class">
@@ -84,7 +84,7 @@ be in the <tt class="docutils literal"><span class="pre">envpoints</span></tt> l
 
 <dl class="class">
 <dt id="tml.items.Group">
-<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Group</tt><big>(</big><em>name=None</em>, <em>offset_x=0</em>, <em>offset_y=0</em>, <em>parallax_x=0</em>, <em>parallax_y=0</em>, <em>use_clipping=0</em>, <em>clip_x=0</em>, <em>clip_y=0</em>, <em>clip_w=0</em>, <em>clip_h=0</em>, <em>layers=None</em><big>)</big><a class="headerlink" href="#tml.items.Group" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Group</tt><big>(</big><em>name=None</em>, <em>offset_x=0</em>, <em>offset_y=0</em>, <em>parallax_x=100</em>, <em>parallax_y=100</em>, <em>use_clipping=0</em>, <em>clip_x=0</em>, <em>clip_y=0</em>, <em>clip_w=0</em>, <em>clip_h=0</em>, <em>layers=None</em><big>)</big><a class="headerlink" href="#tml.items.Group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a group.</p>
 <p>The groups of a map should be assigned to <tt class="xref py py-class docutils literal"><span class="pre">Teemap.groups</span></tt></p>
 <dl class="method">
@@ -109,7 +109,7 @@ be in the <tt class="docutils literal"><span class="pre">envpoints</span></tt> l
 <dt id="tml.items.Image">
 <em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Image</tt><big>(</big><em>name</em>, <em>width=0</em>, <em>height=0</em>, <em>external=False</em>, <em>data=None</em>, <em>path=''</em><big>)</big><a class="headerlink" href="#tml.items.Image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents an image.</p>
-<p>The images for a map should be in the list <a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap.images</span></tt></a>.</p>
+<p>The images for a map should be in the list <a class="reference internal" href="teemap.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap.images</span></tt></a>.</p>
 <dl class="method">
 <dt id="tml.items.Image.save">
 <tt class="descname">save</tt><big>(</big><em>dest</em><big>)</big><a class="headerlink" href="#tml.items.Image.save" title="Permalink to this definition">¶</a></dt>
@@ -130,7 +130,7 @@ be in the <tt class="docutils literal"><span class="pre">envpoints</span></tt> l
 <dt id="tml.items.Info">
 <em class="property">class </em><tt class="descclassname">tml.items.</tt><tt class="descname">Info</tt><big>(</big><em>author=None</em>, <em>map_version=None</em>, <em>credits=None</em>, <em>license=None</em>, <em>settings=None</em><big>)</big><a class="headerlink" href="#tml.items.Info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a map info object.</p>
-<p>Should be assigned to <a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap.mapinfo</span></tt></a>.</p>
+<p>Should be assigned to <a class="reference internal" href="teemap.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">Teemap.mapinfo</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="class">
@@ -307,6 +307,20 @@ Default: (255, 255, 255, 255)</li>
 </tbody>
 </table>
 <dl class="method">
+<dt id="tml.items.TileLayer.draw">
+<tt class="descname">draw</tt><big>(</big><em>x</em>, <em>y</em>, <em>tilelayer</em><big>)</big><a class="headerlink" href="#tml.items.TileLayer.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the the passed tilelayer onto itself.</p>
+<p>If the given tilelayer is too big, it will be cut and the rest
+discarded.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tml.items.TileLayer.get_tile">
+<tt class="descname">get_tile</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="headerlink" href="#tml.items.TileLayer.get_tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a tile by its coordinates.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="tml.items.TileLayer.select">
 <tt class="descname">select</tt><big>(</big><em>x</em>, <em>y</em>, <em>w=1</em>, <em>h=1</em><big>)</big><a class="headerlink" href="#tml.items.TileLayer.select" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select an area of the tilelayer.</p>
@@ -321,6 +335,12 @@ the layer.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tml.items.TileLayer.set_tile">
+<tt class="descname">set_tile</tt><big>(</big><em>x</em>, <em>y</em>, <em>tile</em><big>)</big><a class="headerlink" href="#tml.items.TileLayer.set_tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a tile by coordinates.</p>
 </dd></dl>
 
 </dd></dl>

@@ -16,7 +16,7 @@ Contents:
    tutorial
    items
    exceptions
-   classes
+   teemap
    mapformat
 
 Indices and tables

@@ -45,14 +45,14 @@ minimalistic, but valid teeworlds map, you need to add one group and a
 gamelayer.
 
 >>> from tml.tml import Teemap
->>> from tml import items
+>>> from tml.items import Group, TileLayer
 >>> t = Teemap()
 >>> t.groups
 []
->>> t.groups.append(items.Group())
+>>> t.groups.append(Group())
 >>> t.groups[0].layers
 []
->>> t.groups[0].layers.append(items.TileLayer(game=True))
+>>> t.groups[0].layers.append(TileLayer(game=True))
 >>> t.layers
 [<Game layer (50x50)>]
 >>> t.groups
@@ -112,13 +112,28 @@ edges of the layer, your values will just be clamped.
   <Game layer (1x5)>
 
 
+Drawing on a tilelayer
+----------------------
+
+Like with the brush in teeworlds, you can draw one tilelayer (the one on the
+brush) onto another. Call the draw method of the layer which should get the
+tiles from the other one, and give it the x and y coordinates.
+
+>>> destination_layer.draw(20, 10, source_layer)
+
 Resizing a tilelayer
 --------------------
 
-TODO
+Maybe you want to change the size of a tilelayer. Don't worry about adding or
+removing tiles from the tilemanager - just set the new width and height of the
+layer:
 
-Not even implemented, change width and height to properties and if changed,
-extend or cutoff the content of tilemanager. Select should be usefull.
+>>> layer.width = 10
+>>> layer.height = 200
+
+Internally, the number of tiles in the tilemanager will be changed to fit to
+the new size. This is why you should *never* try to add or remove objects
+manually from a manager, the layer handles it itself!
 
 Saving a map
 ============

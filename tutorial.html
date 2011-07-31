@@ -82,7 +82,7 @@ Example: Getting a list of tiles and their index.</p>
 <span class="go">24</span>
 </pre></div>
 </div>
-<p>For a full list of all methods and attributes, check <a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">tml.tml.Teemap</span></tt></a></p>
+<p>For a full list of all methods and attributes, check <a class="reference internal" href="teemap.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">tml.tml.Teemap</span></tt></a></p>
 </div>
 </div>
 <div class="section" id="modifying-creating-a-map-from-scratch">
@@ -91,14 +91,14 @@ Example: Getting a list of tiles and their index.</p>
 minimalistic, but valid teeworlds map, you need to add one group and a
 gamelayer.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tml.tml</span> <span class="kn">import</span> <span class="n">Teemap</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tml</span> <span class="kn">import</span> <span class="n">items</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tml.items</span> <span class="kn">import</span> <span class="n">Group</span><span class="p">,</span> <span class="n">TileLayer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Teemap</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span>
 <span class="go">[]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">Group</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Group</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">layers</span>
 <span class="go">[]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">TileLayer</span><span class="p">(</span><span class="n">game</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TileLayer</span><span class="p">(</span><span class="n">game</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">layers</span>
 <span class="go">[&lt;Game layer (50x50)&gt;]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span>
@@ -107,7 +107,7 @@ gamelayer.</p>
 </pre></div>
 </div>
 <p>Note that a gamelayer is just a tilelayer with a special <tt class="docutils literal"><span class="pre">game</span> <span class="pre">flag</span></tt></p>
-<p>You can at any time call the <a class="reference internal" href="classes.html#tml.tml.Teemap.validate" title="tml.tml.Teemap.validate"><tt class="xref py py-meth docutils literal"><span class="pre">validate</span></tt></a>
+<p>You can at any time call the <a class="reference internal" href="teemap.html#tml.tml.Teemap.validate" title="tml.tml.Teemap.validate"><tt class="xref py py-meth docutils literal"><span class="pre">validate</span></tt></a>
 method, which will return <tt class="xref docutils literal"><span class="pre">True</span></tt> if your map is ready to be saved, or raise
 an error with information what is wrong with your map.</p>
 <div class="section" id="managers">
@@ -153,17 +153,33 @@ edges of the layer, your values will just be clamped.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="drawing-on-a-tilelayer">
+<h3>Drawing on a tilelayer<a class="headerlink" href="#drawing-on-a-tilelayer" title="Permalink to this headline">¶</a></h3>
+<p>Like with the brush in teeworlds, you can draw one tilelayer (the one on the
+brush) onto another. Call the draw method of the layer which should get the
+tiles from the other one, and give it the x and y coordinates.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">destination_layer</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">source_layer</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="resizing-a-tilelayer">
 <h3>Resizing a tilelayer<a class="headerlink" href="#resizing-a-tilelayer" title="Permalink to this headline">¶</a></h3>
-<p>TODO</p>
-<p>Not even implemented, change width and height to properties and if changed,
-extend or cutoff the content of tilemanager. Select should be usefull.</p>
+<p>Maybe you want to change the size of a tilelayer. Don&#8217;t worry about adding or
+removing tiles from the tilemanager - just set the new width and height of the
+layer:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">layer</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">layer</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">200</span>
+</pre></div>
+</div>
+<p>Internally, the number of tiles in the tilemanager will be changed to fit to
+the new size. This is why you should <em>never</em> try to add or remove objects
+manually from a manager, the layer handles it itself!</p>
 </div>
 </div>
 <div class="section" id="saving-a-map">
 <h2>Saving a map<a class="headerlink" href="#saving-a-map" title="Permalink to this headline">¶</a></h2>
 <p>Saving a map to a file is just as easy as reading it. Just call the
-<a class="reference internal" href="classes.html#tml.tml.Teemap.save" title="tml.tml.Teemap.save"><tt class="xref py py-meth docutils literal"><span class="pre">save</span></tt></a> method and give it the path where it
+<a class="reference internal" href="teemap.html#tml.tml.Teemap.save" title="tml.tml.Teemap.save"><tt class="xref py py-meth docutils literal"><span class="pre">save</span></tt></a> method and give it the path where it
 should save the file. You can, but do not need to leave ot the <tt class="docutils literal"><span class="pre">.map</span></tt>
 fileextension, it will be added automatically.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">teemap</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;/home/tee/my_great_map&#39;</span><span class="p">)</span>
@@ -189,6 +205,7 @@ fileextension, it will be added automatically.</p>
 <li><a class="reference internal" href="#modifying-creating-a-map-from-scratch">Modifying &amp; creating a map from scratch</a><ul>
 <li><a class="reference internal" href="#managers">Managers</a></li>
 <li><a class="reference internal" href="#selecting-a-subset-of-a-tilelayer">Selecting a subset of a tilelayer</a></li>
+<li><a class="reference internal" href="#drawing-on-a-tilelayer">Drawing on a tilelayer</a></li>
 <li><a class="reference internal" href="#resizing-a-tilelayer">Resizing a tilelayer</a></li>
 </ul>
 </li>
