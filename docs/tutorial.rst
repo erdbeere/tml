@@ -45,14 +45,14 @@ minimalistic, but valid teeworlds map, you need to add one group and a
 gamelayer.
 
 >>> from tml.tml import Teemap
->>> from tml import items
+>>> from tml.items import Group, TileLayer
 >>> t = Teemap()
 >>> t.groups
 []
->>> t.groups.append(items.Group())
+>>> t.groups.append(Group())
 >>> t.groups[0].layers
 []
->>> t.groups[0].layers.append(items.TileLayer(game=True))
+>>> t.groups[0].layers.append(TileLayer(game=True))
 >>> t.layers
 [<Game layer (50x50)>]
 >>> t.groups
