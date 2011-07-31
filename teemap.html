@@ -1,0 +1,196 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Teemap &mdash; tml v0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="tml v0.1.0 documentation" href="index.html" />
+    <link rel="next" title="Excursion: The Teeworlds map format" href="mapformat.html" />
+    <link rel="prev" title="Exceptions" href="exceptions.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mapformat.html" title="Excursion: The Teeworlds map format"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="exceptions.html" title="Exceptions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">tml v0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="teemap">
+<h1>Teemap<a class="headerlink" href="#teemap" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tml.tml.Teemap">
+<em class="property">class </em><tt class="descclassname">tml.tml.</tt><tt class="descname">Teemap</tt><big>(</big><em>map_path=None</em><big>)</big><a class="headerlink" href="#tml.tml.Teemap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of a teeworlds map.</p>
+<p>All information about the map can be accessed through this class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>map_path</strong> &#8211; Path to the teeworlds mapfile.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="Teemap.images">
+<tt class="descname">images</tt><a class="headerlink" href="#Teemap.images" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all <a class="reference internal" href="items.html#tml.items.Image" title="tml.items.Image"><tt class="xref py py-class docutils literal"><span class="pre">images</span></tt></a> included in the map,
+external and embedded.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Teemap.groups">
+<tt class="descname">groups</tt><a class="headerlink" href="#Teemap.groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of the <a class="reference internal" href="items.html#tml.items.Group" title="tml.items.Group"><tt class="xref py py-class docutils literal"><span class="pre">groups</span></tt></a>, ordered like they are
+placed in teeworlds.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Teemap.mapinfo">
+<tt class="descname">mapinfo</tt><a class="headerlink" href="#Teemap.mapinfo" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="xref py py-class docutils literal"><span class="pre">MapInfo</span></tt> object, contains information
+like author and maplicense. Can be <tt class="xref docutils literal"><span class="pre">None</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Teemap.envelopes">
+<tt class="descname">envelopes</tt><a class="headerlink" href="#Teemap.envelopes" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all <a class="reference internal" href="items.html#tml.items.Envelope" title="tml.items.Envelope"><tt class="xref py py-class docutils literal"><span class="pre">envelopes</span></tt></a> of the map.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.gamelayer">
+<tt class="descname">gamelayer</tt><a class="headerlink" href="#tml.tml.Teemap.gamelayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the gamelayer.</p>
+<p>If you have multiple gamelayers (<strong>don&#8217;t</strong> do that!), it will return
+the first one</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.layers">
+<tt class="descname">layers</tt><a class="headerlink" href="#tml.tml.Teemap.layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all layers, collected from the groups.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tml.tml.Teemap.save">
+<tt class="descname">save</tt><big>(</big><em>map_path</em><big>)</big><a class="headerlink" href="#tml.tml.Teemap.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current map to <cite>map_path</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.speeduplayer">
+<tt class="descname">speeduplayer</tt><a class="headerlink" href="#tml.tml.Teemap.speeduplayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the speeduplayer. Only for race modification.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tml.tml.Teemap.telelayer">
+<tt class="descname">telelayer</tt><a class="headerlink" href="#tml.tml.Teemap.telelayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the telelayer. Only for race modification.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tml.tml.Teemap.validate">
+<tt class="descname">validate</tt><big>(</big><big>)</big><a class="headerlink" href="#tml.tml.Teemap.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the map is a valid teeworlds map.</p>
+<p>Returns <tt class="xref docutils literal"><span class="pre">True</span></tt> or raises an exception.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="exceptions.html"
+                        title="previous chapter">Exceptions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mapformat.html"
+                        title="next chapter">Excursion: The Teeworlds map format</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/teemap.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mapformat.html" title="Excursion: The Teeworlds map format"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="exceptions.html" title="Exceptions"
+             >previous</a> |</li>
+        <li><a href="index.html">tml v0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2011, TML Team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
