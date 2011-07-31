@@ -244,11 +244,14 @@ class TileLayer(Layer):
             self.speedup_tiles = speedup_tiles or TileManager(width * height, _type=2)
         self.type = 'tilelayer'
 
-    def _get_tile(self, tiles, x, y):
+    def _check_bounds(self, x, y):
         if not 0 <= x < self.width:
             raise ValueError('x is out of bounds')
         if not 0 <= y < self.height:
             raise ValueError('y is out of bounds')
+
+    def _get_tile(self, tiles, x, y):
+        self._check_bounds(x, y)
         x = max(0, min(x, self.width-1))
         y = max(0, min(y, self.height-1))
         return tiles[y*self.width+x]
@@ -265,7 +268,8 @@ class TileLayer(Layer):
 
     def set_tile(self, x, y, tile):
         """Set a tile by coordinates."""
-        self.tiles
+        self._check_bounds(x, y)
+        self.tiles[y*self.width+x] = tile
 
     def select(self, x, y, w=1, h=1):
         """Select an area of the tilelayer.

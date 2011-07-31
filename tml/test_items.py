@@ -9,8 +9,7 @@ class TestTileLayer(unittest.TestCase):
 
     def setUp(self):
         self.layer = TileLayer()
-        tile = Tile()
-        tile.index = 1
+        tile = Tile(1)
         self.layer.tiles[20] = tile
         self.layer.tiles[70] = tile
         for i in range(5):
@@ -49,6 +48,19 @@ class TestTileLayer(unittest.TestCase):
         self.assertRaises(ValueError, self.layer.get_tile, -1, 49)
         self.assertRaises(ValueError, self.layer.get_tile, 49, 50)
         self.assertRaises(ValueError, self.layer.get_tile, 49, -1)
+
+    def test_set_tile(self):
+        tile = Tile(20)
+        for i in range(5):
+            self.layer.set_tile(40 + i, 0, tile)
+            self.assertEqual(self.layer.tiles[40 + i], tile)
+        for i in range(10):
+            self.layer.set_tile(40 + i, 10, tile)
+            self.assertEqual(self.layer.tiles[540 + i], tile)
+        self.assertRaises(ValueError, self.layer.set_tile, 50, 49, tile)
+        self.assertRaises(ValueError, self.layer.set_tile, -1, 49, tile)
+        self.assertRaises(ValueError, self.layer.set_tile, 49, 50, tile)
+        self.assertRaises(ValueError, self.layer.set_tile, 49, -1, tile)
 
     def test_select(self):
         layer = self.layer.select(40, 4)
