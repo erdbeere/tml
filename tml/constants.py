@@ -25,3 +25,21 @@ TILEFLAG_OPAQUE = 4
 TILEFLAG_ROTATE = 8
 
 LAYERFLAG_DETAIL = 1
+
+TILEINDEX  = {
+    'air': 0,
+    'solid': 1,
+    'death': 2,
+    'nohook': 3,
+    'spawn': 192,
+    'spawn_red': 193,
+    'spawn_blue': 193,
+    'flagstand_red': 194,
+    'flagstand_blue': 195,
+    'armor': 196,
+    'health': 197,
+    'shotgun': 198,
+    'grenade': 199,
+    'ninja': 200,
+    'rifle': 201,
+}
