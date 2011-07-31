@@ -32,5 +32,5 @@ Teemap
 Header
 ======
 
-.. autoclass:: tml.tml.Header
+.. autoclass:: tml.datafile.Header
    :members:
