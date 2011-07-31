@@ -17,9 +17,9 @@ from zlib import decompress
 
 import png
 
-from .constants import ITEM_TYPES, TML_DIR, TILEFLAG_VFLIP, \
+from constants import ITEM_TYPES, TML_DIR, TILEFLAG_VFLIP, \
      TILEFLAG_HFLIP, TILEFLAG_OPAQUE, TILEFLAG_ROTATE
-from .utils import ints_to_string
+from utils import ints_to_string
 
 #GAMELAYER_IMAGE = PIL.Image.open(os.path.join(TML_DIR,
 #	os.extsep.join(('entities', 'png'))))
@@ -286,20 +286,25 @@ class TileLayer(Layer):
         y = max(0, min(y, self.height-1))
         w = max(1, min(w, self.width-x))
         h = max(1, min(h, self.height-y))
-        layer = TileLayer(w, h)
-        layer.color = self.color
-        layer.game = self.game
+        layer = TileLayer(w, h, game=self.game, color=self.color,
+                          color_env=self.color_env,
+                          color_env_offset=self.color_env_offset,
+                          image_id=self.image_id)
+        data = []
         for _y in range(h):
             for _x in range(w):
-                layer.tiles[_y*w+_x] = self.tiles.tiles[(y+_y)*self.width+(x+_x)]
+                data.append(self.tiles.tiles[(y+_y)*self.width+(x+_x)])
+        layer.tiles = TileManager(data=data)
         if self.tele_tiles and len(self.tele_tiles.tiles) == len(self.tiles.tiles):
             for _y in range(h):
                 for _x in range(w):
-                    layer.tele_tiles[_y*w+_x] = self.tele_tiles.tiles[(y+_y)*self.width+(x+_x)]
+                    data.append(self.tele_tiles.tiles[(y+_y)*self.width+(x+_x)])
+        layer.tele_tiles = TileManager(data=data)
         if self.speedup_tiles and len(self.speedup_tiles.tiles) == len(self.tiles.tiles):
             for _y in range(h):
                 for _x in range(w):
-                    layer.speedup_tiles[_y*w+_x] = self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)]
+                    data.append(self.speedup_tiles.tiles[(y+_y)*self.width+(x+_x)])
+        layer.speedup_tiles = TileManager(data=data)
         return layer
 
     def draw(self, x, y, tilelayer):
@@ -312,7 +317,14 @@ class TileLayer(Layer):
 
         x = max(0, min(x, self.width-1))
         y = max(0, min(y, self.height-1))
-        # TODO
+
+        for _y in range(tilelayer.height):
+            for _x in range(tilelayer.width):
+                tile = tilelayer.tiles[_y*tilelayer.width+_x]
+                try:
+                    self.tiles[(y+_y)*self.width+(x+_x)] = tile
+                except IndexError:
+                    pass
 
     @property
     def width(self):
@@ -537,8 +549,7 @@ class TileManager(object):
     def __init__(self, size=0, tiles=None, data=None, _type=0):
         self.type = _type
         if tiles is not None:
-            #TODO: convert Tiles to string
-            self.tiles = tiles
+            self.tiles = [self._tile_to_string(tile) for tile in tiles]
         elif data is not None:
             self.tiles = data
         else:
@@ -546,7 +557,7 @@ class TileManager(object):
 
     def __getitem__(self, value):
         if isinstance(value, slice):
-            return TileManager(tiles=self.tiles[value])
+            return TileManager(data=self.tiles[value])
         if self.type == 1:
             return TeleTile(self.tiles[value])
         if self.type == 2:

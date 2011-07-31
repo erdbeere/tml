@@ -2,7 +2,7 @@
 
 import unittest
 
-from .utils import ints_to_string, string_to_ints
+from utils import ints_to_string, string_to_ints
 
 TEST_INT = [-186256396, -2139062144, -2139062144, -2139062144, -2139062144,
             -2139062144, -2139062144, -2139062272]

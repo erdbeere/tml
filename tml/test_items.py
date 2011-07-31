@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from .items import Layer, TileLayer, TileManager, Tile, QuadLayer, QuadManager, \
+from items import Layer, TileLayer, TileManager, Tile, QuadLayer, QuadManager, \
      Quad
 
 class TestTileLayer(unittest.TestCase):
@@ -137,8 +137,31 @@ class TestTileLayer(unittest.TestCase):
             self.layer.height = -1
 
     def test_draw(self):
-        # TODO
-        pass
+        layer = TileLayer(10, 5)
+        tile = Tile(10)
+        layer.set_tile(0, 0, tile)
+        layer.set_tile(0, 4, tile)
+        layer.set_tile(9, 0, tile)
+        layer.set_tile(9, 4, tile)
+        self.layer.set_tile(10, 5, Tile(5))
+
+        self.layer.draw(0, 0, layer)
+        self.assertEqual(self.layer.get_tile(0, 0).index, 10)
+        self.assertEqual(self.layer.get_tile(0, 4).index, 10)
+        self.assertEqual(self.layer.get_tile(9, 0).index, 10)
+        self.assertEqual(self.layer.get_tile(9, 4).index, 10)
+        self.assertEqual(self.layer.get_tile(10, 5).index, 5)
+
+        self.layer.draw(5, 3, layer)
+        self.assertEqual(self.layer.get_tile(5, 3).index, 10)
+        self.assertEqual(self.layer.get_tile(5, 7).index, 10)
+        self.assertEqual(self.layer.get_tile(14, 3).index, 10)
+        self.assertEqual(self.layer.get_tile(14, 7).index, 10)
+        self.assertEqual(self.layer.get_tile(10, 5).index, 0)
+
+        self.layer.draw(49, 48, layer)
+        self.assertEqual(self.layer.get_tile(49, 48).index, 10)
+        self.assertEqual(self.layer.get_tile(49, 49).index, 0)
 
 class TestTileManager(unittest.TestCase):
 
