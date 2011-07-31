@@ -1,10 +1,10 @@
-========================
-The Teeworlds map format
-========================
+***********************************
+Excursion: The Teeworlds map format
+***********************************
 
-In this section you will learn how a teeworlds map is structured. This
-knowledge is not needed for using the library, but it can be helpfull if you
-are interested in understanding what is going on behind the scenes or just want
+In this chapter you will learn how a teeworlds map is structured. This
+knowledge is not necessary for using tml, but it can be helpfull if you are
+interested in understanding what is going on under the hood or just want
 to hack a map yourself.
 
 Header
@@ -14,7 +14,7 @@ it is the "signature" of a teeworlds map. After that there is an int which
 contains the version of the mapformat, teeworlds 0.5 uses version 4 but also
 supports 3, this libary only supports 4.
 
-   DATA\\x04\\x00\\x00\\x00
+   ``DATA\\x04\\x00\\x00\\x00``
 
 Then there are four more ints which can be read straight from the file.
 These are "size", "swaplen", "num_item_types", "num_items", "num_raw_data",

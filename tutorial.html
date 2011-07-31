@@ -85,11 +85,90 @@ Example: Getting a list of tiles and their index.</p>
 <p>For a full list of all methods and attributes, check <a class="reference internal" href="classes.html#tml.tml.Teemap" title="tml.tml.Teemap"><tt class="xref py py-class docutils literal"><span class="pre">tml.tml.Teemap</span></tt></a></p>
 </div>
 </div>
-<div class="section" id="creating-a-map-from-scratch">
-<h2>Creating a map from scratch<a class="headerlink" href="#creating-a-map-from-scratch" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="modifying-creating-a-map-from-scratch">
+<h2>Modifying &amp; creating a map from scratch<a class="headerlink" href="#modifying-creating-a-map-from-scratch" title="Permalink to this headline">¶</a></h2>
+<p>A new Teemap objekt does not contain any layers or groups. To create a
+minimalistic, but valid teeworlds map, you need to add one group and a
+gamelayer.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tml.tml</span> <span class="kn">import</span> <span class="n">Teemap</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tml</span> <span class="kn">import</span> <span class="n">items</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Teemap</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">Group</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">layers</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">TileLayer</span><span class="p">(</span><span class="n">game</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">layers</span>
+<span class="go">[&lt;Game layer (50x50)&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">groups</span>
+<span class="go">[&lt;Group (1)&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;hello map&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that a gamelayer is just a tilelayer with a special <tt class="docutils literal"><span class="pre">game</span> <span class="pre">flag</span></tt></p>
+<p>You can at any time call the <a class="reference internal" href="classes.html#tml.tml.Teemap.validate" title="tml.tml.Teemap.validate"><tt class="xref py py-meth docutils literal"><span class="pre">validate</span></tt></a>
+method, which will return <tt class="xref docutils literal"><span class="pre">True</span></tt> if your map is ready to be saved, or raise
+an error with information what is wrong with your map.</p>
+<div class="section" id="managers">
+<h3>Managers<a class="headerlink" href="#managers" title="Permalink to this headline">¶</a></h3>
+<p>For an efficiently memory usage, we do not save the <a class="reference internal" href="items.html#tml.items.Tile" title="tml.items.Tile"><tt class="xref py py-class docutils literal"><span class="pre">Tile</span></tt></a> and <a class="reference internal" href="items.html#tml.items.Quad" title="tml.items.Quad"><tt class="xref py py-class docutils literal"><span class="pre">Quad</span></tt></a> objects in simple lists.
+There is a huge number of tiles and quads in a average map, saving them as
+Tile and Quad objects will eat up your ram. For this reason, we save them as
+plain strings. A single tile may look like this:</p>
+<blockquote>
+<div><tt class="docutils literal"><span class="pre">\x01\x00\x00\x00</span></tt></div></blockquote>
+<p>The quads, too, just a bit longer. Nevertheless, we want you to provide a
+simple interface, and not give you those ugly strings. This is why we invented
+the <tt class="xref py py-class docutils literal"><span class="pre">Quad-</span> <span class="pre">&lt;tml.items.QuadManager</span></tt> and <tt class="xref py py-class docutils literal"><span class="pre">TileManager</span>
+<span class="pre">&lt;tml.items.TileManager</span></tt>. You can access the tiles through the manager like a
+normal list, and the manager will generate a Tile or Quad object for you on the
+fly. But keep in mind, that the generate object is <strong>only a copy</strong> of the
+string representation of the tile or quad! That means, that you need to
+explicity assign the tile, if you changed it! This will NOT work:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">layer</span><span class="o">.</span><span class="n">tiles</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="s">&#39;l&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Instead, do this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tile</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">tiles</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tile</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="s">&#39;l&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">layer</span><span class="o">.</span><span class="n">tiles</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">tile</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="selecting-a-subset-of-a-tilelayer">
+<h3>Selecting a subset of a tilelayer<a class="headerlink" href="#selecting-a-subset-of-a-tilelayer" title="Permalink to this headline">¶</a></h3>
+<p>You can cut out an rectangle of a layer and get a new layer. Use <a class="reference internal" href="items.html#tml.items.TileLayer.select" title="tml.items.TileLayer.select"><tt class="xref py py-meth docutils literal"><span class="pre">select</span></tt></a> for that purpose. If you try to select over the
+edges of the layer, your values will just be clamped.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">gamelayer</span>
+<span class="go">&lt;Game layer (60x50)&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">gamelayer</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+<span class="go">&lt;Game layer (5x10)&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">gamelayer</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">42</span><span class="p">)</span>
+<span class="go">&lt;Game layer (20x42)&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">gamelayer</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">&lt;Game layer (10x5)&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">gamelayer</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">&lt;Game layer (1x5)&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="resizing-a-tilelayer">
+<h3>Resizing a tilelayer<a class="headerlink" href="#resizing-a-tilelayer" title="Permalink to this headline">¶</a></h3>
+<p>TODO</p>
+<p>Not even implemented, change width and height to properties and if changed,
+extend or cutoff the content of tilemanager. Select should be usefull.</p>
+</div>
 </div>
 <div class="section" id="saving-a-map">
 <h2>Saving a map<a class="headerlink" href="#saving-a-map" title="Permalink to this headline">¶</a></h2>
+<p>Saving a map to a file is just as easy as reading it. Just call the
+<a class="reference internal" href="classes.html#tml.tml.Teemap.save" title="tml.tml.Teemap.save"><tt class="xref py py-meth docutils literal"><span class="pre">save</span></tt></a> method and give it the path where it
+should save the file. You can, but do not need to leave ot the <tt class="docutils literal"><span class="pre">.map</span></tt>
+fileextension, it will be added automatically.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">teemap</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;/home/tee/my_great_map&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -107,7 +186,12 @@ Example: Getting a list of tiles and their index.</p>
 <li><a class="reference internal" href="#reading">Reading</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#creating-a-map-from-scratch">Creating a map from scratch</a></li>
+<li><a class="reference internal" href="#modifying-creating-a-map-from-scratch">Modifying &amp; creating a map from scratch</a><ul>
+<li><a class="reference internal" href="#managers">Managers</a></li>
+<li><a class="reference internal" href="#selecting-a-subset-of-a-tilelayer">Selecting a subset of a tilelayer</a></li>
+<li><a class="reference internal" href="#resizing-a-tilelayer">Resizing a tilelayer</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#saving-a-map">Saving a map</a></li>
 </ul>
 </li>

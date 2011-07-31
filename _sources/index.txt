@@ -6,8 +6,7 @@
 Welcome to TeeworldsMapLib's documentation!
 ===========================================
 
-The TeeworldsMapLib is a python module which makes it possible to read, modify
-and save teeworlds map files without using the original Teeworlds client.
+.. automodule:: tml.tml
 
 Contents:
 

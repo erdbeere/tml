@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The Teeworlds map format &mdash; tml v0.1.0 documentation</title>
+    <title>Excursion: The Teeworlds map format &mdash; tml v0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -47,11 +47,11 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="the-teeworlds-map-format">
-<h1>The Teeworlds map format<a class="headerlink" href="#the-teeworlds-map-format" title="Permalink to this headline">¶</a></h1>
-<p>In this section you will learn how a teeworlds map is structured. This
-knowledge is not needed for using the library, but it can be helpfull if you
-are interested in understanding what is going on behind the scenes or just want
+  <div class="section" id="excursion-the-teeworlds-map-format">
+<h1>Excursion: The Teeworlds map format<a class="headerlink" href="#excursion-the-teeworlds-map-format" title="Permalink to this headline">¶</a></h1>
+<p>In this chapter you will learn how a teeworlds map is structured. This
+knowledge is not necessary for using tml, but it can be helpfull if you are
+interested in understanding what is going on under the hood or just want
 to hack a map yourself.</p>
 <div class="section" id="header">
 <h2>Header<a class="headerlink" href="#header" title="Permalink to this headline">¶</a></h2>
@@ -60,7 +60,7 @@ it is the &#8220;signature&#8221; of a teeworlds map. After that there is an int
 contains the version of the mapformat, teeworlds 0.5 uses version 4 but also
 supports 3, this libary only supports 4.</p>
 <blockquote>
-<div>DATA\x04\x00\x00\x00</div></blockquote>
+<div><tt class="docutils literal"><span class="pre">DATA\\x04\\x00\\x00\\x00</span></tt></div></blockquote>
 <p>Then there are four more ints which can be read straight from the file.
 These are &#8220;size&#8221;, &#8220;swaplen&#8221;, &#8220;num_item_types&#8221;, &#8220;num_items&#8221;, &#8220;num_raw_data&#8221;,
 &#8220;item_size&#8221; and &#8220;data_size&#8221;.</p>
@@ -125,7 +125,7 @@ The compressed data part stores image names, tiles, quads and embedded images.</
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">The Teeworlds map format</a><ul>
+<li><a class="reference internal" href="#">Excursion: The Teeworlds map format</a><ul>
 <li><a class="reference internal" href="#header">Header</a></li>
 <li><a class="reference internal" href="#types">Types</a></li>
 <li><a class="reference internal" href="#item-offsets">Item offsets</a></li>

@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="tml v0.1.0 documentation" href="index.html" />
-    <link rel="next" title="The Teeworlds map format" href="mapformat.html" />
+    <link rel="next" title="Excursion: The Teeworlds map format" href="mapformat.html" />
     <link rel="prev" title="Exceptions" href="exceptions.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="mapformat.html" title="The Teeworlds map format"
+          <a href="mapformat.html" title="Excursion: The Teeworlds map format"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="exceptions.html" title="Exceptions"
@@ -128,22 +128,34 @@ the first one</p>
 <dd><p>Returns the telelayer. Only for race modification.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="tml.tml.Teemap.validate">
+<tt class="descname">validate</tt><big>(</big><big>)</big><a class="headerlink" href="#tml.tml.Teemap.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the map is a valid teeworlds map.</p>
+<p>Returns <tt class="xref docutils literal"><span class="pre">True</span></tt> or raises an exception.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
 <div class="section" id="header">
 <h2>Header<a class="headerlink" href="#header" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-tml.tml"></span><p>A library which makes it possible to read teeworlds map files.</p>
+<dl class="class">
+<dt id="tml.datafile.Header">
+<em class="property">class </em><tt class="descclassname">tml.datafile.</tt><tt class="descname">Header</tt><big>(</big><em>f=None</em><big>)</big><a class="headerlink" href="#tml.datafile.Header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains fileheader information.</p>
+<p>Please make sure the passed file is at the beginning.
+Note that the file won&#8217;t be rewinded!</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">copyright:</th><td class="field-body">2010-2011 by the TML Team, see AUTHORS for more details.</td>
-</tr>
-<tr class="field"><th class="field-name">license:</th><td class="field-body">GNU GPL, see LICENSE for more details.</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> &#8211; The file with the information.</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
 </div>
 </div>
 
@@ -167,7 +179,7 @@ the first one</p>
                         title="previous chapter">Exceptions</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="mapformat.html"
-                        title="next chapter">The Teeworlds map format</a></p>
+                        title="next chapter">Excursion: The Teeworlds map format</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/classes.txt"
@@ -200,7 +212,7 @@ the first one</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="mapformat.html" title="The Teeworlds map format"
+          <a href="mapformat.html" title="Excursion: The Teeworlds map format"
              >next</a> |</li>
         <li class="right" >
           <a href="exceptions.html" title="Exceptions"
