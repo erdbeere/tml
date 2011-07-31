@@ -337,8 +337,9 @@ class TileLayer(Layer):
         if value < self._width:
             tiles = self.select(0, 0, value, self.height).tiles
         elif value > self._width:
-            tiles = TileManager(value * self.height)
-            #TODO: copy old tiledata to new manager
+            layer = TileLayer(value, self.height)
+            layer.draw(0, 0, self)
+            tiles = layer.tiles
         else:
             return
 
@@ -356,8 +357,9 @@ class TileLayer(Layer):
         if value < self._height:
             tiles = self.select(0, 0, self.width, value).tiles
         elif value > self._height:
-            tiles = TileManager(self.width * value)
-            #TODO: copy old tiledata to new manager
+            layer = TileLayer(self.width, value)
+            layer.draw(0, 0, self)
+            tiles = layer.tiles
         else:
             return
 

@@ -10,8 +10,8 @@ class TestTileLayer(unittest.TestCase):
     def setUp(self):
         self.layer = TileLayer()
         tile = Tile(1)
-        self.layer.tiles[20] = tile
-        self.layer.tiles[70] = tile
+        self.layer.set_tile(20, 0, tile)
+        self.layer.set_tile(20, 1, tile)
         for i in range(5):
             self.layer.tiles[40 + i] = tile
         for i in range(10):
@@ -121,15 +121,14 @@ class TestTileLayer(unittest.TestCase):
         self.assertEqual(self.layer.tiles[20].index, 1)
         self.assertEqual(self.layer.tiles[45].index, 1)
 
-        return
         self.layer.width = 100
         self.assertEqual(self.layer.width, 100)
         self.assertEqual(len(self.layer.tiles), 100 * 25)
         self.layer.height = 100
         self.assertEqual(self.layer.height, 100)
         self.assertEqual(len(self.layer.tiles), 100 * 100)
-        self.assertEqual(self.layer.tiles[20].index, 1)
-        self.assertEqual(self.layer.tiles[45].index, 1)
+        self.assertEqual(self.layer.get_tile(20, 0).index, 1)
+        self.assertEqual(self.layer.get_tile(20, 1).index, 1)
 
         with self.assertRaises(ValueError):
             self.layer.width = -1
@@ -152,6 +151,7 @@ class TestTileLayer(unittest.TestCase):
         self.assertEqual(self.layer.get_tile(9, 4).index, 10)
         self.assertEqual(self.layer.get_tile(10, 5).index, 5)
 
+        # assert offset
         self.layer.draw(5, 3, layer)
         self.assertEqual(self.layer.get_tile(5, 3).index, 10)
         self.assertEqual(self.layer.get_tile(5, 7).index, 10)
@@ -159,6 +159,7 @@ class TestTileLayer(unittest.TestCase):
         self.assertEqual(self.layer.get_tile(14, 7).index, 10)
         self.assertEqual(self.layer.get_tile(10, 5).index, 0)
 
+        # assert clamping
         self.layer.draw(49, 48, layer)
         self.assertEqual(self.layer.get_tile(49, 48).index, 10)
         self.assertEqual(self.layer.get_tile(49, 49).index, 0)
