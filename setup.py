@@ -20,6 +20,8 @@ def read_file(filename):
 # Use the docstring of the __init__ file to be the description
 DESC = " ".join(__import__('tml').__doc__.splitlines()).strip()
 
+maps = [os.sep.join(('tml/maps', name)) for name in os.listdir('tml/maps')]
+mapres = [os.sep.join(('tml/mapres', name)) for name in os.listdir('tml/mapres')]
 setup(
     name = "tml",
     version = __import__('tml').get_version().replace(' ', '-'),
@@ -34,4 +36,6 @@ setup(
     classifiers = [
         'License :: OSI Approved :: GNU General Public License (GPL)',
     ],
+    data_files=[('tml/maps', maps),
+                ('tml/mapres', mapres)]
 )
