@@ -17,6 +17,7 @@ Contents:
    items
    exceptions
    teemap
+   example
    mapformat
 
 Indices and tables

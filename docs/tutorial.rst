@@ -35,6 +35,7 @@ Example: Getting a list of tiles and their index.
 >>> tiles[90].index
 24
 
+Check out the page ":ref:`example`" for some impressions what is possible.
 For a full list of all methods and attributes, check :class:`tml.tml.Teemap`
 
 Modifying & creating a map from scratch
