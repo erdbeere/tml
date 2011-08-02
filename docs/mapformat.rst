@@ -20,35 +20,41 @@ Then there are four more ints which can be read straight from the file.
 These are "size", "swaplen", "num_item_types", "num_items", "num_raw_data",
 "item_size" and "data_size".
 
-Now the size of the whole header can be calculated. This is important to
-skip the header and go directly to the items and datas themself. It is the sum
-of the following:
+Now the offsets can be calculated. This is important to seek directly to the
+items or datas which contain the actual data.
+The item offset is the sum of the following:
 
 * num_item_types * 12 (one item type is composed of three int, one int is four
   bits)
-* (num_items + num_raw_data) * 4
-* num_raw_data * 4
+* num_items * 4
+* num_raw_data * 2 * 4
+
+To access the data an additional value gets added to the item offset
+
 * item_size
 
-Types
+Item types
 =====
 After the header the types are stored. For each item type there is a list
 containing the type, the number of items for this type and which itme is the
-first for this type.
+first for this type. The list is sorted by item type and item id.
 
 Item offsets
 ============
 Right after the types the item offsets are stored. The first offset is 0. The
 offset to the next item will be the size of the previous item. The size of each
 item is as big as defined in `mapitems.h` (see teeworlds source) plus 2 more
-integers containing the type, id and the item size. Type and id is within the
-first integer.
-There is always one "envpoint" item with a dynamic size. It consists of the 2
-integers and type size multiplicated with the number of envpoints.
+integers containing the type, id and the item size.
+
+Data offsets
+============
+After the item offsets the data offsets are stored. The first offset is 0. The
+offset to the next data will be the size of the previous data. The size of each
+data gets generated when saveing the map.
 
 Uncompressed data sizes
 =======================
-The uncompressed data sizes are stored after the item offsets. The sizes are
+The uncompressed data sizes are stored after the data offsets. The sizes are
 used to allocate the memory for each data in teeworlds.
 
 Items
@@ -64,8 +70,17 @@ this order:
 #. layers
 #. envpoints
 
-Compressed data
+Every item contains the data as defined in `mapitems.h` (see teeworlds source)
+plus 2 more integers containing the type, id and the item size.
+Type and id is within the first integer. To extract the type and id the
+following formulas are used:
+
+* type = (type_and_id >> 16) & 0xffff
+* id = type_and_id & 0xffff
+
+Datas
 ===============
-Eventually the compressed data is stored. Image- and tilelayers have an index
-which tells the position of the corresponding data.
+Eventually the datas are stored. The data is compressed using zlib. Each item
+which requires data has an index which tells the position of the corresponding
+data.
 The compressed data part stores image names, tiles, quads and embedded images.
