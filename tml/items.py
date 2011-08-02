@@ -82,6 +82,8 @@ class Image(object):
         :param dest: Path to the image
 
         """
+        if os.path.splitext(dest)[1] != ''.join([os.extsep, 'png']):
+            dest = os.extsep.join([dest, 'png'])
         if self.external:
             src = os.sep.join([TML_DIR, 'mapres', self.name])
             src = os.extsep.join([src, 'png'])
