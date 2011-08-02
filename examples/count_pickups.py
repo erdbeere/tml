@@ -17,7 +17,6 @@ pickups = {
     # 'death': 0,
     # 'nohook': 0,
 }
-air = solid = spawn = spawn_red = spawn_blue = grenade = shotgun = rifle = heart = shield = 0
 for tile in t.gamelayer.tiles:
     for key, value in pickups.iteritems():
         if tile.index == TILEINDEX[key]:
