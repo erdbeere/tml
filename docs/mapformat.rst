@@ -25,7 +25,7 @@ items or datas which contain the actual data.
 The item offset is the sum of the following:
 
 * num_item_types * 12 (one item type is composed of three int, one int is four
-  bits)
+  bytes)
 * num_items * 4
 * num_raw_data * 2 * 4
 
