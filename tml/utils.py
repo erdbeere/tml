@@ -20,12 +20,11 @@ def int32(x):
 
 def ints_to_string(num):
     string = ''
-    for i in range(len(num)):
-        string += chr(max(0, min(((num[i]>>24)&0xff)-128, 255)))
-        string += chr(max(0, min(((num[i]>>16)&0xff)-128, 255)))
-        string += chr(max(0, min(((num[i]>>8)&0xff)-128, 255)))
-        if i < 7:
-            string += chr(max(0, min((num[i]&0xff)-128, 255)))
+    for val in num:
+        string += chr(max(0, min(((val>>24)&0xff)-128, 255)))
+        string += chr(max(0, min(((val>>16)&0xff)-128, 255)))
+        string += chr(max(0, min(((val>>8)&0xff)-128, 255)))
+        string += chr(max(0, min((val&0xff)-128, 255)))
     return string.partition('\x00')[0]
 
 def string_to_ints(in_string, length=8):
